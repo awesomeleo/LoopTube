@@ -64,6 +64,11 @@ public class MainActivity extends BaseActivity {
 		
 		Log.v(TAG, "onCreate");
 		
+		// Start service here.
+		// This api call is needed in order to keep the service alive 
+		// even when all activities are close.
+		startService(new Intent(MainActivity.this, VideoPlayerService.class));
+		
 		// Bind player service
 		if (!mIsBound) {
 			doBindService();
