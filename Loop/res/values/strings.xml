@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Loop</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    
+    <string name="video_player_service_started">VideoPlayerService started</string>
+    <string name="video_player_invalid_video">This video can not be played.</string>
+    <string name="video_player_default_duration">0:00 / 0:00</string>
+    
+    <string name="main_search_artist">Search artist</string>
+    <string name="main_recent_artists">Recent artists</string>
+    <string name="main_button_search">Search</string>
+    <string name="main_dialog_searching">Searching&#8230;</string>
+    <string name="main_no_history">No History</string>
+    <string name="main_search_hint">ex. Oasis</string>
+    
+    <string name="ok">OK</string>
+    <string name="dummy">dummy</string>
+    <string name="video_player_play">Play</string>
+    <string name="menu_item_show_player">Show video player</string>
+
+</resources>

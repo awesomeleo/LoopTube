@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Loop</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">設定</string>
+    
+    <string name="video_player_service_started">VideoPlayerService started</string>
+    <string name="video_player_invalid_video">この動画は再生できません。</string>
+    <string name="video_player_default_duration">0:00 / 0:00</string>
+    
+    <string name="main_search_artist">アーティストを検索</string>
+    <string name="main_recent_artists">最近検索したアーティスト</string>
+    <string name="main_button_search">検索する</string>
+    <string name="main_dialog_searching">検索中&#8230;</string>
+    <string name="main_no_history">履歴がありません</string>
+    <string name="main_search_hint">例：宇多田ヒカル</string>
+    
+    <string name="ok">OK</string>
+    <string name="dummy">dummy</string>
+    <string name="video_player_play">Play</string>
+    <string name="menu_item_show_player">再生画面を開く</string>
+
+</resources>
