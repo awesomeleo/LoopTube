@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -150,6 +152,14 @@ public class VideoPlayerActivity extends BaseActivity {
 
 		// PlayListView
 		mPlayListView = (ListView)findViewById(R.id.playListView);
+		mPlayListView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Log.v(TAG, "onItemClick " + position);
+				// Toast.makeText(VideoPlayerActivity.this, "OnItemClick: " + position, Toast.LENGTH_SHORT).show();
+				mService.startVideo(position);
+			}
+		});
 		
 		// Connect surfaceview to mediaplayer
 		if (!mIsBound) {
