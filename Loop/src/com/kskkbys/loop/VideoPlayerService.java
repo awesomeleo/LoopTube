@@ -34,8 +34,10 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
+/**
+ * Video player service
+ */
 public class VideoPlayerService extends Service {
 
 	private static final String TAG = VideoPlayerService.class.getSimpleName();
@@ -80,12 +82,8 @@ public class VideoPlayerService extends Service {
 			@Override
 			public boolean onError(MediaPlayer mp, int what, int extra) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(VideoPlayerService.this);
-				builder.setTitle("Error").setMessage("mediaplayer error occurs!").setPositiveButton("OK", new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// do nothing
-					}
-				});
+				builder.setMessage(R.string.video_player_unknown_error)
+					.setPositiveButton("OK", null);
 
 				if (mPlayerActivity != null) {
 					mPlayerActivity.onError();
@@ -144,7 +142,8 @@ public class VideoPlayerService extends Service {
 		}
 
 		// Tell the user we stopped.
-		Toast.makeText(this, "VideoPlayerService Stopped", Toast.LENGTH_SHORT).show();
+		Log.v(TAG, "VideoPlayerService stopped.");
+		// Toast.makeText(this, "VideoPlayerService Stopped", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -428,15 +427,9 @@ public class VideoPlayerService extends Service {
 			if (!success) {
 				if (mPlayerActivity != null) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(mPlayerActivity);
-					builder.setTitle(R.string.video_player_invalid_video);
+					// builder.setTitle(R.string.video_player_invalid_video);
 					builder.setMessage(R.string.video_player_invalid_video);
-					builder.setPositiveButton(R.string.ok, new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-
-						}
-					});
+					builder.setPositiveButton(R.string.ok, null);
 					builder.create().show();
 				}
 			}

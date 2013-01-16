@@ -76,7 +76,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 	@Override
 	protected void onPreExecute() {
 		mProgressDialog = new ProgressDialog(this.mParent);
-		mProgressDialog.setTitle(R.string.app_name);
+		//mProgressDialog.setTitle(R.string.app_name);
 		mProgressDialog.setMessage(mParent.getText(R.string.main_dialog_searching));
 		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		mProgressDialog.show();

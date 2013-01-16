@@ -271,5 +271,11 @@ public class VideoPlayerActivity extends BaseActivity {
 			durationView.setText("0:00 / 0:00");
 			mSeekBar.setMax(100);
 		}
+		
+		if (mService.isPlaying()) {
+			mPauseButton.setBackgroundResource(android.R.drawable.ic_media_pause);
+		} else {
+			mPauseButton.setBackgroundResource(android.R.drawable.ic_media_play);
+		}
 	}
 }
