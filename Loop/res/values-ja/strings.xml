@@ -16,6 +16,7 @@
     <string name="main_dialog_searching">検索中&#8230;</string>
     <string name="main_no_history">履歴がありません</string>
     <string name="main_search_hint">例：宇多田ヒカル</string>
+    <string name="main_invalid_query">アーティスト名を入力してください。</string>
     
     <string name="ok">OK</string>
     <string name="dummy">dummy</string>

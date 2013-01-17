@@ -108,16 +108,15 @@ public class MainActivity extends BaseActivity {
 	private void searchQuery(String artist) {
 		if (artist == null || artist.length() == 0) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Error")
-			.setMessage("Please input artist name.")
-			.setPositiveButton("OK", new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
+			builder.setMessage(R.string.main_invalid_query)
+				.setPositiveButton(R.string.ok, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
 
-				}
-			})
-			.setCancelable(false)
-			.create().show();
+					}
+				})
+				.setCancelable(false)
+				.create().show();
 			return;
 		}
 		if (mRecentArtists.contains(artist)) {

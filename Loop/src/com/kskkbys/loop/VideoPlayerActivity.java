@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,7 +42,7 @@ public class VideoPlayerActivity extends BaseActivity {
 	private Timer mTimer;
 	
 	private Button mPauseButton;
-	
+	private SurfaceView mSurfaceView;
 	private ListView mPlayListView;
 	
 	private ProgressDialog mProgressDialog;
@@ -49,15 +50,15 @@ public class VideoPlayerActivity extends BaseActivity {
 	private ServiceConnection mConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
+			Log.v(TAG, "service connected");
 			mService = ((VideoPlayerService.VideoPlayerServiceBinder)service).getService();
-			Toast.makeText(VideoPlayerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
+			// Toast.makeText(VideoPlayerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
 
 			// Set this activity to the service
 			mService.setPlayerActivity(VideoPlayerActivity.this);
 			
 			// Set this SurfaceView to the service
-			SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
-			mService.setSurfaceView(surfaceView);
+			mService.setSurfaceView(mSurfaceView);
 			
 			//
 			updateVideoInfo();
@@ -150,6 +151,27 @@ public class VideoPlayerActivity extends BaseActivity {
 			}
 		}, 0, 500);
 
+		// SurfaceView
+		mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
+		SurfaceHolder holder = mSurfaceView.getHolder();
+		holder.addCallback(new SurfaceHolder.Callback() {
+			@Override
+			public void surfaceDestroyed(SurfaceHolder holder) {
+				Log.v(TAG, "surface destroyed");
+			}
+			
+			@Override
+			public void surfaceCreated(SurfaceHolder holder) {
+				Log.v(TAG, "surface created");
+			}
+			
+			@Override
+			public void surfaceChanged(SurfaceHolder holder, int format, int width,
+					int height) {
+				Log.v(TAG, "surafce changed");
+			}
+		});
+		
 		// PlayListView
 		mPlayListView = (ListView)findViewById(R.id.playListView);
 		mPlayListView.setOnItemClickListener(new OnItemClickListener() {
@@ -192,11 +214,19 @@ public class VideoPlayerActivity extends BaseActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 		
+		Log.v(TAG, "onDestroy");
+		
 		if (mTimer != null) {
 			mTimer.cancel();
 		}
 		
 		doUnbindService();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.v(TAG, "onResume");
 	}
 	
 	private void doBindService() {

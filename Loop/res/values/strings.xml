@@ -16,6 +16,7 @@
     <string name="main_dialog_searching">Searching&#8230;</string>
     <string name="main_no_history">No History</string>
     <string name="main_search_hint">ex. Oasis</string>
+    <string name="main_invalid_query">Please input correct artist.</string>
     
     <string name="ok">OK</string>
     <string name="dummy">dummy</string>

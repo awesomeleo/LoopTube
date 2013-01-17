@@ -264,14 +264,19 @@ public class VideoPlayerService extends Service {
 	 * @param surfaceView
 	 */
 	public void setSurfaceView(SurfaceView surfaceView) {
+		Log.v(TAG, "setSurfaceView");
 		if (surfaceView == null) {
 			this.mMediaPlayer.setDisplay(null);
 		} else {
 			SurfaceHolder holder = surfaceView.getHolder();
-			int width = surfaceView.getWidth();
-			int height = surfaceView.getWidth() * 9 / 16;	// 16:9
-			holder.setFixedSize(width, height);
-			this.mMediaPlayer.setDisplay(holder);
+			if (holder.isCreating()) {
+				Log.w(TAG, "surafce view is creating");
+			} else {
+				int width = surfaceView.getWidth();
+				int height = surfaceView.getWidth() * 9 / 16;	// 16:9
+				holder.setFixedSize(width, height);
+				this.mMediaPlayer.setDisplay(holder);
+			}
 		}
 	}
 
