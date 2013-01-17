@@ -11,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.kskkbys.loop.playlist.Playlist;
+
 import android.os.Bundle;
 import android.os.IBinder;
 import android.app.AlertDialog;
@@ -229,8 +231,8 @@ public class MainActivity extends BaseActivity {
 	 * @param result
 	 */
 	public void startVideoPlayer(List<Video> result) {
-		this.mService.setSearchResult(result);
-		this.mService.startVideo(0);
+		Playlist.getInstance().setVideoList(result);
+		this.mService.startVideo();
 
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
 		startActivity(intent);

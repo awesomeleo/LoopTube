@@ -3,6 +3,8 @@ package com.kskkbys.loop;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.kskkbys.loop.playlist.Playlist;
+
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,14 +15,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -139,8 +145,8 @@ public class VideoPlayerActivity extends BaseActivity {
 							TextView durationView = (TextView)findViewById(R.id.durationText);
 							int currentMinitues = (mService.getCurrentPosition() / 1000) / 60;
 							int currentSeconds = (mService.getCurrentPosition() / 1000) % 60;
-							int durationMinitues = (mService.getDuration() / 1000) / 60;
-							int durationSeconds = (mService.getDuration() / 1000) % 60;
+							int durationMinitues = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) / 60;
+							int durationSeconds = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) % 60;
 							durationView.setText(String.format("%d:%02d / %d:%02d", 
 									currentMinitues, currentSeconds, durationMinitues, durationSeconds));
 							
@@ -179,7 +185,8 @@ public class VideoPlayerActivity extends BaseActivity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Log.v(TAG, "onItemClick " + position);
 				// Toast.makeText(VideoPlayerActivity.this, "OnItemClick: " + position, Toast.LENGTH_SHORT).show();
-				mService.startVideo(position);
+				Playlist.getInstance().setPlayingIndex(position);
+				mService.startVideo();
 			}
 		});
 		
@@ -279,15 +286,11 @@ public class VideoPlayerActivity extends BaseActivity {
 		}
 		
 		// For playlist
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-		for (int i=0; i<mService.getVideoList().size(); i++) {
-			Video v = mService.getVideoList().get(i);
-			adapter.add(v.getTitle() + " (" + Util.getDurationText(v.getDuration()) + ")");
-		}
+		VideoAdapter adapter = new VideoAdapter();
 		mPlayListView.setAdapter(adapter);
 		
 		// For current video
-		Video video = mService.getCurrentVideo();
+		Video video = Playlist.getInstance().getCurrentVideo();
 		TextView titleView = (TextView)findViewById(R.id.videoTitleLabel);
 		TextView durationView = (TextView)findViewById(R.id.durationText);
 		if (video != null) {
@@ -307,5 +310,50 @@ public class VideoPlayerActivity extends BaseActivity {
 		} else {
 			mPauseButton.setBackgroundResource(android.R.drawable.ic_media_play);
 		}
+	}
+	
+	/**
+	 * Adapter for playlist view
+	 *
+	 */
+	private class VideoAdapter extends BaseAdapter {
+
+		@Override
+		public int getCount() {
+			return Playlist.getInstance().getCount();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return Playlist.getInstance().getVideoAtIndex(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View v = convertView;
+			if (v == null) {
+				LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
+				v = inflater.inflate(R.layout.row_video_player_playlist, null);
+			}
+			Video video = (Video)getItem(position);
+			if (video != null) {
+				TextView textView = (TextView)v.findViewById(R.id.videoTitleViewInList);
+				textView.setText(video.getTitle());
+				
+				ImageView imageView = (ImageView)v.findViewById(R.id.nowPlayingImageInList);
+				if (Playlist.getInstance().getPlayingIndex() == position) {
+					imageView.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+				} else {
+					imageView.setImageBitmap(null);
+				}
+			}
+			return v;
+		}
+		
 	}
 }

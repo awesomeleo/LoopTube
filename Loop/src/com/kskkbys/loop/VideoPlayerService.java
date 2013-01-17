@@ -15,6 +15,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import com.kskkbys.loop.playlist.Playlist;
+
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -43,10 +45,6 @@ public class VideoPlayerService extends Service {
 	private static final String TAG = VideoPlayerService.class.getSimpleName();
 
 	private NotificationManager mNM;
-
-	// Playlist
-	private List<Video> mVideoList = new ArrayList<Video>();
-	private int mPlayingIndex = 0;
 
 	// MediaPlayer
 	private MediaPlayer mMediaPlayer;
@@ -96,8 +94,8 @@ public class VideoPlayerService extends Service {
 		mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
-				mPlayingIndex++;
-				startVideo(mPlayingIndex);
+				Playlist.getInstance().next();
+				startVideo();
 
 				if (mPlayerActivity != null) {
 					mPlayerActivity.onCompletion();
@@ -183,13 +181,13 @@ public class VideoPlayerService extends Service {
 	}
 
 	public void prev() {
-		this.mPlayingIndex--;
-		startVideo(this.mPlayingIndex);
+		Playlist.getInstance().prev();
+		startVideo();
 	}
 
 	public void next() {
-		this.mPlayingIndex++;
-		startVideo(this.mPlayingIndex);
+		Playlist.getInstance().next();
+		startVideo();
 	}
 
 	public void play() {
@@ -207,50 +205,19 @@ public class VideoPlayerService extends Service {
 		this.mMediaPlayer.seekTo(msec);
 	}
 
+	/**
+	 * Get the current position in the playing video
+	 * @return
+	 */
 	public int getCurrentPosition() {
 		return this.mMediaPlayer.getCurrentPosition();
 	}
 
 	/**
-	 * Get duration of the playing video
-	 * @return
+	 * Start to play video
 	 */
-	public int getDuration() {
-		Video video = getCurrentVideo();
-		if (video != null) {
-			return video.getDuration();
-		}
-		return 0;
-	}
-
-	/**
-	 * Get current video instance.
-	 * If the index is invalid, it returns null.
-	 * @return
-	 */
-	public Video getCurrentVideo() {
-		if (0 <= mPlayingIndex && mPlayingIndex < mVideoList.size()) {
-			return mVideoList.get(mPlayingIndex);
-		} else {
-			return null;
-		}
-	}
-
-	public List<Video> getVideoList() {
-		return mVideoList;
-	}
-
-	public int getPlayingIndex() {
-		return mPlayingIndex;
-	}
-
-	/**
-	 * Start to play video with index in playlist
-	 * @param index
-	 */
-	public void startVideo(int index) {
-		this.mPlayingIndex = index;
-		Video video = getCurrentVideo();
+	public void startVideo() {
+		Video video = Playlist.getInstance().getCurrentVideo();
 		YouTubePlayTask task = new YouTubePlayTask(video.getId());
 		task.execute();
 	}
@@ -278,10 +245,6 @@ public class VideoPlayerService extends Service {
 				this.mMediaPlayer.setDisplay(holder);
 			}
 		}
-	}
-
-	public void setSearchResult(List<Video> result) {
-		this.mVideoList = result;
 	}
 
 	/**
@@ -407,7 +370,7 @@ public class VideoPlayerService extends Service {
 					mIsValidPlayer = true;
 
 					// Show notification
-					showNotification(getCurrentVideo().getTitle());
+					showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
 
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
