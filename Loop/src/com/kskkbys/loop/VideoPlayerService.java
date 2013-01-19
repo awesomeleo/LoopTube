@@ -392,7 +392,7 @@ public class VideoPlayerService extends Service {
 			Log.v(TAG, "PlayTask onPostExecute");
 			if (!success) {
 				if (mListener != null) {
-
+					mListener.onInvalidVideoError();
 				}
 			}
 		}
