@@ -31,14 +31,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
+// import android.widget.Toast;
 
 public class MainActivity extends BaseActivity {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	private static final String FILENAME_SEARCH_HISTORY = "search_history.txt";
-	
+
 	private List<String> mRecentArtists = new ArrayList<String>();
 
 	// Services
@@ -49,13 +49,15 @@ public class MainActivity extends BaseActivity {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mService = ((VideoPlayerService.VideoPlayerServiceBinder)service).getService();
-			Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
+			//Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
+			Log.v(TAG, "service connected");
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			mService = null;
-			Toast.makeText(MainActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
+			//Toast.makeText(MainActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
+			Log.v(TAG, "service disconnected");
 		}
 	};
 
@@ -63,22 +65,14 @@ public class MainActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		Log.v(TAG, "onCreate");
-		
-		// If this activity is launched from notification, go to PlayerActivity
-		boolean isFromNotification = getIntent().getBooleanExtra("from_notification", false);
-		if (isFromNotification) {
-			Log.v(TAG, "Launched from notification. Go next activity.");
-			goNextActivity();
-			return;
-		}
-		
+
 		// Start service here.
 		// This api call is needed in order to keep the service alive 
 		// even when all activities are close.
 		startService(new Intent(MainActivity.this, VideoPlayerService.class));
-		
+
 		// Bind player service
 		if (!mIsBound) {
 			doBindService();
@@ -86,7 +80,7 @@ public class MainActivity extends BaseActivity {
 
 		// Read recent artist saved in the device
 		readHistory();
-		
+
 		// Update recent artists view
 		updateHistory();
 
@@ -100,6 +94,14 @@ public class MainActivity extends BaseActivity {
 				searchQuery(query);
 			}
 		});
+
+		// If this activity is launched from notification, go to PlayerActivity
+		boolean isFromNotification = getIntent().getBooleanExtra("from_notification", false);
+		if (isFromNotification) {
+			Log.v(TAG, "Launched from notification. Go next activity.");
+			goNextActivity();
+			return;
+		}
 	}
 
 	@Override
@@ -108,7 +110,7 @@ public class MainActivity extends BaseActivity {
 		// update history
 		updateHistory();
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -119,14 +121,14 @@ public class MainActivity extends BaseActivity {
 		if (artist == null || artist.length() == 0) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.main_invalid_query)
-				.setPositiveButton(R.string.ok, new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
+			.setPositiveButton(R.string.ok, new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
 
-					}
-				})
-				.setCancelable(false)
-				.create().show();
+				}
+			})
+			.setCancelable(false)
+			.create().show();
 			return;
 		}
 		if (mRecentArtists.contains(artist)) {
@@ -137,13 +139,13 @@ public class MainActivity extends BaseActivity {
 			// new add
 			mRecentArtists.add(artist);
 		}
-		
+
 		saveSearchHistory();
-		
+
 		YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
 		searchTask.execute(artist);
 	}
-	
+
 	/**
 	 * Read search history from saved file
 	 */
@@ -217,7 +219,7 @@ public class MainActivity extends BaseActivity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	private void saveSearchHistory() {
 		FileOutputStream fos;
 		try {
@@ -246,7 +248,7 @@ public class MainActivity extends BaseActivity {
 		// Go next activity
 		goNextActivity();
 	}
-	
+
 	/**
 	 * Go next activity
 	 */
