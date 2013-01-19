@@ -12,6 +12,8 @@ import java.util.Vector;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import com.kskkbys.loop.playlist.Playlist;
 
@@ -340,13 +342,16 @@ public class VideoPlayerService extends Service {
 			String tmpstr = null;
 			try {
 				DefaultHttpClient client = new DefaultHttpClient();
+				HttpParams params = client.getParams();
+				HttpConnectionParams.setConnectionTimeout(params, 5000);
+				HttpConnectionParams.setSoTimeout(params, 5000);
 				HttpGet request = new HttpGet("http://www.youtube.com/watch?v=" + this.mVideoId);
 				request.setHeader("User-Agent", "Mozilla/5.0 (iPad; CPU OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko ) Version/5.1 Mobile/9B176 Safari/7534.48.3");
 				HttpResponse response = client.execute(request);
 
 				InputStream stream = response.getEntity().getContent();
-				InputStreamReader reader=new InputStreamReader(stream);
-				StringBuffer buffer=new StringBuffer();
+				InputStreamReader reader = new InputStreamReader(stream);
+				StringBuffer buffer = new StringBuffer();
 				char[] buf=new char[262144];
 				int chars_read;
 				while ((chars_read = reader.read(buf, 0, 262144)) != -1) {
@@ -360,6 +365,9 @@ public class VideoPlayerService extends Service {
 					end = tmpstr.indexOf("\"", begin + 27);
 				}
 				tmpstr = URLDecoder.decode(tmpstr.substring(begin + 27, end), "utf-8");
+				
+				reader.close();
+				client.getConnectionManager().shutdown();
 
 			} catch (MalformedURLException e) {
 				throw new RuntimeException();

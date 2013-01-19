@@ -13,6 +13,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import com.google.gson.Gson;
 
@@ -49,6 +51,9 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		}
 		
 		DefaultHttpClient client = new DefaultHttpClient();
+		HttpParams params = client.getParams();
+		HttpConnectionParams.setConnectionTimeout(params, 5000);
+		HttpConnectionParams.setSoTimeout(params, 5000);
 		HttpGet request = new HttpGet(uri);
 		try {
 			HttpResponse response = client.execute(request);
@@ -58,6 +63,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 				BufferedReader br = new BufferedReader(isr);
 				String line = br.readLine();
 				Log.v(TAG, line);
+				br.close();
 				
 				Gson gson = new Gson();
 				this.mResult = gson.fromJson(line, YouTubeSearchResult.class);
@@ -69,6 +75,8 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		client.getConnectionManager().shutdown();
 		
 		return null;
 	}

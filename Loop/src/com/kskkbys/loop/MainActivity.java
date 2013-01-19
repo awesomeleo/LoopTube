@@ -208,6 +208,7 @@ public class MainActivity extends BaseActivity {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
+					Log.v(TAG, "onItemClick");
 					ListView listView = (ListView) parent;
 					String item = (String) listView.getItemAtPosition(position);
 					searchQuery(item);
