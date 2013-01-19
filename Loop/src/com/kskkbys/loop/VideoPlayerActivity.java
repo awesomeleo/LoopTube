@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -212,11 +213,14 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		// When the orientation is set to landscape, it maximizes SurfaceView
 		switch (newConfig.orientation) {
 		case Configuration.ORIENTATION_LANDSCAPE:
+			// Fix surface view size
 			int w = surfaceView.getWidth();
 			int h = w * 9 / 16;
 			surfaceView.getHolder().setFixedSize(w, h);
+			// start timer to dismiss views
 			break;
 		case Configuration.ORIENTATION_PORTRAIT:
+			// stop time to dismiss views
 			break;
 		default:
 			break;
@@ -241,6 +245,16 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	protected void onResume() {
 		super.onResume();
 		Log.v(TAG, "onResume");
+	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		Log.v(TAG, "onTouchEvent");
+		if (event.getAction() == MotionEvent.ACTION_UP) {
+			Log.v(TAG, "up");
+			
+		}
+		return super.onTouchEvent(event);
 	}
 	
 	private void doBindService() {

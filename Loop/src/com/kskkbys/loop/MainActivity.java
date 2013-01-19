@@ -66,6 +66,14 @@ public class MainActivity extends BaseActivity {
 		
 		Log.v(TAG, "onCreate");
 		
+		// If this activity is launched from notification, go to PlayerActivity
+		boolean isFromNotification = getIntent().getBooleanExtra("from_notification", false);
+		if (isFromNotification) {
+			Log.v(TAG, "Launched from notification. Go next activity.");
+			goNextActivity();
+			return;
+		}
+		
 		// Start service here.
 		// This api call is needed in order to keep the service alive 
 		// even when all activities are close.
@@ -235,7 +243,14 @@ public class MainActivity extends BaseActivity {
 	public void startVideoPlayer(List<Video> result) {
 		Playlist.getInstance().setVideoList(result);
 		this.mService.startVideo();
-
+		// Go next activity
+		goNextActivity();
+	}
+	
+	/**
+	 * Go next activity
+	 */
+	private void goNextActivity() {
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
 		startActivity(intent);
 	}

@@ -161,8 +161,10 @@ public class VideoPlayerService extends Service {
 		CharSequence text = "Now Playing: " + videoTitle;
 
 		// The PendingIntent to launch our activity if the user selects this notification
+		Intent intent = new Intent(this, MainActivity.class);
+		intent.putExtra("from_notification", true);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, VideoPlayerActivity.class), 0);
+				intent, 0);
 
 		// Set the icon, scrolling text and timestamp
 		Notification notification = new Notification(R.drawable.ic_launcher, text,
