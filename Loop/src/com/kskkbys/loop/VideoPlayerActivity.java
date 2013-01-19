@@ -23,16 +23,18 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.TextView;;
 
+/**
+ * Video player
+ *
+ */
 public class VideoPlayerActivity extends BaseActivity {
 
 	private static final String TAG = VideoPlayerActivity.class.getSimpleName();
@@ -73,7 +75,8 @@ public class VideoPlayerActivity extends BaseActivity {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			mService = null;
-			Toast.makeText(VideoPlayerActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
+			Log.v(TAG, "Service disconnected");
+			//Toast.makeText(VideoPlayerActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
 		}
 	};
 	@Override
@@ -257,23 +260,27 @@ public class VideoPlayerActivity extends BaseActivity {
 	}
 	
 	public void onError() {
-		Toast.makeText(this, "OnError", Toast.LENGTH_SHORT).show();
+		Log.v(TAG, "OnError");
+		//Toast.makeText(this, "OnError", Toast.LENGTH_SHORT).show();
 	}
 	
 	public void onPrepared() {
 		Log.v(TAG, "onPrepared");
 		updateVideoInfo();
-		Toast.makeText(this, "OnPrepared", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "OnPrepared", Toast.LENGTH_SHORT).show();
 	}
 	
 	public void onCompletion() {
-		Toast.makeText(this, "OnCompletion", Toast.LENGTH_SHORT).show();
+		Log.v(TAG, "OnCompletion");
+		//Toast.makeText(this, "OnCompletion", Toast.LENGTH_SHORT).show();
 	}
 	
 	public void onSeekComplete() {
 		int msec = mService.getCurrentPosition();
 		mSeekBar.setProgress(msec / 1000);
-		Toast.makeText(this, "OnSeekComplete", Toast.LENGTH_SHORT).show();
+		
+		Log.v(TAG, "onSeekComplete");
+		//Toast.makeText(this, "OnSeekComplete", Toast.LENGTH_SHORT).show();
 		
 		mProgressDialog.dismiss();
 		mIsSeeking = false;
