@@ -10,6 +10,7 @@
     <string name="video_player_default_duration">0:00 / 0:00</string>
     <string name="video_player_playlist">プレイリスト</string>
     <string name="video_player_dialog_seeking">シーク中&#8230;</string>
+    <string name="video_player_dialog_end">再生を終了しました</string>
     
     <string name="main_search_artist">アーティストを検索</string>
     <string name="main_recent_artists">最近検索したアーティスト</string>

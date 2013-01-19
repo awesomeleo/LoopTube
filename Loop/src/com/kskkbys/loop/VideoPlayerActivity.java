@@ -40,7 +40,7 @@ import android.widget.TextView;;
 public class VideoPlayerActivity extends BaseActivity implements VideoPlayerService.MediaPlayerCallback {
 
 	private static final String TAG = VideoPlayerActivity.class.getSimpleName();
-	
+
 	// Services
 	private VideoPlayerService mService;
 	private boolean mIsBound = false;
@@ -50,13 +50,13 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	private Handler mHandler = new Handler();
 	private boolean mIsSeeking = false;
 	private Timer mTimer;
-	
+
 	private Button mPauseButton;
 	private SurfaceView mSurfaceView;
 	private ListView mPlayListView;
-	
+
 	private ProgressDialog mProgressDialog;
-	
+
 	private ServiceConnection mConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -66,7 +66,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 			// Set this activity to the service
 			mService.setListener(VideoPlayerActivity.this);
-			
+
 			//
 			updateVideoInfo();
 		}
@@ -84,7 +84,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		setContentView(R.layout.activity_video_player);
 
 		Log.v(TAG, "onCreate");
-		
+
 		// Controller
 		findViewById(R.id.prevButton).setOnClickListener(new OnClickListener() {
 			@Override
@@ -133,7 +133,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				// Log.v(TAG, "onProgressChanged");
 			}
 		});
-		
+
 		// Update seek position with handler
 		mTimer = new Timer();
 		mTimer.schedule(new TimerTask() {
@@ -143,16 +143,21 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 					@Override
 					public void run() {
 						//Log.v(TAG, "SeekBar update");
-						if (mService != null && !mIsSeeking) {
-							TextView durationView = (TextView)findViewById(R.id.durationText);
-							int currentMinitues = (mService.getCurrentPosition() / 1000) / 60;
-							int currentSeconds = (mService.getCurrentPosition() / 1000) % 60;
-							int durationMinitues = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) / 60;
-							int durationSeconds = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) % 60;
-							durationView.setText(String.format("%d:%02d / %d:%02d", 
-									currentMinitues, currentSeconds, durationMinitues, durationSeconds));
-							
-							mSeekBar.setProgress(mService.getCurrentPosition());
+						if (Playlist.getInstance().getCurrentVideo() == null) {
+							// finished to play
+							mTimer.cancel();
+						} else {
+							if (mService != null && !mIsSeeking) {
+								TextView durationView = (TextView)findViewById(R.id.durationText);
+								int currentMinitues = (mService.getCurrentPosition() / 1000) / 60;
+								int currentSeconds = (mService.getCurrentPosition() / 1000) % 60;
+								int durationMinitues = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) / 60;
+								int durationSeconds = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) % 60;
+								durationView.setText(String.format("%d:%02d / %d:%02d", 
+										currentMinitues, currentSeconds, durationMinitues, durationSeconds));
+
+								mSeekBar.setProgress(mService.getCurrentPosition());
+							}
 						}
 					}
 				});
@@ -168,7 +173,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				Log.v(TAG, "surface destroyed");
 				VideoPlayerService.setSurfaceHolder(null);
 			}
-			
+
 			@Override
 			public void surfaceCreated(SurfaceHolder holder) {
 				Log.v(TAG, "surface created");
@@ -178,14 +183,14 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				holder.setFixedSize(width, height);
 				VideoPlayerService.setSurfaceHolder(holder);
 			}
-			
+
 			@Override
 			public void surfaceChanged(SurfaceHolder holder, int format, int width,
 					int height) {
 				Log.v(TAG, "surafce changed");
 			}
 		});
-		
+
 		// PlayListView
 		mPlayListView = (ListView)findViewById(R.id.playListView);
 		mPlayListView.setOnItemClickListener(new OnItemClickListener() {
@@ -197,19 +202,19 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				mService.startVideo();
 			}
 		});
-		
+
 		// Connect surfaceview to mediaplayer
 		if (!mIsBound) {
 			doBindService();
 		}
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		
+
 		SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
-		
+
 		// When the orientation is set to landscape, it maximizes SurfaceView
 		switch (newConfig.orientation) {
 		case Configuration.ORIENTATION_LANDSCAPE:
@@ -225,38 +230,38 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		default:
 			break;
 		}
-	
+
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		
+
 		Log.v(TAG, "onDestroy");
-		
+
 		if (mTimer != null) {
 			mTimer.cancel();
 		}
-		
+
 		doUnbindService();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		Log.v(TAG, "onResume");
 	}
-	
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		Log.v(TAG, "onTouchEvent");
 		if (event.getAction() == MotionEvent.ACTION_UP) {
 			Log.v(TAG, "up");
-			
+
 		}
 		return super.onTouchEvent(event);
 	}
-	
+
 	private void doBindService() {
 		// Establish a connection with the service.  We use an explicit
 		// class name because we want a specific service implementation that
@@ -273,51 +278,57 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		if (mIsBound) {
 			// Detach surfaceview
 			// mService.setSurfaceView(null);
-			
+
 			// Detach our existing connection.
 			unbindService(mConnection);
 			mIsBound = false;
 		}
 	}
-	
+
 	@Override
 	public void onError() {
 		Log.v(TAG, "OnError");
 		//Toast.makeText(this, "OnError", Toast.LENGTH_SHORT).show();
 	}
-	
-	
-	
+
+
+
 	@Override
 	public void onPrepared() {
 		Log.v(TAG, "onPrepared");
 		updateVideoInfo();
 		//Toast.makeText(this, "OnPrepared", Toast.LENGTH_SHORT).show();
 	}
-	
+
 	@Override
 	public void onCompletion() {
 		Log.v(TAG, "OnCompletion");
 		//Toast.makeText(this, "OnCompletion", Toast.LENGTH_SHORT).show();
+
+		// End of playlist => close the player
+		if (Playlist.getInstance().getCurrentVideo() == null) {
+			// SimpleErrorDialog.show(this, R.string.video_player_dialog_end);
+			finish();
+		}
 	}
-	
+
 	@Override
 	public void onSeekComplete(int positionMsec) {
 		int msec = mService.getCurrentPosition();
 		mSeekBar.setProgress(msec / 1000);
-		
+
 		Log.v(TAG, "onSeekComplete");
 		//Toast.makeText(this, "OnSeekComplete", Toast.LENGTH_SHORT).show();
-		
+
 		mProgressDialog.dismiss();
 		mIsSeeking = false;
 	}
-	
+
 	@Override
 	public void onInvalidVideoError() {
 		this.showInvalidVideoError();
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -327,17 +338,17 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		builder.setPositiveButton(R.string.ok, null);
 		builder.create().show();
 	}
-	
+
 	private void updateVideoInfo() {
 		if (mService == null) {
 			Log.e(TAG, "Not connected with Service!");
 			return;
 		}
-		
+
 		// For playlist
 		VideoAdapter adapter = new VideoAdapter();
 		mPlayListView.setAdapter(adapter);
-		
+
 		// For current video
 		Video video = Playlist.getInstance().getCurrentVideo();
 		TextView titleView = (TextView)findViewById(R.id.videoTitleLabel);
@@ -353,14 +364,14 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			durationView.setText("0:00 / 0:00");
 			mSeekBar.setMax(100);
 		}
-		
+
 		if (mService.isPlaying()) {
 			mPauseButton.setBackgroundResource(android.R.drawable.ic_media_pause);
 		} else {
 			mPauseButton.setBackgroundResource(android.R.drawable.ic_media_play);
 		}
 	}
-	
+
 	/**
 	 * Adapter for playlist view
 	 *
@@ -393,7 +404,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			if (video != null) {
 				TextView textView = (TextView)v.findViewById(R.id.videoTitleViewInList);
 				textView.setText(video.getTitle());
-				
+
 				ImageView imageView = (ImageView)v.findViewById(R.id.nowPlayingImageInList);
 				if (Playlist.getInstance().getPlayingIndex() == position) {
 					imageView.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
@@ -403,6 +414,6 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			}
 			return v;
 		}
-		
+
 	}
 }

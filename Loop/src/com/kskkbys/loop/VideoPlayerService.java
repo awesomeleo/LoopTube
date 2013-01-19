@@ -93,7 +93,13 @@ public class VideoPlayerService extends Service {
 				mState = STATE_COMPLETE;
 				// Service starts to play next video
 				Playlist.getInstance().next();
-				startVideo();
+				if (Playlist.getInstance().getCurrentVideo() != null) {
+					startVideo();
+				} else {
+					// End of playlist
+					mNM.cancel(NOTIFICATION_ID);
+				}
+				// Notify listeners
 				if (mListener != null) {
 					mListener.onCompletion();
 				}
@@ -252,8 +258,10 @@ public class VideoPlayerService extends Service {
 		mState = STATE_INIT;
 		// Search and start to play
 		Video video = Playlist.getInstance().getCurrentVideo();
-		YouTubePlayTask task = new YouTubePlayTask(video.getId());
-		task.execute();
+		if (video != null) {
+			YouTubePlayTask task = new YouTubePlayTask(video.getId());
+			task.execute();
+		}
 	}
 
 	/**
