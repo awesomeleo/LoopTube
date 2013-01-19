@@ -6,9 +6,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
@@ -22,8 +20,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -48,10 +44,9 @@ public class VideoPlayerService extends Service {
 
 	// MediaPlayer
 	private MediaPlayer mMediaPlayer;
-	private boolean mIsValidPlayer;
 
 	// VideoPlayerActivity
-	private VideoPlayerActivity mPlayerActivity = null;
+	private MediaPlayerCallback mListener;
 
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
@@ -74,19 +69,13 @@ public class VideoPlayerService extends Service {
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
 		// Initialize MediaPlayer
-		mIsValidPlayer = false;
 		mMediaPlayer = new MediaPlayer();
 		mMediaPlayer.setOnErrorListener(new OnErrorListener() {
 			@Override
 			public boolean onError(MediaPlayer mp, int what, int extra) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(VideoPlayerService.this);
-				builder.setMessage(R.string.video_player_unknown_error)
-					.setPositiveButton("OK", null);
-
-				if (mPlayerActivity != null) {
-					mPlayerActivity.onError();
+				if (mListener != null) {
+					mListener.onError();
 				}
-
 				//return false;	// go to OnComptionListener
 				return true;	// dont go to OnCompletion
 			}
@@ -94,27 +83,30 @@ public class VideoPlayerService extends Service {
 		mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
+				// Service starts to play next video
 				Playlist.getInstance().next();
 				startVideo();
-
-				if (mPlayerActivity != null) {
-					mPlayerActivity.onCompletion();
+				if (mListener != null) {
+					mListener.onCompletion();
 				}
 			}
 		});
 		mMediaPlayer.setOnPreparedListener(new OnPreparedListener() {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
-				if (mPlayerActivity != null) {
-					mPlayerActivity.onPrepared();
+				// When prepared, start to play
+				showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
+				play();
+				if (mListener != null) {
+					mListener.onPrepared();
 				}
 			}
 		});
 		mMediaPlayer.setOnSeekCompleteListener(new OnSeekCompleteListener() {
 			@Override
 			public void onSeekComplete(MediaPlayer mp) {
-				if (mPlayerActivity != null) {
-					mPlayerActivity.onSeekComplete();
+				if (mListener != null) {
+					mListener.onSeekComplete(mp.getCurrentPosition());
 				}
 			}
 		});
@@ -222,8 +214,12 @@ public class VideoPlayerService extends Service {
 		task.execute();
 	}
 
-	public void setPlayerActivity(VideoPlayerActivity activity) {
-		this.mPlayerActivity = activity;
+	/**
+	 * Set the lister for media player events of this service
+	 * @param listener
+	 */
+	public void setListener(MediaPlayerCallback listener) {
+		this.mListener = listener;
 	}
 
 	/**
@@ -244,6 +240,34 @@ public class VideoPlayerService extends Service {
 				holder.setFixedSize(width, height);
 				this.mMediaPlayer.setDisplay(holder);
 			}
+		}
+	}
+
+	/**
+	 * Set video URL. After player is prepared, please call play method.
+	 * @param url
+	 */
+	private void setVideoUrl(String url) {
+		if (mMediaPlayer != null) {
+			try {
+				// If already playing, reset the MediaPlayer
+				mMediaPlayer.reset();
+
+				// Set URL and prepare
+				mMediaPlayer.setDataSource(url);
+				mMediaPlayer.prepare();
+
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			Log.e(TAG, "MediaPlayer is null!");
 		}
 	}
 
@@ -357,33 +381,7 @@ public class VideoPlayerService extends Service {
 				Log.v(TAG, "Invalid video.");
 				return false;
 			}
-			if (mMediaPlayer != null) {
-				try {
-					// If already playing, reset the MediaPlayer
-					mIsValidPlayer = false;
-					mMediaPlayer.reset();
-
-					// Start to Play
-					mMediaPlayer.setDataSource(result);
-					mMediaPlayer.prepare();
-					mMediaPlayer.start();
-					mIsValidPlayer = true;
-
-					// Show notification
-					showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
-
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				Log.e(TAG, "MediaPlayer is null!");
-			}
+			setVideoUrl(result);
 
 			return true;
 		}
@@ -393,15 +391,40 @@ public class VideoPlayerService extends Service {
 			//mDialog.dismiss();
 			Log.v(TAG, "PlayTask onPostExecute");
 			if (!success) {
-				if (mPlayerActivity != null) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(mPlayerActivity);
-					// builder.setTitle(R.string.video_player_invalid_video);
-					builder.setMessage(R.string.video_player_invalid_video);
-					builder.setPositiveButton(R.string.ok, null);
-					builder.create().show();
+				if (mListener != null) {
+
 				}
 			}
 		}
 
+	}
+
+	/**
+	 * Listener for the MediaPlayer events
+	 * Video player which needs media player events must implement this interface
+	 */
+	public interface MediaPlayerCallback {
+		/**
+		 * On error
+		 */
+		public void onError();
+		/**
+		 * On completion 
+		 */
+		public void onCompletion();
+		/**
+		 * On prepared
+		 */
+		public void onPrepared();
+		/**
+		 * On seek complete
+		 * @param new position in msec
+		 */
+		public void onSeekComplete(int positionMsec);
+
+		/**
+		 * Invoked when the YouTube video can not be played (does not have valid URL)
+		 */
+		public void onInvalidVideoError();
 	}
 }

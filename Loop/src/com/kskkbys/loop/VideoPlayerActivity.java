@@ -5,6 +5,7 @@ import java.util.TimerTask;
 
 import com.kskkbys.loop.playlist.Playlist;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -35,7 +36,7 @@ import android.widget.TextView;;
  * Video player
  *
  */
-public class VideoPlayerActivity extends BaseActivity {
+public class VideoPlayerActivity extends BaseActivity implements VideoPlayerService.MediaPlayerCallback {
 
 	private static final String TAG = VideoPlayerActivity.class.getSimpleName();
 	
@@ -63,7 +64,7 @@ public class VideoPlayerActivity extends BaseActivity {
 			// Toast.makeText(VideoPlayerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
 
 			// Set this activity to the service
-			mService.setPlayerActivity(VideoPlayerActivity.this);
+			mService.setListener(VideoPlayerActivity.this);
 			
 			// Set this SurfaceView to the service
 			mService.setSurfaceView(mSurfaceView);
@@ -259,23 +260,29 @@ public class VideoPlayerActivity extends BaseActivity {
 		}
 	}
 	
+	@Override
 	public void onError() {
 		Log.v(TAG, "OnError");
 		//Toast.makeText(this, "OnError", Toast.LENGTH_SHORT).show();
 	}
 	
+	
+	
+	@Override
 	public void onPrepared() {
 		Log.v(TAG, "onPrepared");
 		updateVideoInfo();
 		//Toast.makeText(this, "OnPrepared", Toast.LENGTH_SHORT).show();
 	}
 	
+	@Override
 	public void onCompletion() {
 		Log.v(TAG, "OnCompletion");
 		//Toast.makeText(this, "OnCompletion", Toast.LENGTH_SHORT).show();
 	}
 	
-	public void onSeekComplete() {
+	@Override
+	public void onSeekComplete(int positionMsec) {
 		int msec = mService.getCurrentPosition();
 		mSeekBar.setProgress(msec / 1000);
 		
@@ -284,6 +291,21 @@ public class VideoPlayerActivity extends BaseActivity {
 		
 		mProgressDialog.dismiss();
 		mIsSeeking = false;
+	}
+	
+	@Override
+	public void onInvalidVideoError() {
+		this.showInvalidVideoError();
+	}
+	
+	/**
+	 * 
+	 */
+	private void showInvalidVideoError() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.video_player_invalid_video);
+		builder.setPositiveButton(R.string.ok, null);
+		builder.create().show();
 	}
 	
 	private void updateVideoInfo() {
