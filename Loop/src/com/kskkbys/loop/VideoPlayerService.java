@@ -199,7 +199,7 @@ public class VideoPlayerService extends Service {
 	 */
 	public void play() {
 		Log.v(TAG, "play");
-		if (mState == STATE_PEPARED) {
+		if (mState == STATE_PEPARED || mState == STATE_PLAYING) {
 			mState = STATE_PLAYING;
 			mMediaPlayer.start();
 		} else {
