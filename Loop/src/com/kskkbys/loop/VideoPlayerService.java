@@ -192,6 +192,7 @@ public class VideoPlayerService extends Service {
 	}
 
 	public void prev() {
+		Log.v(TAG, "prev");
 		Playlist.getInstance().prev();
 		startVideo();
 	}

@@ -59,17 +59,26 @@ public class Playlist {
 	}
 	
 	/**
-	 * Play previous video
+	 * Play previous video.
+	 * If the old position is 0, set position the last index.
 	 */
 	public void prev() {
 		this.mPlayingIndex--;
+		// Go last element
+		if (this.mPlayingIndex < 0 && mVideoList.size() > 0) {
+			this.mPlayingIndex = mVideoList.size() - 1;
+		}
 	}
 	
 	/**
-	 * Play next video
+	 * Play next video.
+	 * If the old position is last element, set position the first.
 	 */
 	public void next() {
 		this.mPlayingIndex++;
+		if (this.mPlayingIndex >= mVideoList.size()) {
+			this.mPlayingIndex = 0;
+		}
 	}
 	
 	/**
