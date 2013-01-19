@@ -105,6 +105,18 @@ public class MainActivity extends BaseActivity {
 	}
 
 	@Override
+	protected void onNewIntent(Intent intent) {
+		Log.v(TAG, "onNewIntent");
+		// If this activity is launched from notification, go to PlayerActivity
+		boolean isFromNotification = intent.getBooleanExtra("from_notification", false);
+		if (isFromNotification) {
+			Log.v(TAG, "Launched from notification. Go next activity.");
+			goNextActivity();
+			return;
+		}
+	}
+
+	@Override
 	protected void onResume() {
 		super.onResume();
 		// update history
@@ -254,6 +266,7 @@ public class MainActivity extends BaseActivity {
 	 */
 	private void goNextActivity() {
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(intent);
 	}
 
