@@ -19,6 +19,7 @@
     <string name="main_search_hint">例：宇多田ヒカル</string>
     <string name="main_invalid_query">アーティスト名を入力してください。</string>
     <string name="main_confirm_clear_history">本当に検索履歴を消去しますか？</string>
+    <string name="main_dialog_not_playing">現在再生中の動画はありません。</string>
     
     <string name="ok">OK</string>
     <string name="cancel">キャンセル</string>

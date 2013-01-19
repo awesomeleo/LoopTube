@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 // import android.widget.Toast;
+import android.widget.Toast;
 
 public class MainActivity extends BaseActivity {
 
@@ -230,7 +231,11 @@ public class MainActivity extends BaseActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_show_player:
-			startActivity(new Intent(MainActivity.this, VideoPlayerActivity.class));
+			if (Playlist.getInstance().getCurrentVideo() != null) {
+				startActivity(new Intent(MainActivity.this, VideoPlayerActivity.class));
+			} else {
+				SimpleErrorDialog.show(this, R.string.main_dialog_not_playing);
+			}
 			return true;
 		case R.id.menu_clear_history:
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -19,6 +19,7 @@
     <string name="main_search_hint">ex. Oasis</string>
     <string name="main_invalid_query">Please input correct artist.</string>
     <string name="main_confirm_clear_history">Are your ready to clear search history?</string>
+    <string name="main_dialog_not_playing">There is no playing video.</string>
     
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
