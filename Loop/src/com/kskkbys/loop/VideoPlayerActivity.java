@@ -117,7 +117,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				Log.v(TAG, "onStopTrackingTouch");
 				//mService.seekTo(progress);
 				mProgressDialog = new ProgressDialog(VideoPlayerActivity.this);
-				mProgressDialog.setTitle("Seeking...");
+				mProgressDialog.setMessage(getText(R.string.video_player_dialog_seeking));
 				mProgressDialog.show();
 				mService.seekTo(mSeekBar.getProgress());
 			}

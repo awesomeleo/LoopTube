@@ -10,6 +10,7 @@
     <string name="video_player_unknown_error">Unknown error happens!</string>
     <string name="video_player_default_duration">0:00 / 0:00</string>
     <string name="video_player_playlist">Play List</string>
+    <string name="video_player_dialog_seeking">Seeking&#8230;</string>
     
     <string name="main_search_artist">Search artist</string>
     <string name="main_recent_artists">Recent artists</string>
