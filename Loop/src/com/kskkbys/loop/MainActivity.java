@@ -151,7 +151,9 @@ public class MainActivity extends BaseActivity {
 			}
 			br.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			// Fisrt launching
+			//e.printStackTrace();
+			Log.w(TAG,"FileNotFound of search history. May be first launch.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

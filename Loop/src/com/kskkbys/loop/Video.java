@@ -1,10 +1,10 @@
 package com.kskkbys.loop;
 
-import android.util.Log;
+//import android.util.Log;
 
 public class Video {
 	
-	private static final String TAG = Video.class.getSimpleName();
+	//private static final String TAG = Video.class.getSimpleName();
 
 	private String mId;
 	private String mTitle;

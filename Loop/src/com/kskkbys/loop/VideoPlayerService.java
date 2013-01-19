@@ -15,7 +15,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.kskkbys.loop.playlist.Playlist;
 
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -31,7 +30,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 
 /**
  * Video player service
@@ -39,11 +37,16 @@ import android.view.SurfaceView;
 public class VideoPlayerService extends Service {
 
 	private static final String TAG = VideoPlayerService.class.getSimpleName();
+	private static final int STATE_INIT = 0;
+	private static final int STATE_PEPARED = 1;
+	private static final int STATE_PLAYING = 2;
+	private static final int STATE_COMPLETE = 3;
 
 	private NotificationManager mNM;
 
 	// MediaPlayer
-	private MediaPlayer mMediaPlayer;
+	private static MediaPlayer mMediaPlayer;
+	private int mState;
 
 	// VideoPlayerActivity
 	private MediaPlayerCallback mListener;
@@ -68,6 +71,9 @@ public class VideoPlayerService extends Service {
 		Log.v(TAG, "onCreate");
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
+		// state of MediaPlayer
+		mState = STATE_INIT;
+
 		// Initialize MediaPlayer
 		mMediaPlayer = new MediaPlayer();
 		mMediaPlayer.setOnErrorListener(new OnErrorListener() {
@@ -83,6 +89,8 @@ public class VideoPlayerService extends Service {
 		mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
+				//
+				mState = STATE_COMPLETE;
 				// Service starts to play next video
 				Playlist.getInstance().next();
 				startVideo();
@@ -94,12 +102,15 @@ public class VideoPlayerService extends Service {
 		mMediaPlayer.setOnPreparedListener(new OnPreparedListener() {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
-				// When prepared, start to play
-				showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
+				// When prepared, start to played
+				mState = STATE_PEPARED;
 				play();
+				// Notify
 				if (mListener != null) {
 					mListener.onPrepared();
 				}
+				// show notification
+				showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
 			}
 		});
 		mMediaPlayer.setOnSeekCompleteListener(new OnSeekCompleteListener() {
@@ -178,23 +189,42 @@ public class VideoPlayerService extends Service {
 	}
 
 	public void next() {
+		Log.v(TAG,"next");
 		Playlist.getInstance().next();
 		startVideo();
 	}
 
+	/**
+	 * After prepared, this method starts to play and changes its state to STATE_PLAYING.
+	 */
 	public void play() {
-		this.mMediaPlayer.start();
+		Log.v(TAG, "play");
+		if (mState == STATE_PEPARED) {
+			mState = STATE_PLAYING;
+			mMediaPlayer.start();
+		} else {
+			Log.w(TAG, "Invalid state: " + mState);
+		}
 	}
 	public void pause() {
-		this.mMediaPlayer.pause();
+		Log.v(TAG, "pause");
+		if (mState == STATE_PLAYING) {
+			mMediaPlayer.pause();
+		} else {
+			Log.w(TAG, "Invalid state: " + mState);
+		}
 	}
 
 	public boolean isPlaying() {
-		return this.mMediaPlayer.isPlaying();
+		Log.v(TAG, "isPlaying");
+		return mMediaPlayer.isPlaying();
 	}
 
 	public void seekTo(int msec) {
-		this.mMediaPlayer.seekTo(msec);
+		Log.v(TAG, "seekTo");
+		if (mState == STATE_PLAYING) {
+			mMediaPlayer.seekTo(msec);
+		}
 	}
 
 	/**
@@ -202,13 +232,23 @@ public class VideoPlayerService extends Service {
 	 * @return
 	 */
 	public int getCurrentPosition() {
-		return this.mMediaPlayer.getCurrentPosition();
+		//Log.v(TAG, "getCurrentPosition");	// called in 1sec
+		if (mState == STATE_PLAYING) {
+			return mMediaPlayer.getCurrentPosition();
+		} else {
+			return 0;
+		}
 	}
 
 	/**
 	 * Start to play video
 	 */
 	public void startVideo() {
+		Log.v(TAG, "startVideo");
+		// Reset the current player
+		mMediaPlayer.reset();
+		mState = STATE_INIT;
+		// Search and start to play
 		Video video = Playlist.getInstance().getCurrentVideo();
 		YouTubePlayTask task = new YouTubePlayTask(video.getId());
 		task.execute();
@@ -226,21 +266,9 @@ public class VideoPlayerService extends Service {
 	 * Attach SurfaceView instance to MediaPlayer
 	 * @param surfaceView
 	 */
-	public void setSurfaceView(SurfaceView surfaceView) {
+	public static void setSurfaceHolder(SurfaceHolder holder) {
 		Log.v(TAG, "setSurfaceView");
-		if (surfaceView == null) {
-			this.mMediaPlayer.setDisplay(null);
-		} else {
-			SurfaceHolder holder = surfaceView.getHolder();
-			if (holder.isCreating()) {
-				Log.w(TAG, "surafce view is creating");
-			} else {
-				int width = surfaceView.getWidth();
-				int height = surfaceView.getWidth() * 9 / 16;	// 16:9
-				holder.setFixedSize(width, height);
-				this.mMediaPlayer.setDisplay(holder);
-			}
-		}
+		mMediaPlayer.setDisplay(holder);
 	}
 
 	/**
@@ -248,6 +276,7 @@ public class VideoPlayerService extends Service {
 	 * @param url
 	 */
 	private void setVideoUrl(String url) {
+		Log.v(TAG, "setVideoUrl");
 		if (mMediaPlayer != null) {
 			try {
 				// If already playing, reset the MediaPlayer
@@ -255,6 +284,7 @@ public class VideoPlayerService extends Service {
 
 				// Set URL and prepare
 				mMediaPlayer.setDataSource(url);
+				//mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 				mMediaPlayer.prepare();
 
 			} catch (IllegalArgumentException e) {

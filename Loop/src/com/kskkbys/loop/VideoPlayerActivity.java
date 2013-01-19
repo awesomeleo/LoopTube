@@ -66,9 +66,6 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			// Set this activity to the service
 			mService.setListener(VideoPlayerActivity.this);
 			
-			// Set this SurfaceView to the service
-			mService.setSurfaceView(mSurfaceView);
-			
 			//
 			updateVideoInfo();
 		}
@@ -173,6 +170,11 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			@Override
 			public void surfaceCreated(SurfaceHolder holder) {
 				Log.v(TAG, "surface created");
+				// After surface view is created, attach it to MediaPlayer
+				int width = mSurfaceView.getWidth();
+				int height = width * 9 / 16;
+				holder.setFixedSize(width, height);
+				VideoPlayerService.setSurfaceHolder(holder);
 			}
 			
 			@Override
@@ -249,10 +251,13 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		mIsBound = true;
 	}
 
+	/**
+	 * Unbind player service with this activity
+	 */
 	private void doUnbindService() {
 		if (mIsBound) {
 			// Detach surfaceview
-			mService.setSurfaceView(null);
+			// mService.setSurfaceView(null);
 			
 			// Detach our existing connection.
 			unbindService(mConnection);
