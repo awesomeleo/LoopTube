@@ -3,7 +3,6 @@
 
     <string name="app_name">Loop</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">設定</string>
     
     <string name="video_player_service_started">VideoPlayerService started</string>
     <string name="video_player_invalid_video">この動画は再生できません。</string>
@@ -19,10 +18,15 @@
     <string name="main_no_history">履歴がありません</string>
     <string name="main_search_hint">例：宇多田ヒカル</string>
     <string name="main_invalid_query">アーティスト名を入力してください。</string>
+    <string name="main_confirm_clear_history">本当に検索履歴を消去しますか？</string>
     
     <string name="ok">OK</string>
+    <string name="cancel">キャンセル</string>
     <string name="dummy">dummy</string>
     <string name="video_player_play">Play</string>
+    
+    <string name="menu_settings">設定</string>
     <string name="menu_item_show_player">再生画面を開く</string>
+    <string name="menu_item_clear_history">検索履歴を消去する</string>
 
 </resources>

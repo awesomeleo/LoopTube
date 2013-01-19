@@ -82,7 +82,7 @@ public class MainActivity extends BaseActivity {
 		readHistory();
 
 		// Update recent artists view
-		updateHistory();
+		updateHistoryUI();
 
 		Button button = (Button)findViewById(R.id.searchButton);
 		button.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +120,7 @@ public class MainActivity extends BaseActivity {
 	protected void onResume() {
 		super.onResume();
 		// update history
-		updateHistory();
+		updateHistoryUI();
 	}
 
 	@Override
@@ -180,11 +180,16 @@ public class MainActivity extends BaseActivity {
 			e.printStackTrace();
 		}
 	}
+	
+	private void clearHistory() {
+		mRecentArtists = new ArrayList<String>();
+		saveSearchHistory();
+	}
 
 	/**
 	 * Update history view
 	 */
-	private void updateHistory() {
+	private void updateHistoryUI() {
 		if (mRecentArtists != null && mRecentArtists.size() > 0) {
 			// Has history
 			findViewById(R.id.listView1).setVisibility(View.VISIBLE);
@@ -224,8 +229,21 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu_settings:
+		case R.id.menu_show_player:
 			startActivity(new Intent(MainActivity.this, VideoPlayerActivity.class));
+			return true;
+		case R.id.menu_clear_history:
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(R.string.main_confirm_clear_history)
+				.setPositiveButton(R.string.ok, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						clearHistory();
+						updateHistoryUI();
+					}
+				})
+				.setNegativeButton(R.string.cancel, null);
+			builder.create().show();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
