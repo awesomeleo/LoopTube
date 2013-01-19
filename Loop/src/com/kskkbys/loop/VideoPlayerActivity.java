@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
@@ -330,12 +331,20 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	}
 
 	/**
-	 * 
+	 * Show error when the video does not have valid url
 	 */
 	private void showInvalidVideoError() {
+		// Update UI (video title)
+		updateVideoInfo();
+		// Show error dialog
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(R.string.video_player_invalid_video);
-		builder.setPositiveButton(R.string.ok, null);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				mService.next();
+			}
+		});
 		builder.create().show();
 	}
 
