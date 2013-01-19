@@ -165,6 +165,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			@Override
 			public void surfaceDestroyed(SurfaceHolder holder) {
 				Log.v(TAG, "surface destroyed");
+				VideoPlayerService.setSurfaceHolder(null);
 			}
 			
 			@Override
