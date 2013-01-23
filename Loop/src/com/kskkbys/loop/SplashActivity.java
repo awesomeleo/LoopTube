@@ -13,18 +13,21 @@ public class SplashActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_splash);
-		
 		Log.v(TAG, "onCreate");
-		
-		Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				startActivity(new Intent(SplashActivity.this, MainActivity.class));
-				finish();
-			}
-		}, 1000);
+		// If first launch, show splash
+		LoopApplication app = (LoopApplication)getApplication();
+		if (app.isFirstLaunch()) {
+			setContentView(R.layout.activity_splash);
+			Handler handler = new Handler();
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					startMainActivity();
+				}
+			}, 1000);
+		} else {
+			startMainActivity();
+		}
 	}
 
 	@Override
@@ -32,5 +35,10 @@ public class SplashActivity extends BaseActivity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
+	}
+	
+	private void startMainActivity() {
+		startActivity(new Intent(SplashActivity.this, MainActivity.class));
+		finish();
 	}
 }
