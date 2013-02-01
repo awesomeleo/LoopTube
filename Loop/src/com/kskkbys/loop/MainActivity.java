@@ -9,10 +9,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.flurry.android.FlurryAgent;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.os.Bundle;
@@ -94,6 +97,11 @@ public class MainActivity extends BaseActivity {
 
 				EditText searchEditText = (EditText)findViewById(R.id.searchText);
 				String query = searchEditText.getEditableText().toString();
+				
+				Map<String, String> param = new HashMap<String, String>();
+				param.put("query", query);
+				FlurryAgent.logEvent("Search artist", param);
+				
 				searchQuery(query);
 			}
 		});

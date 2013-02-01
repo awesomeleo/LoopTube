@@ -1,7 +1,5 @@
 package com.kskkbys.loop;
 
-import com.google.analytics.tracking.android.EasyTracker;
-
 import android.app.Application;
 
 public class LoopApplication extends Application {
@@ -14,9 +12,6 @@ public class LoopApplication extends Application {
 		
 		//
 		mIsFirstLaunch = true;
-		
-		// GA
-		EasyTracker.getInstance().setContext(this.getApplicationContext());
 	}
 	
 	public boolean isFirstLaunch() {

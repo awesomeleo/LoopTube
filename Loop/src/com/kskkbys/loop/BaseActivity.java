@@ -3,13 +3,15 @@ package com.kskkbys.loop;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockActivity;
-import com.google.analytics.tracking.android.EasyTracker;
+import com.flurry.android.FlurryAgent;
 
 /**
  * Base activity of all activities which extends SherlockActivity to support ActionBar.
  * Implemented Google Analytics.
  */
 public class BaseActivity extends SherlockActivity {
+	
+	private static final String apiKey = "GNRQ5VMSSVJ2WR2W38SD";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -20,13 +22,14 @@ public class BaseActivity extends SherlockActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		FlurryAgent.onStartSession(this, apiKey);
+		FlurryAgent.onPageView();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		FlurryAgent.onEndSession(this);
 	}
 
 }
