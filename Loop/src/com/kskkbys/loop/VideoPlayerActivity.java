@@ -360,16 +360,15 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 		// For current video
 		Video video = Playlist.getInstance().getCurrentVideo();
-		TextView titleView = (TextView)findViewById(R.id.videoTitleLabel);
 		TextView durationView = (TextView)findViewById(R.id.durationText);
 		if (video != null) {
-			titleView.setText(video.getTitle());
+			getSupportActionBar().setTitle(video.getTitle());
 			int minutes = (video.getDuration() / 1000) / 60;
 			int seconds = (video.getDuration() / 1000) % 60;
 			durationView.setText(String.format("0:00 / %d:%02d", minutes, seconds));
 			mSeekBar.setMax(video.getDuration());
 		} else {
-			titleView.setText("");
+			getSupportActionBar().setTitle(R.string.loop_app_name);
 			durationView.setText("0:00 / 0:00");
 			mSeekBar.setMax(100);
 		}
