@@ -179,7 +179,7 @@ public class VideoPlayerService extends Service {
 				System.currentTimeMillis());
 
 		// Set the info for the views that show in the notification panel.
-		notification.setLatestEventInfo(this, getText(R.string.app_name), text, contentIntent);
+		notification.setLatestEventInfo(this, getText(R.string.loop_app_name), text, contentIntent);
 
 		/*
 		Notification notification = new Notification.Builder(this).setContentIntent(contentIntent)

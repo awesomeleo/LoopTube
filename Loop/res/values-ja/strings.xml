@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Loop</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="loop_app_name">LoopTube</string>
+    <string name="loop_hello_world">Hello world!</string>
     
     <string name="loop_video_player_service_started">VideoPlayerService started</string>
     <string name="loop_video_player_invalid_video">この動画は再生できません。</string>
