@@ -13,7 +13,7 @@
             android:id="@+id/videoTitleLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dummy"
+            android:text="@string/loop_dummy"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <SurfaceView
@@ -38,7 +38,7 @@
                 android:layout_marginRight="10dp"
                 android:singleLine="true"
                 android:scrollHorizontally="true"
-                android:text="@string/video_player_default_duration" />
+                android:text="@string/loop_video_player_default_duration" />
         </LinearLayout>
 
         <LinearLayout

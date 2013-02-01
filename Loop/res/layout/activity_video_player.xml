@@ -13,7 +13,7 @@
         android:layout_marginRight="15dp"
         android:layout_marginTop="15dp"
         android:layout_marginBottom="15dp"
-        android:text="@string/dummy"
+        android:text="@string/loop_dummy"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <FrameLayout
@@ -42,7 +42,7 @@
                 android:layout_marginRight="10dp"
                 android:singleLine="true"
                 android:scrollHorizontally="true"
-                android:text="@string/video_player_default_duration" />
+                android:text="@string/loop_video_player_default_duration" />
         </LinearLayout>
 
         <LinearLayout
@@ -82,7 +82,7 @@
         android:layout_marginRight="15dp"
         android:layout_marginTop="15dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/video_player_playlist"
+        android:text="@string/loop_video_player_playlist"
         android:textAppearance="?android:attr/textAppearanceMedium" />
     
     <ListView

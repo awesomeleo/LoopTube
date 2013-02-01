@@ -4,31 +4,32 @@
     <string name="app_name">Loop</string>
     <string name="hello_world">Hello world!</string>
     
-    <string name="video_player_service_started">VideoPlayerService started</string>
-    <string name="video_player_invalid_video">この動画は再生できません。</string>
-    <string name="video_player_unknown_error">動画再生中にエラーが発生しました。</string>
-    <string name="video_player_default_duration">0:00 / 0:00</string>
-    <string name="video_player_playlist">プレイリスト</string>
-    <string name="video_player_dialog_seeking">シーク中&#8230;</string>
-    <string name="video_player_dialog_end">再生を終了しました</string>
+    <string name="loop_video_player_service_started">VideoPlayerService started</string>
+    <string name="loop_video_player_invalid_video">この動画は再生できません。</string>
+    <string name="loop_video_player_unknown_error">動画再生中にエラーが発生しました。</string>
+    <string name="loop_video_player_default_duration">0:00 / 0:00</string>
+    <string name="loop_video_player_playlist">プレイリスト</string>
+    <string name="loop_video_player_dialog_seeking">シーク中&#8230;</string>
+    <string name="loop_video_player_dialog_end">再生を終了しました</string>
     
-    <string name="main_search_artist">アーティストを検索</string>
-    <string name="main_recent_artists">最近検索したアーティスト</string>
-    <string name="main_button_search">検索する</string>
-    <string name="main_dialog_searching">検索中&#8230;</string>
-    <string name="main_no_history">履歴がありません</string>
-    <string name="main_search_hint">例：宇多田ヒカル</string>
-    <string name="main_invalid_query">アーティスト名を入力してください。</string>
-    <string name="main_confirm_clear_history">本当に検索履歴を消去しますか？</string>
-    <string name="main_dialog_not_playing">現在再生中の動画はありません。</string>
+    <string name="loop_main_title">アーティストを検索</string>
+    <string name="loop_main_search_artist">アーティスト名を入力してください</string>
+    <string name="loop_main_recent_artists">最近検索したアーティスト</string>
+    <string name="loop_main_button_search">検索する</string>
+    <string name="loop_main_dialog_searching">検索中&#8230;</string>
+    <string name="loop_main_no_history">履歴がありません</string>
+    <string name="loop_main_search_hint">例：宇多田ヒカル</string>
+    <string name="loop_main_invalid_query">アーティスト名を入力してください。</string>
+    <string name="loop_main_confirm_clear_history">本当に検索履歴を消去しますか？</string>
+    <string name="loop_main_dialog_not_playing">現在再生中の動画はありません。</string>
     
-    <string name="ok">OK</string>
-    <string name="cancel">キャンセル</string>
-    <string name="dummy">dummy</string>
-    <string name="video_player_play">Play</string>
+    <string name="loop_ok">OK</string>
+    <string name="loop_cancel">キャンセル</string>
+    <string name="loop_dummy">dummy</string>
+    <string name="loop_video_player_play">Play</string>
     
-    <string name="menu_settings">設定</string>
-    <string name="menu_item_show_player">再生画面を開く</string>
-    <string name="menu_item_clear_history">検索履歴を消去する</string>
+    <string name="loop_menu_settings">設定</string>
+    <string name="loop_menu_item_show_player">再生画面を開く</string>
+    <string name="loop_menu_item_clear_history">検索履歴を消去する</string>
 
 </resources>

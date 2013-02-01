@@ -31,9 +31,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-// import android.widget.Toast;
-import android.widget.Toast;
 
+/**
+ * Search screen.
+ *
+ */
 public class MainActivity extends BaseActivity {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
@@ -103,6 +105,9 @@ public class MainActivity extends BaseActivity {
 			goNextActivity();
 			return;
 		}
+		
+		//
+		getSupportActionBar().setTitle(R.string.loop_main_title);
 	}
 
 	@Override
@@ -133,8 +138,8 @@ public class MainActivity extends BaseActivity {
 	private void searchQuery(String artist) {
 		if (artist == null || artist.length() == 0) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.main_invalid_query)
-			.setPositiveButton(R.string.ok, new OnClickListener() {
+			builder.setMessage(R.string.loop_main_invalid_query)
+			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 
@@ -235,20 +240,20 @@ public class MainActivity extends BaseActivity {
 			if (Playlist.getInstance().getCurrentVideo() != null) {
 				startActivity(new Intent(MainActivity.this, VideoPlayerActivity.class));
 			} else {
-				SimpleErrorDialog.show(this, R.string.main_dialog_not_playing);
+				SimpleErrorDialog.show(this, R.string.loop_main_dialog_not_playing);
 			}
 			return true;
 		case R.id.menu_clear_history:
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.main_confirm_clear_history)
-				.setPositiveButton(R.string.ok, new OnClickListener() {
+			builder.setMessage(R.string.loop_main_confirm_clear_history)
+				.setPositiveButton(R.string.loop_ok, new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						clearHistory();
 						updateHistoryUI();
 					}
 				})
-				.setNegativeButton(R.string.cancel, null);
+				.setNegativeButton(R.string.loop_cancel, null);
 			builder.create().show();
 			return true;
 		default:

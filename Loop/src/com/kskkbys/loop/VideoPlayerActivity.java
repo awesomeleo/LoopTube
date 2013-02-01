@@ -119,7 +119,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				Log.v(TAG, "onStopTrackingTouch");
 				//mService.seekTo(progress);
 				mProgressDialog = new ProgressDialog(VideoPlayerActivity.this);
-				mProgressDialog.setMessage(getText(R.string.video_player_dialog_seeking));
+				mProgressDialog.setMessage(getText(R.string.loop_video_player_dialog_seeking));
 				mProgressDialog.show();
 				mService.seekTo(mSeekBar.getProgress());
 			}
@@ -338,8 +338,8 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		updateVideoInfo();
 		// Show error dialog
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.video_player_invalid_video);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+		builder.setMessage(R.string.loop_video_player_invalid_video);
+		builder.setPositiveButton(R.string.loop_ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				mService.next();

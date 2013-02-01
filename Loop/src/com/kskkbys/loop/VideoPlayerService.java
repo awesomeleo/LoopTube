@@ -55,7 +55,7 @@ public class VideoPlayerService extends Service {
 
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
-	private int NOTIFICATION_ID = R.string.video_player_service_started;
+	private int NOTIFICATION_ID = R.string.loop_video_player_service_started;
 
 	/**
 	 * Class to access to this service
