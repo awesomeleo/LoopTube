@@ -11,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.os.Bundle;
@@ -23,8 +25,6 @@ import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -220,11 +220,11 @@ public class MainActivity extends BaseActivity {
 			findViewById(R.id.listView1).setVisibility(View.INVISIBLE);
 		}
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_main, menu);
+		getSupportMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
 
