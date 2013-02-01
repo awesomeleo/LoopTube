@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -208,30 +209,11 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		if (!mIsBound) {
 			doBindService();
 		}
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-
-		SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
-
-		// When the orientation is set to landscape, it maximizes SurfaceView
-		switch (newConfig.orientation) {
-		case Configuration.ORIENTATION_LANDSCAPE:
-			// Fix surface view size
-			int w = surfaceView.getWidth();
-			int h = w * 9 / 16;
-			surfaceView.getHolder().setFixedSize(w, h);
-			// start timer to dismiss views
-			break;
-		case Configuration.ORIENTATION_PORTRAIT:
-			// stop time to dismiss views
-			break;
-		default:
-			break;
+		
+		// action bar
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			getSupportActionBar().hide();
 		}
-
 	}
 
 	@Override
