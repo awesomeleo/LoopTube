@@ -237,6 +237,15 @@ public class VideoPlayerService extends Service {
 			mMediaPlayer.seekTo(msec);
 		}
 	}
+	
+	public void setLooping(boolean isRepeat) {
+		Log.v(TAG, "setRepeat");
+		mMediaPlayer.setLooping(isRepeat);
+	}
+	
+	public boolean isLooping() {
+		return mMediaPlayer.isLooping();
+	}
 
 	/**
 	 * Get the current position in the playing video

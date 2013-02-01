@@ -3,6 +3,8 @@ package com.kskkbys.loop;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.app.AlertDialog;
@@ -233,6 +235,36 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	protected void onResume() {
 		super.onResume();
 		Log.v(TAG, "onResume");
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getSupportMenuInflater().inflate(R.menu.activity_player, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_repeat:
+			if (Playlist.getInstance().getCurrentVideo() != null) {
+				if (mService != null) {
+					if (mService.isLooping()) {
+						// stop looping
+						mService.setLooping(false);
+						item.setTitle(R.string.loop_menu_item_start_repeat);
+					} else {
+						// start looping
+						mService.setLooping(true);
+						item.setTitle(R.string.loop_menu_item_stop_repeat);
+					}
+				}
+			}
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
