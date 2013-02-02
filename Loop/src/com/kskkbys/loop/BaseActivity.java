@@ -3,13 +3,14 @@ package com.kskkbys.loop;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.flurry.android.FlurryAgent;
 
 /**
  * Base activity of all activities which extends SherlockActivity to support ActionBar.
  * Implemented Google Analytics.
  */
-public class BaseActivity extends SherlockActivity {
+public class BaseActivity extends SherlockFragmentActivity {
 	
 	private static final String apiKey = "GNRQ5VMSSVJ2WR2W38SD";
 	

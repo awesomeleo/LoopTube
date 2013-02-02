@@ -11,6 +11,7 @@
     <string name="loop_video_player_playlist">プレイリスト</string>
     <string name="loop_video_player_dialog_seeking">シーク中&#8230;</string>
     <string name="loop_video_player_dialog_end">再生を終了しました</string>
+    <string name="loop_video_player_dialog_loading">ロード中...</string>
     
     <string name="loop_main_title">アーティストを検索</string>
     <string name="loop_main_search_artist">アーティスト名を入力してください</string>

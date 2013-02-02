@@ -237,12 +237,12 @@ public class VideoPlayerService extends Service {
 			mMediaPlayer.seekTo(msec);
 		}
 	}
-	
+
 	public void setLooping(boolean isRepeat) {
 		Log.v(TAG, "setRepeat");
 		mMediaPlayer.setLooping(isRepeat);
 	}
-	
+
 	public boolean isLooping() {
 		return mMediaPlayer.isLooping();
 	}
@@ -341,8 +341,9 @@ public class VideoPlayerService extends Service {
 
 		@Override
 		protected void onPreExecute() {
-			//mDialog.setMessage("Downloading...");
-			//mDialog.show();
+			if (mListener != null) {
+				mListener.onStartLoadVideo();
+			}
 		}
 
 		@Override
@@ -374,7 +375,7 @@ public class VideoPlayerService extends Service {
 					end = tmpstr.indexOf("\"", begin + 27);
 				}
 				tmpstr = URLDecoder.decode(tmpstr.substring(begin + 27, end), "utf-8");
-				
+
 				reader.close();
 				client.getConnectionManager().shutdown();
 
@@ -448,8 +449,9 @@ public class VideoPlayerService extends Service {
 		protected void onPostExecute(Boolean success) {
 			//mDialog.dismiss();
 			Log.v(TAG, "PlayTask onPostExecute");
-			if (!success) {
-				if (mListener != null) {
+			if (mListener != null) {
+				mListener.onEndLoadVideo();
+				if (!success) {
 					mListener.onInvalidVideoError();
 				}
 			}
@@ -484,5 +486,15 @@ public class VideoPlayerService extends Service {
 		 * Invoked when the YouTube video can not be played (does not have valid URL)
 		 */
 		public void onInvalidVideoError();
+
+		/**
+		 * Invoked when start to load video
+		 */
+		public void onStartLoadVideo();
+
+		/**
+		 * Invoked when end to load video
+		 */
+		public void onEndLoadVideo();
 	}
 }

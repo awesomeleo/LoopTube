@@ -5,6 +5,7 @@ import java.util.TimerTask;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.kskkbys.loop.dialog.ProgressDialogFragment;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.app.AlertDialog;
@@ -19,6 +20,8 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -59,7 +62,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	private SurfaceView mSurfaceView;
 	private ListView mPlayListView;
 
-	private ProgressDialog mProgressDialog;
+	private ProgressDialogFragment mProgressDialogFragment;
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 		@Override
@@ -120,10 +123,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				Log.v(TAG, "onStopTrackingTouch");
-				//mService.seekTo(progress);
-				mProgressDialog = new ProgressDialog(VideoPlayerActivity.this);
-				mProgressDialog.setMessage(getText(R.string.loop_video_player_dialog_seeking));
-				mProgressDialog.show();
+				showProgress(R.string.loop_video_player_dialog_seeking);
 				mService.seekTo(mSeekBar.getProgress());
 			}
 			@Override
@@ -211,7 +211,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		if (!mIsBound) {
 			doBindService();
 		}
-		
+
 		// action bar
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			getSupportActionBar().hide();
@@ -236,14 +236,14 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		super.onResume();
 		Log.v(TAG, "onResume");
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getSupportMenuInflater().inflate(R.menu.activity_player, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -335,7 +335,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		Log.v(TAG, "onSeekComplete");
 		//Toast.makeText(this, "OnSeekComplete", Toast.LENGTH_SHORT).show();
 
-		mProgressDialog.dismiss();
+		dismissProgress();
 		mIsSeeking = false;
 	}
 
@@ -437,5 +437,35 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			return v;
 		}
 
+	}
+
+	@Override
+	public void onStartLoadVideo() {
+		showProgress(R.string.loop_video_player_dialog_loading);
+	}
+
+	@Override
+	public void onEndLoadVideo() {
+		dismissProgress();
+	}
+
+	private void showProgress(int resId) {
+		// Remove prev fragment
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+		if (prev != null) {
+			ft.remove(prev);
+		}
+		ft.addToBackStack(null);
+		// Show dialog fragment
+		mProgressDialogFragment = ProgressDialogFragment.newInstance(resId);
+		mProgressDialogFragment.show(ft, "dialog");
+	}
+
+	private void dismissProgress() {
+		if (mProgressDialogFragment != null) {
+			mProgressDialogFragment.dismiss();
+			mProgressDialogFragment = null;
+		}
 	}
 }

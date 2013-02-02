@@ -11,6 +11,7 @@
     <string name="loop_video_player_playlist">Play List</string>
     <string name="loop_video_player_dialog_seeking">Seeking&#8230;</string>
     <string name="loop_video_player_dialog_end">Finished to play videos.</string>
+    <string name="loop_video_player_dialog_loading">Loading...</string>
     
     <string name="loop_main_title">Search artist</string>
     <string name="loop_main_search_artist">Please input your favorite artist</string>
