@@ -29,27 +29,27 @@ import android.util.Log;
 public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	private static final String TAG = YouTubeSearchTask.class.getSimpleName();
-	
+
 	private MainActivity mParent;
 	private YouTubeSearchResult mResult;
-	
+
 	private ProgressDialog mProgressDialog;
-	
+
 	public YouTubeSearchTask(MainActivity parent) {
 		this.mParent = parent;
 	}
-	
+
 	@Override
 	protected String doInBackground(String... query) {
-		
+
 		String uri = null;
 		try {
 			uri = "http://gdata.youtube.com/feeds/api/videos?q="
-			+ URLEncoder.encode(query[0], "UTF-8") + "&alt=json";
+					+ URLEncoder.encode(query[0], "UTF-8") + "&alt=json";
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpParams params = client.getParams();
 		HttpConnectionParams.setConnectionTimeout(params, 5000);
@@ -64,7 +64,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 				String line = br.readLine();
 				Log.v(TAG, line);
 				br.close();
-				
+
 				Gson gson = new Gson();
 				this.mResult = gson.fromJson(line, YouTubeSearchResult.class);
 			} else {
@@ -75,12 +75,12 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		client.getConnectionManager().shutdown();
-		
+
 		return null;
 	}
-	
+
 	@Override
 	protected void onPreExecute() {
 		mProgressDialog = new ProgressDialog(this.mParent);
@@ -89,14 +89,20 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		mProgressDialog.show();
 	}
-	
+
 	@Override
 	protected void onPostExecute(String result) {
 		// Dismiss dialog and start to play
 		mProgressDialog.dismiss();
-		this.mParent.startVideoPlayer(createVideoList(this.mResult));
+		List<Video> videos = createVideoList(this.mResult);
+		if (videos != null && videos.size() > 0) {
+			this.mParent.startVideoPlayer(videos);
+		} else {
+			Log.v(TAG, "Video list is empty. Network state may be bad.");
+			SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);
+		}
 	}
-	
+
 	/**
 	 * Create list of Video objects
 	 * @param result
@@ -104,17 +110,19 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 	 */
 	private List<Video> createVideoList(YouTubeSearchResult result) {
 		List<Video> videoList = new ArrayList<Video>();
-		for (YouTubeSearchResult.Feed.Entry entry : result.feed.entry) {
-			Video v = new Video(
-					getVideoId(entry.id.$t),
-					entry.title.$t, 
-					//entry.media$group.media$content[2].url, 
-					entry.media$group.media$content[0].duration * 1000);	// msec
-			videoList.add(v);
+		if (result != null && result.feed != null) {
+			for (YouTubeSearchResult.Feed.Entry entry : result.feed.entry) {
+				Video v = new Video(
+						getVideoId(entry.id.$t),
+						entry.title.$t, 
+						//entry.media$group.media$content[2].url, 
+						entry.media$group.media$content[0].duration * 1000);	// msec
+				videoList.add(v);
+			}
 		}
 		return videoList;
 	}
-	
+
 	/**
 	 * Get video ID
 	 * @param str

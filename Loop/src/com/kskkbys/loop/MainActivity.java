@@ -16,6 +16,7 @@ import java.util.Map;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.flurry.android.FlurryAgent;
+import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.os.Bundle;
@@ -94,15 +95,23 @@ public class MainActivity extends BaseActivity {
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				// Check connection
+				if (!ConnectionState.isConnected(MainActivity.this)) {
+					Log.w(TAG, "bad connection");
+					SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
+					return;
+				} else {
+					Log.v(TAG, "connection ok");
+					// Search query
+					EditText searchEditText = (EditText)findViewById(R.id.searchText);
+					String query = searchEditText.getEditableText().toString();
 
-				EditText searchEditText = (EditText)findViewById(R.id.searchText);
-				String query = searchEditText.getEditableText().toString();
-				
-				Map<String, String> param = new HashMap<String, String>();
-				param.put("query", query);
-				FlurryAgent.logEvent("Search artist", param);
-				
-				searchQuery(query);
+					Map<String, String> param = new HashMap<String, String>();
+					param.put("query", query);
+					FlurryAgent.logEvent("Search artist", param);
+
+					searchQuery(query);
+				}
 			}
 		});
 
@@ -113,7 +122,7 @@ public class MainActivity extends BaseActivity {
 			goNextActivity();
 			return;
 		}
-		
+
 		//
 		getSupportActionBar().setTitle(R.string.loop_main_title);
 	}
@@ -194,7 +203,7 @@ public class MainActivity extends BaseActivity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void clearHistory() {
 		mRecentArtists = new ArrayList<String>();
 		saveSearchHistory();
@@ -222,9 +231,16 @@ public class MainActivity extends BaseActivity {
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
 					Log.v(TAG, "onItemClick");
-					ListView listView = (ListView) parent;
-					String item = (String) listView.getItemAtPosition(position);
-					searchQuery(item);
+					// Check connection
+					if (!ConnectionState.isConnected(MainActivity.this)) {
+						Log.w(TAG, "bad connection");
+						SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
+						return;
+					} else {
+						ListView listView = (ListView) parent;
+						String item = (String) listView.getItemAtPosition(position);
+						searchQuery(item);
+					}
 				}
 			});
 		} else {
@@ -233,7 +249,7 @@ public class MainActivity extends BaseActivity {
 			findViewById(R.id.listView1).setVisibility(View.INVISIBLE);
 		}
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -254,14 +270,14 @@ public class MainActivity extends BaseActivity {
 		case R.id.menu_clear_history:
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.loop_main_confirm_clear_history)
-				.setPositiveButton(R.string.loop_ok, new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						clearHistory();
-						updateHistoryUI();
-					}
-				})
-				.setNegativeButton(R.string.loop_cancel, null);
+			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					clearHistory();
+					updateHistoryUI();
+				}
+			})
+			.setNegativeButton(R.string.loop_cancel, null);
 			builder.create().show();
 			return true;
 		default:
