@@ -238,6 +238,12 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	}
 
 	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Log.v(TAG, "onSavedInstanceState");
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getSupportMenuInflater().inflate(R.menu.activity_player, menu);
@@ -294,6 +300,10 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			// Detach surfaceview
 			// mService.setSurfaceView(null);
 
+			// Remove listener of service
+			mService.setListener(null);
+			mService = null;
+			
 			// Detach our existing connection.
 			unbindService(mConnection);
 			mIsBound = false;
@@ -458,14 +468,20 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		}
 		ft.addToBackStack(null);
 		// Show dialog fragment
-		mProgressDialogFragment = ProgressDialogFragment.newInstance(resId);
-		mProgressDialogFragment.show(ft, "dialog");
+		if (mProgressDialogFragment == null) {
+			mProgressDialogFragment = ProgressDialogFragment.newInstance(resId);
+			mProgressDialogFragment.show(ft, "dialog");
+		}
 	}
 
 	private void dismissProgress() {
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+		if (prev != null) {
+			ft.remove(prev);
+		}
 		if (mProgressDialogFragment != null) {
 			mProgressDialogFragment.dismiss();
-			mProgressDialogFragment = null;
 		}
 	}
 }

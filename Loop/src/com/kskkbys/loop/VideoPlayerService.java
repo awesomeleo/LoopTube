@@ -341,6 +341,7 @@ public class VideoPlayerService extends Service {
 
 		@Override
 		protected void onPreExecute() {
+			Log.v(TAG, "onPreExecute");
 			if (mListener != null) {
 				mListener.onStartLoadVideo();
 			}
@@ -447,7 +448,7 @@ public class VideoPlayerService extends Service {
 
 		@Override
 		protected void onPostExecute(Boolean success) {
-			//mDialog.dismiss();
+			Log.v(TAG, "onPostExecute");
 			Log.v(TAG, "PlayTask onPostExecute");
 			if (mListener != null) {
 				mListener.onEndLoadVideo();
