@@ -460,6 +460,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	}
 
 	private void showProgress(int resId) {
+		Log.v(TAG, "showProgress");
 		// Remove prev fragment
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
@@ -475,6 +476,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	}
 
 	private void dismissProgress() {
+		Log.v(TAG, "dismissProgress");
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
 		if (prev != null) {
@@ -482,6 +484,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		}
 		if (mProgressDialogFragment != null) {
 			mProgressDialogFragment.dismiss();
+			mProgressDialogFragment = null;
 		}
 	}
 }
