@@ -53,7 +53,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	private boolean mIsSeeking = false;
 	private Timer mTimer;
 
-	private Button mPauseButton;
+	private View mPauseButton;
 	private SurfaceView mSurfaceView;
 	private ListView mPlayListView;
 
@@ -103,16 +103,16 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				mService.next();
 			}
 		});
-		mPauseButton = (Button)findViewById(R.id.pauseButton);
+		mPauseButton = findViewById(R.id.pauseButton);
 		mPauseButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (mService.isPlaying()) {
 					mService.pause();
-					mPauseButton.setBackgroundResource(android.R.drawable.ic_media_play);
+					mPauseButton.setBackgroundResource(R.drawable.play);
 				} else {
 					mService.play();
-					mPauseButton.setBackgroundResource(android.R.drawable.ic_media_pause);
+					mPauseButton.setBackgroundResource(R.drawable.pause);
 				}
 			}
 		});
@@ -391,9 +391,9 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		}
 
 		if (mService.isPlaying()) {
-			mPauseButton.setBackgroundResource(android.R.drawable.ic_media_pause);
+			mPauseButton.setBackgroundResource(R.drawable.pause);
 		} else {
-			mPauseButton.setBackgroundResource(android.R.drawable.ic_media_play);
+			mPauseButton.setBackgroundResource(R.drawable.play);
 		}
 	}
 
@@ -432,7 +432,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 				ImageView imageView = (ImageView)v.findViewById(R.id.nowPlayingImageInList);
 				if (Playlist.getInstance().getPlayingIndex() == position) {
-					imageView.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+					imageView.setImageResource(R.drawable.volume_plus2);
 				} else {
 					imageView.setImageBitmap(null);
 				}
