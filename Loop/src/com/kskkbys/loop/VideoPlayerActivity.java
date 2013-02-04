@@ -62,8 +62,6 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	private SurfaceView mSurfaceView;
 	private ListView mPlayListView;
 
-	private ProgressDialogFragment mProgressDialogFragment;
-
 	private ServiceConnection mConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -235,12 +233,6 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	protected void onResume() {
 		super.onResume();
 		Log.v(TAG, "onResume");
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Log.v(TAG, "onSavedInstanceState");
 	}
 
 	@Override
@@ -457,34 +449,5 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	@Override
 	public void onEndLoadVideo() {
 		dismissProgress();
-	}
-
-	private void showProgress(int resId) {
-		Log.v(TAG, "showProgress");
-		// Remove prev fragment
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
-		if (prev != null) {
-			ft.remove(prev);
-		}
-		ft.addToBackStack(null);
-		// Show dialog fragment
-		if (mProgressDialogFragment == null) {
-			mProgressDialogFragment = ProgressDialogFragment.newInstance(resId);
-			mProgressDialogFragment.show(ft, "dialog");
-		}
-	}
-
-	private void dismissProgress() {
-		Log.v(TAG, "dismissProgress");
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
-		if (prev != null) {
-			ft.remove(prev);
-		}
-		if (mProgressDialogFragment != null) {
-			mProgressDialogFragment.dismiss();
-			mProgressDialogFragment = null;
-		}
 	}
 }
