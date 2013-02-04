@@ -71,6 +71,11 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 			// Set this activity to the service
 			mService.setListener(VideoPlayerActivity.this);
+			
+			// If the MediaPlayer is INIT_STATE(= loading video), show progress
+			if (mService.getState() == VideoPlayerService.STATE_INIT) {
+				showProgress(R.string.loop_video_player_dialog_loading);
+			}
 
 			//
 			updateVideoInfo();
@@ -314,6 +319,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	public void onPrepared() {
 		Log.v(TAG, "onPrepared");
 		updateVideoInfo();
+		dismissProgress();
 		//Toast.makeText(this, "OnPrepared", Toast.LENGTH_SHORT).show();
 	}
 

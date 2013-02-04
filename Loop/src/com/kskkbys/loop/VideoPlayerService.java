@@ -39,10 +39,10 @@ import android.view.SurfaceHolder;
 public class VideoPlayerService extends Service {
 
 	private static final String TAG = VideoPlayerService.class.getSimpleName();
-	private static final int STATE_INIT = 0;
-	private static final int STATE_PEPARED = 1;
-	private static final int STATE_PLAYING = 2;
-	private static final int STATE_COMPLETE = 3;
+	public static final int STATE_INIT = 0;
+	public static final int STATE_PEPARED = 1;
+	public static final int STATE_PLAYING = 2;
+	public static final int STATE_COMPLETE = 3;
 
 	private NotificationManager mNM;
 
@@ -274,6 +274,14 @@ public class VideoPlayerService extends Service {
 			YouTubePlayTask task = new YouTubePlayTask(video.getId());
 			task.execute();
 		}
+	}
+	
+	/**
+	 * Get the media player state
+	 * @return
+	 */
+	public int getState() {
+		return this.mState;
 	}
 
 	/**

@@ -9,9 +9,9 @@ import android.support.v4.app.DialogFragment;
  * Progress dialog fragment
  */
 public class ProgressDialogFragment extends DialogFragment {
-	
+
 	private int mMessageId;
-	
+
 	public static ProgressDialogFragment newInstance(int resId) {
 		ProgressDialogFragment fragment = new ProgressDialogFragment();
 		fragment.mMessageId = resId;
@@ -21,9 +21,10 @@ public class ProgressDialogFragment extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		ProgressDialog dialog = new ProgressDialog(getActivity());
+
 		dialog.setMessage(getText(mMessageId));
 		dialog.setCancelable(false);
 		return dialog;
 	}
-	
+
 }
