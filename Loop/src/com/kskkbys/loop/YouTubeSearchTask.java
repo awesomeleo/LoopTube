@@ -110,7 +110,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 	 */
 	private List<Video> createVideoList(YouTubeSearchResult result) {
 		List<Video> videoList = new ArrayList<Video>();
-		if (result != null && result.feed != null) {
+		if (result != null && result.feed != null && result.feed.entry != null) {
 			for (YouTubeSearchResult.Feed.Entry entry : result.feed.entry) {
 				Video v = new Video(
 						getVideoId(entry.id.$t),
