@@ -35,7 +35,7 @@
                 android:layout_marginRight="5dp"
                 android:layout_gravity="center_vertical"
                 android:adjustViewBounds="true"
-                android:background="@drawable/synchronize2" />
+                android:background="@drawable/synchronize_off" />
 
             <SeekBar
                 android:id="@+id/playerSeekBar"

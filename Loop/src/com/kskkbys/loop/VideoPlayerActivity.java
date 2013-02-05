@@ -54,6 +54,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	private Timer mTimer;
 
 	private View mPauseButton;
+	private View mLoopButton;
 	private SurfaceView mSurfaceView;
 	private ListView mPlayListView;
 
@@ -114,6 +115,14 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 					mService.play();
 					mPauseButton.setBackgroundResource(R.drawable.pause);
 				}
+			}
+		});
+		mLoopButton = findViewById(R.id.loopButton);
+		mLoopButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.v(TAG, "loop clicked");
+				switchLoop();
 			}
 		});
 		mSeekBar = (SeekBar)findViewById(R.id.playerSeekBar);
@@ -242,26 +251,36 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		return true;
 	}
 
+	/*
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_repeat:
-			if (Playlist.getInstance().getCurrentVideo() != null) {
-				if (mService != null) {
-					if (mService.isLooping()) {
-						// stop looping
-						mService.setLooping(false);
-						item.setTitle(R.string.loop_menu_item_start_repeat);
-					} else {
-						// start looping
-						mService.setLooping(true);
-						item.setTitle(R.string.loop_menu_item_stop_repeat);
-					}
-				}
-			}
+			switchLoop();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
+		}
+	}*/
+	
+	/**
+	 * Switch looping
+	 */
+	private void switchLoop() {
+		if (Playlist.getInstance().getCurrentVideo() != null) {
+			if (mService != null) {
+				if (mService.isLooping()) {
+					// stop looping
+					Log.v(TAG, "Stop looping");
+					mService.setLooping(false);
+					mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
+				} else {
+					// start looping
+					Log.v(TAG, "Start looping");
+					mService.setLooping(true);
+					mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
+				}
+			}
 		}
 	}
 

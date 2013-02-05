@@ -49,6 +49,7 @@ public class VideoPlayerService extends Service {
 	// MediaPlayer
 	private static MediaPlayer mMediaPlayer;
 	private int mState;
+	private boolean mIsLooping;
 
 	// VideoPlayerActivity
 	private MediaPlayerCallback mListener;
@@ -75,6 +76,7 @@ public class VideoPlayerService extends Service {
 
 		// state of MediaPlayer
 		mState = STATE_INIT;
+		mIsLooping = false;
 
 		// Initialize MediaPlayer
 		mMediaPlayer = new MediaPlayer();
@@ -110,8 +112,9 @@ public class VideoPlayerService extends Service {
 		mMediaPlayer.setOnPreparedListener(new OnPreparedListener() {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
-				// When prepared, start to played
+				// When prepared, start to play video
 				mState = STATE_PEPARED;
+				mp.setLooping(mIsLooping);	//set loop setting
 				play();
 				// Notify
 				if (mListener != null) {
@@ -240,6 +243,7 @@ public class VideoPlayerService extends Service {
 
 	public void setLooping(boolean isRepeat) {
 		Log.v(TAG, "setRepeat");
+		mIsLooping = isRepeat;
 		mMediaPlayer.setLooping(isRepeat);
 	}
 
