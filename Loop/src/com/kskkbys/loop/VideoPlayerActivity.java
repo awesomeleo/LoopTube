@@ -412,6 +412,12 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		} else {
 			mPauseButton.setBackgroundResource(R.drawable.play);
 		}
+		
+		if (mService.isLooping()) {
+			mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
+		} else {
+			mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
+		}
 	}
 
 	/**
