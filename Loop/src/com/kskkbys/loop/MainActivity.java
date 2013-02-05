@@ -98,7 +98,8 @@ public class MainActivity extends BaseActivity {
 				// Check connection
 				if (!ConnectionState.isConnected(MainActivity.this)) {
 					Log.w(TAG, "bad connection");
-					SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
+					// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
+					showAlert(R.string.loop_main_error_bad_connection);
 					return;
 				} else {
 					Log.v(TAG, "connection ok");
@@ -234,7 +235,8 @@ public class MainActivity extends BaseActivity {
 					// Check connection
 					if (!ConnectionState.isConnected(MainActivity.this)) {
 						Log.w(TAG, "bad connection");
-						SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
+						// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
+						showAlert(R.string.loop_main_error_bad_connection);
 						return;
 					} else {
 						ListView listView = (ListView) parent;
@@ -264,7 +266,8 @@ public class MainActivity extends BaseActivity {
 			if (Playlist.getInstance().getCurrentVideo() != null) {
 				startActivity(new Intent(MainActivity.this, VideoPlayerActivity.class));
 			} else {
-				SimpleErrorDialog.show(this, R.string.loop_main_dialog_not_playing);
+				//SimpleErrorDialog.show(this, R.string.loop_main_dialog_not_playing);
+				showAlert(R.string.loop_main_dialog_not_playing);
 			}
 			return true;
 		case R.id.menu_clear_history:
