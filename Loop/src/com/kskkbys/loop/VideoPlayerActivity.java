@@ -1,5 +1,6 @@
 package com.kskkbys.loop;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -46,15 +47,23 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	private boolean mIsBound = false;
 
 	// UI
+	private TextView mDurationView;
 	private SeekBar mSeekBar;
 	private Handler mHandler = new Handler();
 	private boolean mIsSeeking = false;
-	private Timer mTimer;
+	private Timer mSeekBarTimer;
+
+	private Date mLastTouchDate;
+	private Timer mTouchEventTimer;
 
 	private View mPauseButton;
+	private View mPrevButton;
+	private View mNextButton;
 	private View mLoopButton;
 	private View mVolumeButton;
+	private boolean mIsShowingControl;
 	private SurfaceView mSurfaceView;
+
 	private ListView mPlayListView;
 
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -66,7 +75,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 			// Set this activity to the service
 			mService.setListener(VideoPlayerActivity.this);
-			
+
 			// If the MediaPlayer is INIT_STATE(= loading video), show progress
 			if (mService.getState() == VideoPlayerService.STATE_INIT) {
 				showProgress(R.string.loop_video_player_dialog_loading);
@@ -91,13 +100,15 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		Log.v(TAG, "onCreate");
 
 		// Controller
-		findViewById(R.id.prevButton).setOnClickListener(new OnClickListener() {
+		mPrevButton = findViewById(R.id.prevButton);
+		mPrevButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				mService.prev();
 			}
 		});
-		findViewById(R.id.nextButton).setOnClickListener(new OnClickListener() {
+		mNextButton = findViewById(R.id.nextButton);
+		mNextButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				mService.next();
@@ -132,6 +143,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				switchMute();
 			}
 		});
+		mDurationView = (TextView)findViewById(R.id.durationText);
 		mSeekBar = (SeekBar)findViewById(R.id.playerSeekBar);
 		mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			@Override
@@ -153,8 +165,8 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		});
 
 		// Update seek position with handler
-		mTimer = new Timer();
-		mTimer.schedule(new TimerTask() {
+		mSeekBarTimer = new Timer();
+		mSeekBarTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				mHandler.post(new Runnable() {
@@ -163,7 +175,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 						//Log.v(TAG, "SeekBar update");
 						if (Playlist.getInstance().getCurrentVideo() == null) {
 							// finished to play
-							mTimer.cancel();
+							mSeekBarTimer.cancel();
 						} else {
 							if (mService != null && !mIsSeeking) {
 								TextView durationView = (TextView)findViewById(R.id.durationText);
@@ -182,54 +194,77 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			}
 		}, 0, 500);
 
-		// SurfaceView
-		mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
-		SurfaceHolder holder = mSurfaceView.getHolder();
-		holder.addCallback(new SurfaceHolder.Callback() {
+		mLastTouchDate = new Date();
+		mTouchEventTimer = new Timer();
+		mTouchEventTimer.schedule(new TimerTask() {
 			@Override
-			public void surfaceDestroyed(SurfaceHolder holder) {
-				Log.v(TAG, "surface destroyed");
-				VideoPlayerService.setSurfaceHolder(null);
+			public void run() {
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						if (mIsShowingControl) {
+							Date date = new Date();
+							if (date.getTime() - mLastTouchDate.getTime() > 10 * 1000) {
+								mIsShowingControl = false;
+								updateControlVisibility();
+							}
+						}
+					}
+				});
 			}
+		}, 0, 1000);
 
-			@Override
-			public void surfaceCreated(SurfaceHolder holder) {
-				Log.v(TAG, "surface created");
-				// After surface view is created, attach it to MediaPlayer
-				int width = mSurfaceView.getWidth();
-				int height = width * 9 / 16;
-				holder.setFixedSize(width, height);
-				VideoPlayerService.setSurfaceHolder(holder);
-			}
+				// SurfaceView
+				mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
+				SurfaceHolder holder = mSurfaceView.getHolder();
+				holder.addCallback(new SurfaceHolder.Callback() {
+					@Override
+					public void surfaceDestroyed(SurfaceHolder holder) {
+						Log.v(TAG, "surface destroyed");
+						VideoPlayerService.setSurfaceHolder(null);
+					}
 
-			@Override
-			public void surfaceChanged(SurfaceHolder holder, int format, int width,
-					int height) {
-				Log.v(TAG, "surafce changed");
-			}
-		});
+					@Override
+					public void surfaceCreated(SurfaceHolder holder) {
+						Log.v(TAG, "surface created");
+						// After surface view is created, attach it to MediaPlayer
+						int width = mSurfaceView.getWidth();
+						int height = width * 9 / 16;
+						holder.setFixedSize(width, height);
+						VideoPlayerService.setSurfaceHolder(holder);
+					}
 
-		// PlayListView
-		mPlayListView = (ListView)findViewById(R.id.playListView);
-		mPlayListView.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Log.v(TAG, "onItemClick " + position);
-				// Toast.makeText(VideoPlayerActivity.this, "OnItemClick: " + position, Toast.LENGTH_SHORT).show();
-				Playlist.getInstance().setPlayingIndex(position);
-				mService.startVideo();
-			}
-		});
+					@Override
+					public void surfaceChanged(SurfaceHolder holder, int format, int width,
+							int height) {
+						Log.v(TAG, "surafce changed");
+					}
+				});
 
-		// Connect surfaceview to mediaplayer
-		if (!mIsBound) {
-			doBindService();
-		}
+				// PlayListView
+				mPlayListView = (ListView)findViewById(R.id.playListView);
+				mPlayListView.setOnItemClickListener(new OnItemClickListener() {
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+						Log.v(TAG, "onItemClick " + position);
+						// Toast.makeText(VideoPlayerActivity.this, "OnItemClick: " + position, Toast.LENGTH_SHORT).show();
+						Playlist.getInstance().setPlayingIndex(position);
+						mService.startVideo();
+					}
+				});
 
-		// action bar
-		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			getSupportActionBar().hide();
-		}
+				mIsSeeking = false;
+				mIsShowingControl = true;
+
+				// Connect surfaceview to mediaplayer
+				if (!mIsBound) {
+					doBindService();
+				}
+
+				// action bar
+				if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+					getSupportActionBar().hide();
+				}
 	}
 
 	@Override
@@ -238,8 +273,8 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 		Log.v(TAG, "onDestroy");
 
-		if (mTimer != null) {
-			mTimer.cancel();
+		if (mSeekBarTimer != null) {
+			mSeekBarTimer.cancel();
 		}
 
 		doUnbindService();
@@ -269,7 +304,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			return super.onOptionsItemSelected(item);
 		}
 	}*/
-	
+
 	/**
 	 * Switch looping
 	 */
@@ -290,7 +325,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			}
 		}
 	}
-	
+
 	/**
 	 * Switch mute on/off
 	 */
@@ -314,8 +349,15 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	public boolean onTouchEvent(MotionEvent event) {
 		Log.v(TAG, "onTouchEvent");
 		if (event.getAction() == MotionEvent.ACTION_UP) {
-			Log.v(TAG, "up");
-
+			Log.v(TAG, "onTouchEvent(up)");
+			mLastTouchDate = new Date();
+			if (mIsShowingControl) {
+				// mIsShowingControl = false;
+				// updateControlVisibility();
+			} else {
+				mIsShowingControl = true;
+				updateControlVisibility();
+			}
 		}
 		return super.onTouchEvent(event);
 	}
@@ -340,7 +382,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			// Remove listener of service
 			mService.setListener(null);
 			mService = null;
-			
+
 			// Detach our existing connection.
 			unbindService(mConnection);
 			mIsBound = false;
@@ -422,16 +464,15 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 		// For current video
 		Video video = Playlist.getInstance().getCurrentVideo();
-		TextView durationView = (TextView)findViewById(R.id.durationText);
 		if (video != null) {
 			getSupportActionBar().setTitle(video.getTitle());
 			int minutes = (video.getDuration() / 1000) / 60;
 			int seconds = (video.getDuration() / 1000) % 60;
-			durationView.setText(String.format("0:00 / %d:%02d", minutes, seconds));
+			mDurationView.setText(String.format("0:00 / %d:%02d", minutes, seconds));
 			mSeekBar.setMax(video.getDuration());
 		} else {
 			getSupportActionBar().setTitle(R.string.loop_app_name);
-			durationView.setText("0:00 / 0:00");
+			mDurationView.setText("0:00 / 0:00");
 			mSeekBar.setMax(100);
 		}
 
@@ -440,17 +481,38 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		} else {
 			mPauseButton.setBackgroundResource(R.drawable.play);
 		}
-		
+
 		if (mService.isLooping()) {
 			mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
 		} else {
 			mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
 		}
-		
+
 		if (mService.isMute()) {
 			mVolumeButton.setBackgroundResource(R.drawable.volume_off);
 		} else {
 			mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
+		}
+	}
+
+	private void updateControlVisibility() {
+		// Dismiss UI controls when touch event has not been invoked
+		if (!mIsShowingControl) {
+			mVolumeButton.setVisibility(View.INVISIBLE);
+			mLoopButton.setVisibility(View.INVISIBLE);
+			mSeekBar.setVisibility(View.INVISIBLE);
+			mDurationView.setVisibility(View.INVISIBLE);
+			mPauseButton.setVisibility(View.INVISIBLE);
+			mPrevButton.setVisibility(View.INVISIBLE);
+			mNextButton.setVisibility(View.INVISIBLE);
+		} else {
+			mVolumeButton.setVisibility(View.VISIBLE);
+			mLoopButton.setVisibility(View.VISIBLE);
+			mSeekBar.setVisibility(View.VISIBLE);
+			mDurationView.setVisibility(View.VISIBLE);
+			mPauseButton.setVisibility(View.VISIBLE);
+			mPrevButton.setVisibility(View.VISIBLE);
+			mNextButton.setVisibility(View.VISIBLE);
 		}
 	}
 
