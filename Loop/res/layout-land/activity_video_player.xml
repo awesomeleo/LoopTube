@@ -30,7 +30,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="5dp"
                 android:layout_gravity="center_vertical"
@@ -41,7 +41,7 @@
                 android:id="@+id/playerSeekBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="10" />
 
@@ -49,13 +49,28 @@
                 android:id="@+id/durationText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="15dp"
                 android:singleLine="true"
                 android:scrollHorizontally="true"
                 android:layout_gravity="center_vertical"
                 android:text="@string/loop_video_player_default_duration" />
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_gravity="bottom|left">
+            
+            <ImageView
+                android:id="@+id/volumeButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/volume_plus2" />
+            
         </LinearLayout>
 
         <LinearLayout
