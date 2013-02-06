@@ -46,6 +46,21 @@
                 android:layout_gravity="center_vertical"
                 android:text="@string/loop_video_player_default_duration" />
         </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_gravity="bottom|left">
+            
+            <ImageView
+                android:id="@+id/volumeButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/volume_plus2" />
+            
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -54,25 +69,25 @@
 
             <ImageView
                 android:id="@+id/prevButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@drawable/rewind" />
 
             <ImageView
                 android:id="@+id/pauseButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
                 android:adjustViewBounds="true"
                 android:background="@drawable/pause" />
 
             <ImageView
                 android:id="@+id/nextButton"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@drawable/forward" />
         </LinearLayout>

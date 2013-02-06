@@ -53,6 +53,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 	private View mPauseButton;
 	private View mLoopButton;
+	private View mVolumeButton;
 	private SurfaceView mSurfaceView;
 	private ListView mPlayListView;
 
@@ -121,6 +122,14 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			public void onClick(View v) {
 				Log.v(TAG, "loop clicked");
 				switchLoop();
+			}
+		});
+		mVolumeButton = findViewById(R.id.volumeButton);
+		mVolumeButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.v(TAG, "volume clicked");
+				switchMute();
 			}
 		});
 		mSeekBar = (SeekBar)findViewById(R.id.playerSeekBar);
@@ -277,6 +286,25 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 					Log.v(TAG, "Start looping");
 					mService.setLooping(true);
 					mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Switch mute on/off
+	 */
+	private void switchMute() {
+		if (Playlist.getInstance().getCurrentVideo() != null) {
+			if (mService != null) {
+				if (mService.isMute()) {
+					Log.v(TAG, "Mute Off");
+					mService.setMute(false);
+					mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
+				} else {
+					Log.v(TAG, "Mute On");
+					mService.setMute(true);
+					mVolumeButton.setBackgroundResource(R.drawable.volume_off);
 				}
 			}
 		}
