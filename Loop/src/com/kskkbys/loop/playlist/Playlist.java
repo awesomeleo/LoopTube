@@ -15,6 +15,7 @@ public class Playlist {
 	
 	private List<Video> mVideoList;
 	private int mPlayingIndex;
+	private String mQuery;
 	
 	/**
 	 * Constructor
@@ -22,6 +23,7 @@ public class Playlist {
 	private Playlist() {
 		this.mVideoList = new ArrayList<Video>();
 		this.mPlayingIndex = -1;
+		this.mQuery = null;
 	}
 	
 	/**
@@ -46,10 +48,19 @@ public class Playlist {
 	}
 	
 	/**
+	 * 
+	 * @return
+	 */
+	public String getQuery() {
+		return mQuery;
+	}
+	
+	/**
 	 * Set video list. The playing index is set to 0.
 	 * @param videos
 	 */
-	public void setVideoList(List<Video> videos) {
+	public void setVideoList(String query, List<Video> videos) {
+		this.mQuery = query;
 		this.mVideoList = videos;
 		if (mVideoList != null && mVideoList.size() > 0) {
 			this.mPlayingIndex = 0;

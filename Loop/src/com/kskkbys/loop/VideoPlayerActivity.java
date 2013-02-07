@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.actionbarsherlock.view.Menu;
+import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.playlist.Playlist;
 
@@ -98,6 +99,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		setContentView(R.layout.activity_video_player);
 
 		KLog.v(TAG, "onCreate");
+		FlurryLogger.logEvent(FlurryLogger.SEE_PLAYER);
 
 		// Controller
 		mPrevButton = findViewById(R.id.prevButton);
@@ -270,13 +272,13 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-
 		KLog.v(TAG, "onDestroy");
-
 		if (mSeekBarTimer != null) {
 			mSeekBarTimer.cancel();
 		}
-
+		if (mTouchEventTimer != null) {
+			mTouchEventTimer.cancel();
+		}
 		doUnbindService();
 	}
 

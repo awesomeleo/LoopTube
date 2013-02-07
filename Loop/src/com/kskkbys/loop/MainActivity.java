@@ -15,7 +15,7 @@ import java.util.Map;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.flurry.android.FlurryAgent;
+import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.Playlist;
@@ -74,6 +74,7 @@ public class MainActivity extends BaseActivity {
 		setContentView(R.layout.activity_main);
 
 		KLog.v(TAG, "onCreate");
+		FlurryLogger.logEvent(FlurryLogger.SEE_SEARCH);
 
 		// Start service here.
 		// This api call is needed in order to keep the service alive 
@@ -109,7 +110,7 @@ public class MainActivity extends BaseActivity {
 
 					Map<String, String> param = new HashMap<String, String>();
 					param.put("query", query);
-					FlurryAgent.logEvent("Search artist", param);
+					FlurryLogger.logEvent(FlurryLogger.SEARCH_ARTIST, param);
 
 					searchQuery(query);
 				}
@@ -310,8 +311,8 @@ public class MainActivity extends BaseActivity {
 	 * Start video player
 	 * @param result
 	 */
-	public void startVideoPlayer(List<Video> result) {
-		Playlist.getInstance().setVideoList(result);
+	public void startVideoPlayer(String query, List<Video> result) {
+		Playlist.getInstance().setVideoList(query, result);
 		this.mService.startVideo();
 		// Go next activity
 		goNextActivity();

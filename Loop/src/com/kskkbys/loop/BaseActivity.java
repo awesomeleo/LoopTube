@@ -5,9 +5,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.flurry.android.FlurryAgent;
 import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.dialog.ProgressDialogFragment;
+import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 
 /**
@@ -17,7 +17,6 @@ import com.kskkbys.loop.logger.KLog;
 public class BaseActivity extends SherlockFragmentActivity {
 
 	private static final String TAG = BaseActivity.class.getSimpleName();
-	private static final String apiKey = "GNRQ5VMSSVJ2WR2W38SD";
 
 	private ProgressDialogFragment mProgressDialogFragment;
 	
@@ -36,14 +35,14 @@ public class BaseActivity extends SherlockFragmentActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		FlurryAgent.onStartSession(this, apiKey);
-		FlurryAgent.onPageView();
+		FlurryLogger.onStartSession(this);
+		FlurryLogger.onPageView();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		FlurryAgent.onEndSession(this);
+		FlurryLogger.onEndSession(this);
 	}
 
 	@Override

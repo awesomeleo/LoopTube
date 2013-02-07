@@ -32,7 +32,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	private MainActivity mParent;
 	private YouTubeSearchResult mResult;
-
+	private String mQuery;
 	private ProgressDialog mProgressDialog;
 
 	public YouTubeSearchTask(MainActivity parent) {
@@ -41,6 +41,8 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	@Override
 	protected String doInBackground(String... query) {
+		
+		mQuery = query[0];
 
 		String uri = null;
 		try {
@@ -96,7 +98,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		mProgressDialog.dismiss();
 		List<Video> videos = createVideoList(this.mResult);
 		if (videos != null && videos.size() > 0) {
-			this.mParent.startVideoPlayer(videos);
+			this.mParent.startVideoPlayer(mQuery, videos);
 		} else {
 			KLog.v(TAG, "Video list is empty. Network state may be bad.");
 			//SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);

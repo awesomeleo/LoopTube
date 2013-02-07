@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
@@ -15,6 +17,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.playlist.Playlist;
 
@@ -52,6 +55,9 @@ public class VideoPlayerService extends Service {
 	private boolean mIsLooping;
 	private boolean mIsMute;
 	private float mVolume;
+	
+	// for Flurry
+	private boolean mIsPlaying;
 
 	// VideoPlayerActivity
 	private MediaPlayerCallback mListener;
@@ -74,6 +80,9 @@ public class VideoPlayerService extends Service {
 	@Override
 	public void onCreate() {
 		KLog.v(TAG, "onCreate");
+		
+		FlurryLogger.onStartSession(VideoPlayerService.this);
+		
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
 		// state of MediaPlayer
@@ -81,6 +90,8 @@ public class VideoPlayerService extends Service {
 		mIsLooping = false;
 		mIsMute = false;
 		mVolume = 1.0f;
+		// for flurry
+		mIsPlaying = false;
 
 		// Initialize MediaPlayer
 		mMediaPlayer = new MediaPlayer();
@@ -152,6 +163,9 @@ public class VideoPlayerService extends Service {
 	@Override
 	public void onDestroy() {
 		KLog.v(TAG, "onDestroy");
+		
+		FlurryLogger.onEndSession(VideoPlayerService.this);
+		
 		// Cancel the persistent notification.
 		mNM.cancel(NOTIFICATION_ID);
 
@@ -159,10 +173,15 @@ public class VideoPlayerService extends Service {
 		if (mMediaPlayer != null) {
 			mMediaPlayer.release();
 		}
+		
+		// If playing, send playing time to flurry
+		if (mIsPlaying) {
+			mIsPlaying = false;
+			FlurryLogger.endTimedEvent(FlurryLogger.PLAY_VIDEO);
+		}
 
 		// Tell the user we stopped.
 		KLog.v(TAG, "VideoPlayerService stopped.");
-		// Toast.makeText(this, "VideoPlayerService Stopped", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -223,6 +242,12 @@ public class VideoPlayerService extends Service {
 		if (mState == STATE_PEPARED || mState == STATE_PLAYING) {
 			mState = STATE_PLAYING;
 			mMediaPlayer.start();
+			if (!mIsPlaying) {
+				mIsPlaying = true;
+				Map<String, String> param = new HashMap<String, String>();
+				param.put("query", Playlist.getInstance().getQuery());
+				FlurryLogger.logEvent(FlurryLogger.PLAY_VIDEO, param, true);
+			}
 		} else {
 			KLog.w(TAG, "Invalid state: " + mState);
 		}
@@ -231,6 +256,10 @@ public class VideoPlayerService extends Service {
 		KLog.v(TAG, "pause");
 		if (mState == STATE_PLAYING) {
 			mMediaPlayer.pause();
+			if (mIsPlaying) {
+				mIsPlaying = false;
+				FlurryLogger.endTimedEvent(FlurryLogger.PLAY_VIDEO);
+			}
 		} else {
 			KLog.w(TAG, "Invalid state: " + mState);
 		}

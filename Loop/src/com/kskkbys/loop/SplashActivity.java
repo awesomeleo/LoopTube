@@ -1,5 +1,6 @@
 package com.kskkbys.loop;
 
+import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 
 import android.content.Intent;
@@ -20,6 +21,7 @@ public class SplashActivity extends BaseActivity {
 		// If first launch, show splash
 		LoopApplication app = (LoopApplication)getApplication();
 		if (app.isFirstLaunch()) {
+			FlurryLogger.logEvent(FlurryLogger.SEE_SPLASH);
 			setContentView(R.layout.activity_splash);
 			Handler handler = new Handler();
 			handler.postDelayed(new Runnable() {
