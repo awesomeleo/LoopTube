@@ -26,6 +26,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -352,7 +353,9 @@ public class VideoPlayerService extends Service {
 	 */
 	public static void setSurfaceHolder(SurfaceHolder holder) {
 		KLog.v(TAG, "setSurfaceView");
+		mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		mMediaPlayer.setDisplay(holder);
+		// mMediaPlayer.setDisplay(null);
 	}
 
 	/**

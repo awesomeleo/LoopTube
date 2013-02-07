@@ -29,7 +29,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -216,57 +218,87 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			}
 		}, 0, 1000);
 
-				// SurfaceView
-				mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
-				SurfaceHolder holder = mSurfaceView.getHolder();
-				holder.addCallback(new SurfaceHolder.Callback() {
-					@Override
-					public void surfaceDestroyed(SurfaceHolder holder) {
-						KLog.v(TAG, "surface destroyed");
-						VideoPlayerService.setSurfaceHolder(null);
-					}
+		// SurfaceView
+		//mSurfaceView = new SurfaceView(this);
+		mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
+		SurfaceHolder holder = mSurfaceView.getHolder();
+		holder.addCallback(new SurfaceHolder.Callback() {
+			@Override
+			public void surfaceDestroyed(SurfaceHolder holder) {
+				KLog.v(TAG, "surface destroyed");
+				VideoPlayerService.setSurfaceHolder(null);
+			}
+			@Override
+			public void surfaceCreated(SurfaceHolder holder) {
+				KLog.v(TAG, "surface created");
+				// After surface view is created, attach it to MediaPlayer
+				attachSurfaceViewToPlayer();
+			}
+			@Override
+			public void surfaceChanged(SurfaceHolder holder, int format, int width,
+					int height) {
+				KLog.v(TAG, "surafce changed");
+				KLog.v(TAG, "w = " + width);
+				KLog.v(TAG, "h = " + height);
+			}
+		});
+		
+		// PlayListView
+		mPlayListView = (ListView)findViewById(R.id.playListView);
+		mPlayListView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				KLog.v(TAG, "onItemClick " + position);
+				// Toast.makeText(VideoPlayerActivity.this, "OnItemClick: " + position, Toast.LENGTH_SHORT).show();
+				Playlist.getInstance().setPlayingIndex(position);
+				mService.startVideo();
+			}
+		});
 
-					@Override
-					public void surfaceCreated(SurfaceHolder holder) {
-						KLog.v(TAG, "surface created");
-						// After surface view is created, attach it to MediaPlayer
-						int width = mSurfaceView.getWidth();
-						int height = width * 9 / 16;
-						holder.setFixedSize(width, height);
-						VideoPlayerService.setSurfaceHolder(holder);
-					}
+		mIsSeeking = false;
+		mIsShowingControl = true;
 
-					@Override
-					public void surfaceChanged(SurfaceHolder holder, int format, int width,
-							int height) {
-						KLog.v(TAG, "surafce changed");
-					}
-				});
+		// Connect surfaceview to mediaplayer
+		if (!mIsBound) {
+			doBindService();
+		}
 
-				// PlayListView
-				mPlayListView = (ListView)findViewById(R.id.playListView);
-				mPlayListView.setOnItemClickListener(new OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-						KLog.v(TAG, "onItemClick " + position);
-						// Toast.makeText(VideoPlayerActivity.this, "OnItemClick: " + position, Toast.LENGTH_SHORT).show();
-						Playlist.getInstance().setPlayingIndex(position);
-						mService.startVideo();
-					}
-				});
-
-				mIsSeeking = false;
-				mIsShowingControl = true;
-
-				// Connect surfaceview to mediaplayer
-				if (!mIsBound) {
-					doBindService();
-				}
-
-				// action bar
-				if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-					getSupportActionBar().hide();
-				}
+		// action bar
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			getSupportActionBar().hide();
+		}
+	}
+	
+	/**
+	 * Set SurfaceView to MediaPlayer
+	 */
+	private void attachSurfaceViewToPlayer() {
+		SurfaceHolder holder = mSurfaceView.getHolder();
+		// set type
+		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);	// for Android 2.3
+		// set size
+		KLog.v(TAG, "before width = " + mSurfaceView.getWidth());
+		KLog.v(TAG, "before height = " + mSurfaceView.getHeight());
+		int width = mSurfaceView.getWidth();
+		int height = width * 9 / 16;
+		KLog.v(TAG, "set width = " + width);
+		KLog.v(TAG, "set height = " + height);
+		holder.setFixedSize(width, height);
+		setSurfaceViewSize(mSurfaceView, width, height);	// for Android 2.3
+		VideoPlayerService.setSurfaceHolder(holder);
+	}
+	
+	/**
+	 * For Android 2.3
+	 * @param view
+	 * @param width
+	 * @param height
+	 */
+	private void setSurfaceViewSize(SurfaceView view, int width, int height) {
+		android.view.ViewGroup.LayoutParams layout = view.getLayoutParams();
+		layout.width = width;
+		layout.height = height;
+		view.setLayoutParams(layout);
 	}
 
 	@Override
@@ -404,7 +436,9 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		KLog.v(TAG, "onPrepared");
 		updateVideoInfo();
 		dismissProgress();
-		//Toast.makeText(this, "OnPrepared", Toast.LENGTH_SHORT).show();
+		
+		// For Android 2.3: When start to play next video, attach SurfaceView again.
+		attachSurfaceViewToPlayer();
 	}
 
 	@Override
