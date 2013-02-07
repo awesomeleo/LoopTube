@@ -47,7 +47,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		String uri = null;
 		try {
 			uri = "http://gdata.youtube.com/feeds/api/videos?q="
-					+ URLEncoder.encode(query[0], "UTF-8") + "&alt=json";
+					+ URLEncoder.encode(query[0], "UTF-8") + "&alt=json&max-results=50";
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
