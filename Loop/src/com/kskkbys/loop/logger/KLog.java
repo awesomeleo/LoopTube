@@ -10,6 +10,12 @@ import android.util.Log;
  */
 public class KLog {
 	
+	public static void e(String tag, String msg, Throwable tr) {
+		if (BuildConfig.DEBUG) {
+			Log.e(tag, msg, tr);
+		}
+	}
+	
 	public static void e(String tag, String msg) {
 		if (BuildConfig.DEBUG) {
 			Log.e(tag, msg);

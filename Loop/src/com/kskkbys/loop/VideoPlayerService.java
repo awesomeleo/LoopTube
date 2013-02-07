@@ -443,9 +443,11 @@ public class VideoPlayerService extends Service {
 				client.getConnectionManager().shutdown();
 
 			} catch (MalformedURLException e) {
-				throw new RuntimeException();
+				KLog.e(TAG, "YouTubePlayTask error", e);
+				return false;
 			} catch (IOException e) {
-				throw new RuntimeException();
+				KLog.e(TAG, "YouTubePlayTask error", e);
+				return false;
 			}
 
 			Vector<String> url_encoded_fmt_stream_map = new Vector<String>();
