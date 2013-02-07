@@ -3,12 +3,12 @@ package com.kskkbys.loop;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.flurry.android.FlurryAgent;
 import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.dialog.ProgressDialogFragment;
+import com.kskkbys.loop.logger.KLog;
 
 /**
  * Base activity of all activities which extends SherlockActivity to support ActionBar.
@@ -59,7 +59,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 	}
 
 	protected void showAlert(int resId) {
-		Log.v(TAG, "showAlert");
+		KLog.v(TAG, "showAlert");
 		// Remove prev fragment
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
@@ -76,7 +76,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 	}
 
 	protected void showProgress(int resId) {
-		Log.v(TAG, "showProgress");
+		KLog.v(TAG, "showProgress");
 		// Remove prev fragment
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
@@ -93,7 +93,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 	}
 	
 	protected void dismissProgress() {
-		Log.v(TAG, "dismissProgress");
+		KLog.v(TAG, "dismissProgress");
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
 		if (prev != null) {

@@ -16,6 +16,7 @@ import java.util.Map;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.flurry.android.FlurryAgent;
+import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.Playlist;
 
@@ -28,7 +29,6 @@ import android.content.DialogInterface;
 import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -57,14 +57,14 @@ public class MainActivity extends BaseActivity {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mService = ((VideoPlayerService.VideoPlayerServiceBinder)service).getService();
 			//Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
-			Log.v(TAG, "service connected");
+			KLog.v(TAG, "service connected");
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			mService = null;
 			//Toast.makeText(MainActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
-			Log.v(TAG, "service disconnected");
+			KLog.v(TAG, "service disconnected");
 		}
 	};
 
@@ -73,7 +73,7 @@ public class MainActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Log.v(TAG, "onCreate");
+		KLog.v(TAG, "onCreate");
 
 		// Start service here.
 		// This api call is needed in order to keep the service alive 
@@ -97,12 +97,12 @@ public class MainActivity extends BaseActivity {
 			public void onClick(View v) {
 				// Check connection
 				if (!ConnectionState.isConnected(MainActivity.this)) {
-					Log.w(TAG, "bad connection");
+					KLog.w(TAG, "bad connection");
 					// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
 					showAlert(R.string.loop_main_error_bad_connection);
 					return;
 				} else {
-					Log.v(TAG, "connection ok");
+					KLog.v(TAG, "connection ok");
 					// Search query
 					EditText searchEditText = (EditText)findViewById(R.id.searchText);
 					String query = searchEditText.getEditableText().toString();
@@ -119,7 +119,7 @@ public class MainActivity extends BaseActivity {
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = getIntent().getBooleanExtra("from_notification", false);
 		if (isFromNotification) {
-			Log.v(TAG, "Launched from notification. Go next activity.");
+			KLog.v(TAG, "Launched from notification. Go next activity.");
 			goNextActivity();
 			return;
 		}
@@ -130,11 +130,11 @@ public class MainActivity extends BaseActivity {
 
 	@Override
 	protected void onNewIntent(Intent intent) {
-		Log.v(TAG, "onNewIntent");
+		KLog.v(TAG, "onNewIntent");
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = intent.getBooleanExtra("from_notification", false);
 		if (isFromNotification) {
-			Log.v(TAG, "Launched from notification. Go next activity.");
+			KLog.v(TAG, "Launched from notification. Go next activity.");
 			goNextActivity();
 			return;
 		}
@@ -199,7 +199,7 @@ public class MainActivity extends BaseActivity {
 		} catch (FileNotFoundException e) {
 			// Fisrt launching
 			//e.printStackTrace();
-			Log.w(TAG,"FileNotFound of search history. May be first launch.");
+			KLog.w(TAG,"FileNotFound of search history. May be first launch.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -231,10 +231,10 @@ public class MainActivity extends BaseActivity {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
-					Log.v(TAG, "onItemClick");
+					KLog.v(TAG, "onItemClick");
 					// Check connection
 					if (!ConnectionState.isConnected(MainActivity.this)) {
-						Log.w(TAG, "bad connection");
+						KLog.w(TAG, "bad connection");
 						// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
 						showAlert(R.string.loop_main_error_bad_connection);
 						return;

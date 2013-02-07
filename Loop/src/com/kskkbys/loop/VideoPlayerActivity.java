@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.actionbarsherlock.view.Menu;
+import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.app.AlertDialog;
@@ -17,7 +18,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -69,7 +69,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	private ServiceConnection mConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			Log.v(TAG, "service connected");
+			KLog.v(TAG, "service connected");
 			mService = ((VideoPlayerService.VideoPlayerServiceBinder)service).getService();
 			// Toast.makeText(VideoPlayerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
 
@@ -88,7 +88,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			mService = null;
-			Log.v(TAG, "Service disconnected");
+			KLog.v(TAG, "Service disconnected");
 			//Toast.makeText(VideoPlayerActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
 		}
 	};
@@ -97,7 +97,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_video_player);
 
-		Log.v(TAG, "onCreate");
+		KLog.v(TAG, "onCreate");
 
 		// Controller
 		mPrevButton = findViewById(R.id.prevButton);
@@ -131,7 +131,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		mLoopButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.v(TAG, "loop clicked");
+				KLog.v(TAG, "loop clicked");
 				switchLoop();
 			}
 		});
@@ -139,7 +139,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		mVolumeButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.v(TAG, "volume clicked");
+				KLog.v(TAG, "volume clicked");
 				switchMute();
 			}
 		});
@@ -148,19 +148,19 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				Log.v(TAG, "onStopTrackingTouch");
+				KLog.v(TAG, "onStopTrackingTouch");
 				showProgress(R.string.loop_video_player_dialog_seeking);
 				mService.seekTo(mSeekBar.getProgress());
 			}
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
-				Log.v(TAG, "onStartTrackingTouch");
+				KLog.v(TAG, "onStartTrackingTouch");
 				mIsSeeking = true;
 			}
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
-				// Log.v(TAG, "onProgressChanged");
+				// KLog.v(TAG, "onProgressChanged");
 			}
 		});
 
@@ -172,7 +172,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				mHandler.post(new Runnable() {
 					@Override
 					public void run() {
-						//Log.v(TAG, "SeekBar update");
+						//KLog.v(TAG, "SeekBar update");
 						if (Playlist.getInstance().getCurrentVideo() == null) {
 							// finished to play
 							mSeekBarTimer.cancel();
@@ -220,13 +220,13 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				holder.addCallback(new SurfaceHolder.Callback() {
 					@Override
 					public void surfaceDestroyed(SurfaceHolder holder) {
-						Log.v(TAG, "surface destroyed");
+						KLog.v(TAG, "surface destroyed");
 						VideoPlayerService.setSurfaceHolder(null);
 					}
 
 					@Override
 					public void surfaceCreated(SurfaceHolder holder) {
-						Log.v(TAG, "surface created");
+						KLog.v(TAG, "surface created");
 						// After surface view is created, attach it to MediaPlayer
 						int width = mSurfaceView.getWidth();
 						int height = width * 9 / 16;
@@ -237,7 +237,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 					@Override
 					public void surfaceChanged(SurfaceHolder holder, int format, int width,
 							int height) {
-						Log.v(TAG, "surafce changed");
+						KLog.v(TAG, "surafce changed");
 					}
 				});
 
@@ -246,7 +246,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 				mPlayListView.setOnItemClickListener(new OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-						Log.v(TAG, "onItemClick " + position);
+						KLog.v(TAG, "onItemClick " + position);
 						// Toast.makeText(VideoPlayerActivity.this, "OnItemClick: " + position, Toast.LENGTH_SHORT).show();
 						Playlist.getInstance().setPlayingIndex(position);
 						mService.startVideo();
@@ -271,7 +271,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	protected void onDestroy() {
 		super.onDestroy();
 
-		Log.v(TAG, "onDestroy");
+		KLog.v(TAG, "onDestroy");
 
 		if (mSeekBarTimer != null) {
 			mSeekBarTimer.cancel();
@@ -283,7 +283,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.v(TAG, "onResume");
+		KLog.v(TAG, "onResume");
 	}
 
 	@Override
@@ -313,12 +313,12 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 			if (mService != null) {
 				if (mService.isLooping()) {
 					// stop looping
-					Log.v(TAG, "Stop looping");
+					KLog.v(TAG, "Stop looping");
 					mService.setLooping(false);
 					mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
 				} else {
 					// start looping
-					Log.v(TAG, "Start looping");
+					KLog.v(TAG, "Start looping");
 					mService.setLooping(true);
 					mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
 				}
@@ -333,11 +333,11 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		if (Playlist.getInstance().getCurrentVideo() != null) {
 			if (mService != null) {
 				if (mService.isMute()) {
-					Log.v(TAG, "Mute Off");
+					KLog.v(TAG, "Mute Off");
 					mService.setMute(false);
 					mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
 				} else {
-					Log.v(TAG, "Mute On");
+					KLog.v(TAG, "Mute On");
 					mService.setMute(true);
 					mVolumeButton.setBackgroundResource(R.drawable.volume_off);
 				}
@@ -347,9 +347,9 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.v(TAG, "onTouchEvent");
+		KLog.v(TAG, "onTouchEvent");
 		if (event.getAction() == MotionEvent.ACTION_UP) {
-			Log.v(TAG, "onTouchEvent(up)");
+			KLog.v(TAG, "onTouchEvent(up)");
 			mLastTouchDate = new Date();
 			if (mIsShowingControl) {
 				// mIsShowingControl = false;
@@ -391,7 +391,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 	@Override
 	public void onError() {
-		Log.v(TAG, "OnError");
+		KLog.v(TAG, "OnError");
 		//Toast.makeText(this, "OnError", Toast.LENGTH_SHORT).show();
 	}
 
@@ -399,7 +399,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 	@Override
 	public void onPrepared() {
-		Log.v(TAG, "onPrepared");
+		KLog.v(TAG, "onPrepared");
 		updateVideoInfo();
 		dismissProgress();
 		//Toast.makeText(this, "OnPrepared", Toast.LENGTH_SHORT).show();
@@ -407,7 +407,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 	@Override
 	public void onCompletion() {
-		Log.v(TAG, "OnCompletion");
+		KLog.v(TAG, "OnCompletion");
 		//Toast.makeText(this, "OnCompletion", Toast.LENGTH_SHORT).show();
 
 		// End of playlist => close the player
@@ -422,7 +422,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		int msec = mService.getCurrentPosition();
 		mSeekBar.setProgress(msec / 1000);
 
-		Log.v(TAG, "onSeekComplete");
+		KLog.v(TAG, "onSeekComplete");
 		//Toast.makeText(this, "OnSeekComplete", Toast.LENGTH_SHORT).show();
 
 		dismissProgress();
@@ -454,7 +454,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 
 	private void updateVideoInfo() {
 		if (mService == null) {
-			Log.e(TAG, "Not connected with Service!");
+			KLog.e(TAG, "Not connected with Service!");
 			return;
 		}
 

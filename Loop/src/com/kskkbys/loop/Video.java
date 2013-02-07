@@ -1,7 +1,5 @@
 package com.kskkbys.loop;
 
-//import android.util.Log;
-
 public class Video {
 	
 	//private static final String TAG = Video.class.getSimpleName();

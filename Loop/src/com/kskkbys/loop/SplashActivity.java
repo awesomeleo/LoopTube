@@ -1,9 +1,10 @@
 package com.kskkbys.loop;
 
+import com.kskkbys.loop.logger.KLog;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
 public class SplashActivity extends BaseActivity {
 
@@ -12,7 +13,7 @@ public class SplashActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.v(TAG, "onCreate");
+		KLog.v(TAG, "onCreate");
 		
 		getSupportActionBar().hide();
 		

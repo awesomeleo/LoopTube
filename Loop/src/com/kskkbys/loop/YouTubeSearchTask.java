@@ -17,10 +17,10 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import com.google.gson.Gson;
+import com.kskkbys.loop.logger.KLog;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * Asynchronous task to search youtube videos
@@ -58,17 +58,17 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		try {
 			HttpResponse response = client.execute(request);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-				Log.v(TAG, "OK");
+				KLog.v(TAG, "OK");
 				InputStreamReader isr = new InputStreamReader(response.getEntity().getContent());
 				BufferedReader br = new BufferedReader(isr);
 				String line = br.readLine();
-				Log.v(TAG, line);
+				KLog.v(TAG, line);
 				br.close();
 
 				Gson gson = new Gson();
 				this.mResult = gson.fromJson(line, YouTubeSearchResult.class);
 			} else {
-				Log.e(TAG, "NG: " + response.getStatusLine().getStatusCode());
+				KLog.e(TAG, "NG: " + response.getStatusLine().getStatusCode());
 			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
@@ -98,7 +98,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		if (videos != null && videos.size() > 0) {
 			this.mParent.startVideoPlayer(videos);
 		} else {
-			Log.v(TAG, "Video list is empty. Network state may be bad.");
+			KLog.v(TAG, "Video list is empty. Network state may be bad.");
 			//SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);
 			mParent.showAlert(R.string.loop_main_error_no_video);
 		}

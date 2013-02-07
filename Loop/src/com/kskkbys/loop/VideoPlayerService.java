@@ -15,6 +15,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.app.Notification;
@@ -30,7 +31,6 @@ import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 /**
@@ -73,7 +73,7 @@ public class VideoPlayerService extends Service {
 
 	@Override
 	public void onCreate() {
-		Log.v(TAG, "onCreate");
+		KLog.v(TAG, "onCreate");
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
 		// state of MediaPlayer
@@ -87,6 +87,9 @@ public class VideoPlayerService extends Service {
 		mMediaPlayer.setOnErrorListener(new OnErrorListener() {
 			@Override
 			public boolean onError(MediaPlayer mp, int what, int extra) {
+				KLog.e(TAG, "onError");
+				KLog.e(TAG, "what = " + what);
+				KLog.e(TAG, "extra = " + extra);
 				if (mListener != null) {
 					mListener.onError();
 				}
@@ -140,7 +143,7 @@ public class VideoPlayerService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.i("LocalService", "Received start id " + startId + ": " + intent);
+		KLog.i("LocalService", "Received start id " + startId + ": " + intent);
 		// We want this service to continue running until it is explicitly
 		// stopped, so return sticky.
 		return START_STICKY;
@@ -148,7 +151,7 @@ public class VideoPlayerService extends Service {
 
 	@Override
 	public void onDestroy() {
-		Log.v(TAG, "onDestroy");
+		KLog.v(TAG, "onDestroy");
 		// Cancel the persistent notification.
 		mNM.cancel(NOTIFICATION_ID);
 
@@ -158,7 +161,7 @@ public class VideoPlayerService extends Service {
 		}
 
 		// Tell the user we stopped.
-		Log.v(TAG, "VideoPlayerService stopped.");
+		KLog.v(TAG, "VideoPlayerService stopped.");
 		// Toast.makeText(this, "VideoPlayerService Stopped", Toast.LENGTH_SHORT).show();
 	}
 
@@ -201,13 +204,13 @@ public class VideoPlayerService extends Service {
 	}
 
 	public void prev() {
-		Log.v(TAG, "prev");
+		KLog.v(TAG, "prev");
 		Playlist.getInstance().prev();
 		startVideo();
 	}
 
 	public void next() {
-		Log.v(TAG,"next");
+		KLog.v(TAG,"next");
 		Playlist.getInstance().next();
 		startVideo();
 	}
@@ -216,37 +219,37 @@ public class VideoPlayerService extends Service {
 	 * After prepared, this method starts to play and changes its state to STATE_PLAYING.
 	 */
 	public void play() {
-		Log.v(TAG, "play");
+		KLog.v(TAG, "play");
 		if (mState == STATE_PEPARED || mState == STATE_PLAYING) {
 			mState = STATE_PLAYING;
 			mMediaPlayer.start();
 		} else {
-			Log.w(TAG, "Invalid state: " + mState);
+			KLog.w(TAG, "Invalid state: " + mState);
 		}
 	}
 	public void pause() {
-		Log.v(TAG, "pause");
+		KLog.v(TAG, "pause");
 		if (mState == STATE_PLAYING) {
 			mMediaPlayer.pause();
 		} else {
-			Log.w(TAG, "Invalid state: " + mState);
+			KLog.w(TAG, "Invalid state: " + mState);
 		}
 	}
 
 	public boolean isPlaying() {
-		Log.v(TAG, "isPlaying");
+		KLog.v(TAG, "isPlaying");
 		return mMediaPlayer.isPlaying();
 	}
 
 	public void seekTo(int msec) {
-		Log.v(TAG, "seekTo");
+		KLog.v(TAG, "seekTo");
 		if (mState == STATE_PLAYING) {
 			mMediaPlayer.seekTo(msec);
 		}
 	}
 
 	public void setLooping(boolean isRepeat) {
-		Log.v(TAG, "setRepeat");
+		KLog.v(TAG, "setRepeat");
 		mIsLooping = isRepeat;
 		mMediaPlayer.setLooping(isRepeat);
 	}
@@ -256,7 +259,7 @@ public class VideoPlayerService extends Service {
 	}
 	
 	public void setMute(boolean isMute) {
-		Log.v(TAG, "setMute");
+		KLog.v(TAG, "setMute");
 		mIsMute = isMute;
 		if (mIsMute) {
 			mMediaPlayer.setVolume(0, 0);
@@ -274,7 +277,7 @@ public class VideoPlayerService extends Service {
 	 * @return
 	 */
 	public int getCurrentPosition() {
-		//Log.v(TAG, "getCurrentPosition");	// called in 1sec
+		//KLog.v(TAG, "getCurrentPosition");	// called in 1sec
 		if (mState == STATE_PLAYING) {
 			return mMediaPlayer.getCurrentPosition();
 		} else {
@@ -286,7 +289,7 @@ public class VideoPlayerService extends Service {
 	 * Start to play video
 	 */
 	public void startVideo() {
-		Log.v(TAG, "startVideo");
+		KLog.v(TAG, "startVideo");
 		// Reset the current player
 		mMediaPlayer.reset();
 		mState = STATE_INIT;
@@ -319,7 +322,7 @@ public class VideoPlayerService extends Service {
 	 * @param surfaceView
 	 */
 	public static void setSurfaceHolder(SurfaceHolder holder) {
-		Log.v(TAG, "setSurfaceView");
+		KLog.v(TAG, "setSurfaceView");
 		mMediaPlayer.setDisplay(holder);
 	}
 
@@ -328,7 +331,7 @@ public class VideoPlayerService extends Service {
 	 * @param url
 	 */
 	private void setVideoUrl(String url) {
-		Log.v(TAG, "setVideoUrl");
+		KLog.v(TAG, "setVideoUrl");
 		if (mMediaPlayer != null) {
 			try {
 				// If already playing, reset the MediaPlayer
@@ -349,7 +352,7 @@ public class VideoPlayerService extends Service {
 				e.printStackTrace();
 			}
 		} else {
-			Log.e(TAG, "MediaPlayer is null!");
+			KLog.e(TAG, "MediaPlayer is null!");
 		}
 	}
 
@@ -371,7 +374,7 @@ public class VideoPlayerService extends Service {
 
 		@Override
 		protected void onPreExecute() {
-			Log.v(TAG, "onPreExecute");
+			KLog.v(TAG, "onPreExecute");
 			if (mListener != null) {
 				mListener.onStartLoadVideo();
 			}
@@ -441,8 +444,8 @@ public class VideoPlayerService extends Service {
 
 					try {
 						int fmt = Integer.parseInt(tmpstr.substring(begin + 5, end));
-						Log.v(TAG, "fmt = " + fmt);
-						Log.v(TAG, "tmpstr = " + tmpstr);
+						KLog.v(TAG, "fmt = " + fmt);
+						KLog.v(TAG, "tmpstr = " + tmpstr);
 
 						if (fmt == 18 /*35*/) {
 							begin = tmpstr.indexOf("url=");
@@ -466,9 +469,9 @@ public class VideoPlayerService extends Service {
 			}
 
 			// PLAY VIDEO
-			Log.v(TAG, "video url = " + result);
+			KLog.v(TAG, "video url = " + result);
 			if (result == null || result.length() == 0) {
-				Log.v(TAG, "Invalid video.");
+				KLog.v(TAG, "Invalid video.");
 				return false;
 			}
 			setVideoUrl(result);
@@ -478,8 +481,8 @@ public class VideoPlayerService extends Service {
 
 		@Override
 		protected void onPostExecute(Boolean success) {
-			Log.v(TAG, "onPostExecute");
-			Log.v(TAG, "PlayTask onPostExecute");
+			KLog.v(TAG, "onPostExecute");
+			KLog.v(TAG, "PlayTask onPostExecute");
 			if (mListener != null) {
 				mListener.onEndLoadVideo();
 				if (!success) {
