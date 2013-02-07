@@ -355,7 +355,6 @@ public class VideoPlayerService extends Service {
 		KLog.v(TAG, "setSurfaceView");
 		mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		mMediaPlayer.setDisplay(holder);
-		// mMediaPlayer.setDisplay(null);
 	}
 
 	/**
