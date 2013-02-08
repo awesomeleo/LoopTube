@@ -28,6 +28,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -284,8 +287,31 @@ public class MainActivity extends BaseActivity {
 			.setNegativeButton(R.string.loop_cancel, null);
 			builder.create().show();
 			return true;
+		case R.id.menu_version:
+			showVersion();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	private void showVersion() {
+		PackageManager pm = getPackageManager();
+		PackageInfo info;
+		try {
+			info = pm.getPackageInfo(this.getPackageName(), PackageManager.GET_ACTIVITIES);
+			String message = "Version " + info.versionName;
+			if (BuildConfig.DEBUG) {
+				message += " (Debug)";
+			}
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(R.string.loop_app_name);
+			builder.setMessage(message);
+			builder.setPositiveButton(R.string.loop_ok, null);
+			builder.create().show();
+		} catch (NameNotFoundException e) {
+			KLog.e(TAG, "package not found", e);
 		}
 	}
 
