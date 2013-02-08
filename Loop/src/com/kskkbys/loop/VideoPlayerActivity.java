@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -41,7 +42,8 @@ import android.widget.TextView;;
  * Video player
  *
  */
-public class VideoPlayerActivity extends BaseActivity implements VideoPlayerService.MediaPlayerCallback {
+public class VideoPlayerActivity extends BaseActivity 
+	implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 
 	private static final String TAG = VideoPlayerActivity.class.getSimpleName();
 
@@ -219,29 +221,11 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		}, 0, 1000);
 
 		// SurfaceView
-		//mSurfaceView = new SurfaceView(this);
+		// getWindow().setFormat(PixelFormat.TRANSPARENT);		// needed???
 		mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
 		SurfaceHolder holder = mSurfaceView.getHolder();
-		holder.addCallback(new SurfaceHolder.Callback() {
-			@Override
-			public void surfaceDestroyed(SurfaceHolder holder) {
-				KLog.v(TAG, "surface destroyed");
-				VideoPlayerService.setSurfaceHolder(null);
-			}
-			@Override
-			public void surfaceCreated(SurfaceHolder holder) {
-				KLog.v(TAG, "surface created");
-				// After surface view is created, attach it to MediaPlayer
-				attachSurfaceViewToPlayer();
-			}
-			@Override
-			public void surfaceChanged(SurfaceHolder holder, int format, int width,
-					int height) {
-				KLog.v(TAG, "surafce changed");
-				KLog.v(TAG, "w = " + width);
-				KLog.v(TAG, "h = " + height);
-			}
-		});
+		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		holder.addCallback(this);
 		
 		// PlayListView
 		mPlayListView = (ListView)findViewById(R.id.playListView);
@@ -267,38 +251,6 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			getSupportActionBar().hide();
 		}
-	}
-	
-	/**
-	 * Set SurfaceView to MediaPlayer
-	 */
-	private void attachSurfaceViewToPlayer() {
-		SurfaceHolder holder = mSurfaceView.getHolder();
-		// set type
-		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);	// for Android 2.3
-		// set size
-		KLog.v(TAG, "before width = " + mSurfaceView.getWidth());
-		KLog.v(TAG, "before height = " + mSurfaceView.getHeight());
-		int width = mSurfaceView.getWidth();
-		int height = width * 9 / 16;
-		KLog.v(TAG, "set width = " + width);
-		KLog.v(TAG, "set height = " + height);
-		holder.setFixedSize(width, height);
-		setSurfaceViewSize(mSurfaceView, width, height);	// for Android 2.3
-		VideoPlayerService.setSurfaceHolder(holder);
-	}
-	
-	/**
-	 * For Android 2.3
-	 * @param view
-	 * @param width
-	 * @param height
-	 */
-	private void setSurfaceViewSize(SurfaceView view, int width, int height) {
-		android.view.ViewGroup.LayoutParams layout = view.getLayoutParams();
-		layout.width = width;
-		layout.height = height;
-		view.setLayoutParams(layout);
 	}
 
 	@Override
@@ -438,7 +390,7 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 		dismissProgress();
 		
 		// For Android 2.3: When start to play next video, attach SurfaceView again.
-		attachSurfaceViewToPlayer();
+		// attachSurfaceViewToPlayer();
 	}
 
 	@Override
@@ -605,5 +557,54 @@ public class VideoPlayerActivity extends BaseActivity implements VideoPlayerServ
 	@Override
 	public void onEndLoadVideo() {
 		dismissProgress();
+	}
+	
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		KLog.v(TAG, "surface destroyed");
+		VideoPlayerService.setSurfaceHolder(null);
+	}
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		KLog.v(TAG, "surface created");
+		// After surface view is created, attach it to MediaPlayer
+		attachSurfaceViewToPlayer();
+	}
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
+		KLog.v(TAG, "surafce changed");
+		KLog.v(TAG, "w = " + width);
+		KLog.v(TAG, "h = " + height);
+	}
+	
+	/**
+	 * Set SurfaceView to MediaPlayer
+	 */
+	private void attachSurfaceViewToPlayer() {
+		SurfaceHolder holder = mSurfaceView.getHolder();
+		// set size
+		KLog.v(TAG, "before width = " + mSurfaceView.getWidth());
+		KLog.v(TAG, "before height = " + mSurfaceView.getHeight());
+		int width = mSurfaceView.getWidth();
+		int height = width * 9 / 16;
+		KLog.v(TAG, "set width = " + width);
+		KLog.v(TAG, "set height = " + height);
+		holder.setFixedSize(width, height);
+		setSurfaceViewSize(mSurfaceView, width, height);	// for Android 2.3
+		VideoPlayerService.setSurfaceHolder(holder);
+	}
+	
+	/**
+	 * For Android 2.3
+	 * @param view
+	 * @param width
+	 * @param height
+	 */
+	private void setSurfaceViewSize(SurfaceView view, int width, int height) {
+		android.view.ViewGroup.LayoutParams layout = view.getLayoutParams();
+		layout.width = width;
+		layout.height = height;
+		view.setLayoutParams(layout);
 	}
 }
