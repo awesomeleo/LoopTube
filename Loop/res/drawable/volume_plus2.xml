@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- Pressed -->
+    <item android:drawable="@drawable/volume_plus2_pressed" android:state_pressed="true"/>
+    <!-- Default -->
+    <item android:drawable="@drawable/volume_plus2_default" android:state_pressed="false" />
+</selector>
