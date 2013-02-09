@@ -18,6 +18,7 @@ import org.apache.http.params.HttpParams;
 
 import com.google.gson.Gson;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.playlist.BlackList;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
@@ -121,6 +122,12 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 						//entry.media$group.media$content[2].url, 
 						entry.media$group.media$content[0].duration * 1000);	// msec
 				videoList.add(v);
+				// Check brack words
+				BlackList blackList = BlackList.getInstance();
+				if (blackList.isBlackTitle(v.getTitle())) {
+					KLog.v(TAG, "This video contains black word: " + v.getTitle());
+					blackList.add(v.getId());
+				}
 			}
 		}
 		return videoList;

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
 
+import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 
 /**
@@ -24,7 +25,8 @@ public class BlackList {
 	private static final String FILENAME_BLACKLIST = "black_list.txt";
 
 	private static BlackList mInstance = new BlackList();
-	private List<String> mVideoIds;
+	// Black list regstered by user
+	private List<String> mUserVideoIds;
 	private Context mContext;
 
 	private BlackList() {
@@ -43,25 +45,47 @@ public class BlackList {
 
 	public void add(String videoId) {
 		KLog.v(TAG, "add: " + videoId);
-		mVideoIds.add(videoId);
+		mUserVideoIds.add(videoId);
 		save();
 	}
 
 	public void remove(String videoId) {
 		KLog.v(TAG, "remove: " + videoId);
-		mVideoIds.remove(videoId);
-		save();
-	}
-	
-	public void clear() {
-		KLog.v(TAG, "clear");
-		mVideoIds.clear();
+		mUserVideoIds.remove(videoId);
 		save();
 	}
 
+	public void clear() {
+		KLog.v(TAG, "clear");
+		mUserVideoIds.clear();
+		save();
+	}
+
+	/**
+	 * Check the videoId is registered with black list or not.
+	 * @param videoId
+	 * @return
+	 */
 	public boolean contains(String videoId) {
-		KLog.v(TAG, "contains: " + videoId);
-		return mVideoIds.contains(videoId);
+		// KLog.v(TAG, "contains: " + videoId);
+		// Check users black list
+		if (mUserVideoIds.contains(videoId)) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isBlackTitle(String videoTitle) {
+		// KLog.v(TAG, "isBlackTitle");
+		if (mContext != null) {
+			String[] blackWords = mContext.getResources().getStringArray(R.array.loop_black_word_list);
+			for (String word : blackWords) {
+				if (videoTitle.contains(word)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private void save() {
@@ -71,7 +95,7 @@ public class BlackList {
 			try {
 				fos = mContext.openFileOutput(FILENAME_BLACKLIST, Context.MODE_PRIVATE);
 				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-				for (String videoId : mVideoIds) {
+				for (String videoId : mUserVideoIds) {
 					bw.write(videoId);
 					bw.newLine();
 				}
@@ -88,14 +112,14 @@ public class BlackList {
 	private void load() {
 		KLog.v(TAG, "load");
 		if (mContext != null) {
-			mVideoIds = new ArrayList<String>();
+			mUserVideoIds = new ArrayList<String>();
 			FileInputStream fis;
 			try {
 				fis = mContext.openFileInput(FILENAME_BLACKLIST);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 				String line;
 				while ((line = br.readLine()) != null) {
-					mVideoIds.add(line);
+					mUserVideoIds.add(line);
 				}
 				br.close();
 			} catch (FileNotFoundException e) {

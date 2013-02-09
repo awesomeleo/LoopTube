@@ -43,5 +43,8 @@
     <string name="loop_menu_item_start_repeat">Repeat this video</string>
     <string name="loop_menu_item_stop_repeat">Stop to repeat</string>
     <string name="loop_menu_item_ignore">Register this video with black list</string>
+    
+    <string-array name="loop_black_word_list">
+    </string-array>
 
 </resources>
