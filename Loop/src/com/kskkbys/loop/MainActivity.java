@@ -33,6 +33,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -236,7 +237,6 @@ public class MainActivity extends BaseActivity {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
-					KLog.v(TAG, "onItemClick");
 					// Check connection
 					if (!ConnectionState.isConnected(MainActivity.this)) {
 						KLog.w(TAG, "bad connection");
@@ -245,8 +245,14 @@ public class MainActivity extends BaseActivity {
 						return;
 					} else {
 						ListView listView = (ListView) parent;
-						String item = (String) listView.getItemAtPosition(position);
-						searchQuery(item);
+						String artistName = (String) listView.getItemAtPosition(position);
+						String currentArtist = Playlist.getInstance().getQuery();
+						if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artistName)) {
+							KLog.v(TAG, "Already playing. Go player without seraching.");
+							goNextActivity();
+						} else {
+							searchQuery(artistName);
+						}
 					}
 				}
 			});
