@@ -140,8 +140,6 @@ public class VideoPlayerService extends Service {
 				if (mListener != null) {
 					mListener.onPrepared();
 				}
-				// show notification
-				showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
 			}
 		});
 		mMediaPlayer.setOnSeekCompleteListener(new OnSeekCompleteListener() {
@@ -246,6 +244,9 @@ public class VideoPlayerService extends Service {
 		if (mState == STATE_PEPARED || mState == STATE_PLAYING) {
 			mState = STATE_PLAYING;
 			mMediaPlayer.start();
+			// show notification
+			showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
+			//
 			if (!mIsPlaying) {
 				mIsPlaying = true;
 				Map<String, String> param = new HashMap<String, String>();
@@ -260,6 +261,7 @@ public class VideoPlayerService extends Service {
 		KLog.v(TAG, "pause");
 		if (mState == STATE_PLAYING) {
 			mMediaPlayer.pause();
+			mNM.cancel(NOTIFICATION_ID);
 			if (mIsPlaying) {
 				mIsPlaying = false;
 				FlurryLogger.endTimedEvent(FlurryLogger.PLAY_VIDEO);
