@@ -12,7 +12,8 @@
     <string name="loop_video_player_dialog_seeking">シーク中&#8230;</string>
     <string name="loop_video_player_dialog_end">再生を終了しました</string>
     <string name="loop_video_player_dialog_loading">ロード中...</string>
-    <string name="loop_video_player_ignored">この動画は今後再生されません。</string>
+    <string name="loop_video_player_ignored">この動画はブラックリストに登録されました。今後再生されません。</string>
+    <string name="loop_video_player_ignored_already">この動画はすでにブラックリストに登録されています。</string>
     
     <string name="loop_main_title">アーティストを検索</string>
     <string name="loop_main_search_artist">アーティスト名を入力してください</string>
@@ -41,6 +42,6 @@
     
     <string name="loop_menu_item_start_repeat">この動画をリピートする</string>
     <string name="loop_menu_item_stop_repeat">リピートを解除する</string>
-    <string name="loop_menu_item_ignore">この動画を再生しない</string>
+    <string name="loop_menu_item_ignore">この動画をブラックリストに登録</string>
 
 </resources>

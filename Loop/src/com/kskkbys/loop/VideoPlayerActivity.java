@@ -233,9 +233,15 @@ public class VideoPlayerActivity extends BaseActivity
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				KLog.v(TAG, "onItemClick " + position);
-				// Toast.makeText(VideoPlayerActivity.this, "OnItemClick: " + position, Toast.LENGTH_SHORT).show();
-				Playlist.getInstance().setPlayingIndex(position);
-				mService.startVideo();
+				Video touchedVideo = Playlist.getInstance().getVideoAtIndex(position);
+				if (BlackList.getInstance().contains(touchedVideo.getId())) {
+					// In blacklist: can not play it.
+					KLog.v(TAG, "This video can not be played.");
+					Toast.makeText(VideoPlayerActivity.this, R.string.loop_video_player_ignored_already, Toast.LENGTH_SHORT).show();
+				} else {
+					Playlist.getInstance().setPlayingIndex(position);
+					mService.startVideo();
+				}
 			}
 		});
 

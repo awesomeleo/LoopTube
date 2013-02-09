@@ -12,7 +12,8 @@
     <string name="loop_video_player_dialog_seeking">Seeking&#8230;</string>
     <string name="loop_video_player_dialog_end">Finished to play videos.</string>
     <string name="loop_video_player_dialog_loading">Loading...</string>
-    <string name="loop_video_player_ignored">This video will never be played.</string>
+    <string name="loop_video_player_ignored">This video is registered with black list and will never be played.</string>
+    <string name="loop_video_player_ignored_already">This video has been registered with black list already.</string>
     
     <string name="loop_main_title">Search artist</string>
     <string name="loop_main_search_artist">Please input your favorite artist</string>
@@ -41,6 +42,6 @@
     
     <string name="loop_menu_item_start_repeat">Repeat this video</string>
     <string name="loop_menu_item_stop_repeat">Stop to repeat</string>
-    <string name="loop_menu_item_ignore">Never play this video</string>
+    <string name="loop_menu_item_ignore">Register this video with black list</string>
 
 </resources>
