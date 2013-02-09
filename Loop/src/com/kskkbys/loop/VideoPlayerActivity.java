@@ -69,6 +69,7 @@ public class VideoPlayerActivity extends BaseActivity
 	private View mNextButton;
 	private View mLoopButton;
 	private View mVolumeButton;
+	private View mVolumeButtonInDialog;
 	private boolean mIsShowingControl;
 	private SurfaceView mSurfaceView;
 
@@ -149,15 +150,7 @@ public class VideoPlayerActivity extends BaseActivity
 			@Override
 			public void onClick(View v) {
 				KLog.v(TAG, "volume clicked");
-				switchMute();
-			}
-		});
-		mVolumeButton.setOnLongClickListener(new OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				KLog.v(TAG, "volume long clicked");
 				showVolumeSettingDialog();
-				return false;
 			}
 		});
 		mDurationView = (TextView)findViewById(R.id.durationText);
@@ -353,10 +346,12 @@ public class VideoPlayerActivity extends BaseActivity
 					KLog.v(TAG, "Mute Off");
 					mService.setMute(false);
 					mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
+					mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_plus2);
 				} else {
 					KLog.v(TAG, "Mute On");
 					mService.setMute(true);
 					mVolumeButton.setBackgroundResource(R.drawable.volume_off);
+					mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
 				}
 			}
 		}
@@ -477,6 +472,18 @@ public class VideoPlayerActivity extends BaseActivity
 		KLog.v(TAG, "maxVolume = " + maxVolume);
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View layout = inflater.inflate(R.layout.dialog_volume, (ViewGroup)findViewById(R.id.layoutVoluemeDialog));
+		
+		mVolumeButtonInDialog = (ImageView)layout.findViewById(R.id.volumeImageView);
+		if (mService.isMute()) {
+			mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
+		}
+		mVolumeButtonInDialog.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				switchMute();
+			}
+		});
+		
 		SeekBar volumeBar = (SeekBar)layout.findViewById(R.id.volumeSeekBar);
 		volumeBar.setMax(maxVolume);
 		volumeBar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
@@ -497,7 +504,10 @@ public class VideoPlayerActivity extends BaseActivity
 			}
 		});
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setView(layout).setPositiveButton(R.string.loop_ok, null).create().show();
+		builder.setView(layout)
+			.setPositiveButton(R.string.loop_ok, null)
+			.setTitle(R.string.loop_video_player_volume_setting)
+			.create().show();
 	}
 
 	private void updateVideoInfo() {
