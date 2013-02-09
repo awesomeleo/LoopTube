@@ -1,5 +1,6 @@
 package com.kskkbys.loop;
 
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -57,7 +58,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		mShowDialog = true;
 	}
 
-	protected void showAlert(int resId) {
+	protected void showAlert(int resId, OnClickListener listener) {
 		KLog.v(TAG, "showAlert");
 		// Remove prev fragment
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -68,7 +69,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		ft.addToBackStack(null);
 		// Show dialog fragment
 		if (mShowDialog) {
-			AlertDialogFragment fragment = AlertDialogFragment.newInstance(this, resId);
+			AlertDialogFragment fragment = AlertDialogFragment.newInstance(this, resId, listener);
 			fragment.setCancelable(false);
 			fragment.show(ft, "dialog");
 		}

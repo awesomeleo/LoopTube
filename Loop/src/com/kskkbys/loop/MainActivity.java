@@ -18,6 +18,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
+import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.os.Bundle;
@@ -103,7 +104,7 @@ public class MainActivity extends BaseActivity {
 				if (!ConnectionState.isConnected(MainActivity.this)) {
 					KLog.w(TAG, "bad connection");
 					// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
-					showAlert(R.string.loop_main_error_bad_connection);
+					showAlert(R.string.loop_main_error_bad_connection, null);
 					return;
 				} else {
 					KLog.v(TAG, "connection ok");
@@ -240,7 +241,7 @@ public class MainActivity extends BaseActivity {
 					if (!ConnectionState.isConnected(MainActivity.this)) {
 						KLog.w(TAG, "bad connection");
 						// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
-						showAlert(R.string.loop_main_error_bad_connection);
+						showAlert(R.string.loop_main_error_bad_connection, null);
 						return;
 					} else {
 						ListView listView = (ListView) parent;
@@ -265,23 +266,36 @@ public class MainActivity extends BaseActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		AlertDialog.Builder builder;
 		switch (item.getItemId()) {
 		case R.id.menu_show_player:
 			if (Playlist.getInstance().getCurrentVideo() != null) {
 				startActivity(new Intent(MainActivity.this, VideoPlayerActivity.class));
 			} else {
 				//SimpleErrorDialog.show(this, R.string.loop_main_dialog_not_playing);
-				showAlert(R.string.loop_main_dialog_not_playing);
+				showAlert(R.string.loop_main_dialog_not_playing, null);
 			}
 			return true;
 		case R.id.menu_clear_history:
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.loop_main_confirm_clear_history)
 			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					clearHistory();
 					updateHistoryUI();
+				}
+			})
+			.setNegativeButton(R.string.loop_cancel, null);
+			builder.create().show();
+			return true;
+		case R.id.menu_clear_blacklist:
+			builder = new AlertDialog.Builder(this);
+			builder.setMessage(R.string.loop_main_confirm_clear_blacklist)
+			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					BlackList.getInstance().clear();
 				}
 			})
 			.setNegativeButton(R.string.loop_cancel, null);

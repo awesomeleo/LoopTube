@@ -1,5 +1,7 @@
 package com.kskkbys.loop;
 
+import com.kskkbys.loop.playlist.BlackList;
+
 import android.app.Application;
 
 public class LoopApplication extends Application {
@@ -9,9 +11,10 @@ public class LoopApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
 		//
 		mIsFirstLaunch = true;
+		// Initialize
+		BlackList.getInstance().initialize(getApplicationContext());
 	}
 	
 	public boolean isFirstLaunch() {

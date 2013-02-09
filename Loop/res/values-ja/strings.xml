@@ -12,6 +12,7 @@
     <string name="loop_video_player_dialog_seeking">シーク中&#8230;</string>
     <string name="loop_video_player_dialog_end">再生を終了しました</string>
     <string name="loop_video_player_dialog_loading">ロード中...</string>
+    <string name="loop_video_player_ignored">この動画は今後再生されません。</string>
     
     <string name="loop_main_title">アーティストを検索</string>
     <string name="loop_main_search_artist">アーティスト名を入力してください</string>
@@ -22,6 +23,7 @@
     <string name="loop_main_search_hint">例：宇多田ヒカル</string>
     <string name="loop_main_invalid_query">アーティスト名を入力してください。</string>
     <string name="loop_main_confirm_clear_history">本当に検索履歴を消去しますか？</string>
+    <string name="loop_main_confirm_clear_blacklist">本当にブラックリストを消去しますか？</string>
     <string name="loop_main_dialog_not_playing">現在再生中の動画はありません。</string>
     <string name="loop_main_error_no_video">動画が見つかりませんでした。通信状況が悪い可能性があります。</string>
     <string name="loop_main_error_bad_connection">端末がネットワークに接続されていません。</string>
@@ -34,9 +36,11 @@
     <string name="loop_menu_settings">設定</string>
     <string name="loop_menu_item_show_player">再生画面を開く</string>
     <string name="loop_menu_item_clear_history">検索履歴を消去する</string>
+    <string name="loop_menu_item_clear_blacklist">ブラックリストを消去する</string>
     <string name="loop_menu_item_version">このアプリについて</string>
     
     <string name="loop_menu_item_start_repeat">この動画をリピートする</string>
     <string name="loop_menu_item_stop_repeat">リピートを解除する</string>
+    <string name="loop_menu_item_ignore">この動画を再生しない</string>
 
 </resources>

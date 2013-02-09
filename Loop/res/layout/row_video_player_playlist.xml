@@ -22,6 +22,6 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="15dp"
         android:layout_gravity="center"
-        android:src="@android:drawable/ic_lock_silent_mode_off" />
+        android:src="@drawable/volume_plus2" />
 
 </LinearLayout>

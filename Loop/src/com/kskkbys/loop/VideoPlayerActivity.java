@@ -5,8 +5,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.app.AlertDialog;
@@ -16,7 +18,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,13 +31,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Video player
@@ -278,18 +278,32 @@ public class VideoPlayerActivity extends BaseActivity
 		getSupportMenuInflater().inflate(R.menu.activity_player, menu);
 		return true;
 	}
-
-	/*
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu_repeat:
-			switchLoop();
+		case R.id.menu_ignore:
+			ignoreCurrentVideo();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-	}*/
+	}
+	
+	/**
+	 * Add the current video to black list
+	 */
+	private void ignoreCurrentVideo() {
+		KLog.v(TAG, "ignoreCurrentVideo");
+		String videoId = Playlist.getInstance().getCurrentVideo().getId();
+		BlackList.getInstance().add(videoId);
+		//
+		Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
+		// Go next video
+		if (mService != null) {
+			mService.next();
+		}
+	}
 
 	/**
 	 * Switch looping
@@ -534,12 +548,15 @@ public class VideoPlayerActivity extends BaseActivity
 			}
 			Video video = (Video)getItem(position);
 			if (video != null) {
+				// video title
 				TextView textView = (TextView)v.findViewById(R.id.videoTitleViewInList);
 				textView.setText(video.getTitle());
-
+				// now playing or blacklist or nothing
 				ImageView imageView = (ImageView)v.findViewById(R.id.nowPlayingImageInList);
 				if (Playlist.getInstance().getPlayingIndex() == position) {
 					imageView.setImageResource(R.drawable.volume_plus2);
+				} else if (BlackList.getInstance().contains(video.getId())) {
+					imageView.setImageResource(R.drawable.prohibited);
 				} else {
 					imageView.setImageBitmap(null);
 				}

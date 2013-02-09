@@ -19,6 +19,7 @@ import org.apache.http.params.HttpParams;
 
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
 
 import android.app.Notification;
@@ -326,8 +327,14 @@ public class VideoPlayerService extends Service {
 		// Search and start to play
 		Video video = Playlist.getInstance().getCurrentVideo();
 		if (video != null) {
-			YouTubePlayTask task = new YouTubePlayTask(video.getId());
-			task.execute();
+			// check blacklist
+			if (BlackList.getInstance().contains(video.getId())) {
+				KLog.v(TAG, "This video is registered in black list. Skip this video.");
+				next();
+			} else {
+				YouTubePlayTask task = new YouTubePlayTask(video.getId());
+				task.execute();
+			}
 		}
 	}
 	

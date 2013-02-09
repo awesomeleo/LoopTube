@@ -12,6 +12,7 @@
     <string name="loop_video_player_dialog_seeking">Seeking&#8230;</string>
     <string name="loop_video_player_dialog_end">Finished to play videos.</string>
     <string name="loop_video_player_dialog_loading">Loading...</string>
+    <string name="loop_video_player_ignored">This video will never be played.</string>
     
     <string name="loop_main_title">Search artist</string>
     <string name="loop_main_search_artist">Please input your favorite artist</string>
@@ -22,6 +23,7 @@
     <string name="loop_main_search_hint">ex. Oasis</string>
     <string name="loop_main_invalid_query">Please input correct artist.</string>
     <string name="loop_main_confirm_clear_history">Are your ready to clear search history?</string>
+    <string name="loop_main_confirm_clear_blacklist">Are your ready to clear black list?</string>
     <string name="loop_main_dialog_not_playing">There is no playing video.</string>
     <string name="loop_main_error_no_video">No videos are found. Network state may be bad.</string>
     <string name="loop_main_error_bad_connection">Your device is not connected to network.</string>
@@ -34,9 +36,11 @@
     <string name="loop_menu_settings">Settings</string>
     <string name="loop_menu_item_show_player">Show video player</string>
     <string name="loop_menu_item_clear_history">Clear search history</string>
+    <string name="loop_menu_item_clear_blacklist">Clear black list</string>
     <string name="loop_menu_item_version">About LoopTube</string>
     
     <string name="loop_menu_item_start_repeat">Repeat this video</string>
     <string name="loop_menu_item_stop_repeat">Stop to repeat</string>
+    <string name="loop_menu_item_ignore">Never play this video</string>
 
 </resources>

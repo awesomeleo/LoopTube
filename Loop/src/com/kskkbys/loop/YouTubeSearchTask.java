@@ -102,7 +102,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		} else {
 			KLog.v(TAG, "Video list is empty. Network state may be bad.");
 			//SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);
-			mParent.showAlert(R.string.loop_main_error_no_video);
+			mParent.showAlert(R.string.loop_main_error_no_video, null);
 		}
 	}
 
