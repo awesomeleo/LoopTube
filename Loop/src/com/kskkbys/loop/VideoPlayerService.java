@@ -211,6 +211,8 @@ public class VideoPlayerService extends Service {
 
 		// Set the info for the views that show in the notification panel.
 		notification.setLatestEventInfo(this, getText(R.string.loop_app_name), text, contentIntent);
+		
+		notification.flags = Notification.FLAG_ONGOING_EVENT;
 
 		/*
 		Notification notification = new Notification.Builder(this).setContentIntent(contentIntent)
