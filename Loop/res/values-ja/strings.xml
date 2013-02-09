@@ -11,7 +11,7 @@
     <string name="loop_video_player_playlist">プレイリスト</string>
     <string name="loop_video_player_dialog_seeking">シーク中&#8230;</string>
     <string name="loop_video_player_dialog_end">再生を終了しました</string>
-    <string name="loop_video_player_dialog_loading">ロード中...</string>
+    <string name="loop_video_player_dialog_loading">読み込み中...</string>
     <string name="loop_video_player_ignored">この動画はブラックリストに登録されました。今後再生されません。</string>
     <string name="loop_video_player_ignored_already">この動画はすでにブラックリストに登録されています。</string>
     
