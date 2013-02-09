@@ -6,6 +6,7 @@ import java.util.TimerTask;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.playlist.BlackList;
@@ -18,6 +19,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -27,6 +29,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -147,6 +150,14 @@ public class VideoPlayerActivity extends BaseActivity
 			public void onClick(View v) {
 				KLog.v(TAG, "volume clicked");
 				switchMute();
+			}
+		});
+		mVolumeButton.setOnLongClickListener(new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				KLog.v(TAG, "volume long clicked");
+				showVolumeSettingDialog();
+				return false;
 			}
 		});
 		mDurationView = (TextView)findViewById(R.id.durationText);
@@ -458,6 +469,35 @@ public class VideoPlayerActivity extends BaseActivity
 			}
 		});
 		builder.create().show();
+	}
+	
+	private void showVolumeSettingDialog() {
+		final AudioManager am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		final int maxVolume = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		KLog.v(TAG, "maxVolume = " + maxVolume);
+		LayoutInflater inflater = LayoutInflater.from(this);
+		View layout = inflater.inflate(R.layout.dialog_volume, (ViewGroup)findViewById(R.id.layoutVoluemeDialog));
+		SeekBar volumeBar = (SeekBar)layout.findViewById(R.id.volumeSeekBar);
+		volumeBar.setMax(maxVolume);
+		volumeBar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
+		volumeBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				KLog.v(TAG, "volume changed");
+				am.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+			}
+		});
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setView(layout).setPositiveButton(R.string.loop_ok, null).create().show();
 	}
 
 	private void updateVideoInfo() {

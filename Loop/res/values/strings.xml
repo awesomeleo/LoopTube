@@ -14,6 +14,7 @@
     <string name="loop_video_player_dialog_loading">Loading...</string>
     <string name="loop_video_player_ignored">This video is registered with black list and will never be played.</string>
     <string name="loop_video_player_ignored_already">This video has been registered with black list already.</string>
+    <string name="loop_video_player_volume_setting">Volume Setting</string>
     
     <string name="loop_main_title">Search artist</string>
     <string name="loop_main_search_artist">Please input your favorite artist</string>
