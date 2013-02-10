@@ -1,11 +1,26 @@
 package com.kskkbys.loop;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.facebook.FacebookRequestError;
+import com.facebook.HttpMethod;
+import com.facebook.Request;
+import com.facebook.RequestAsyncTask;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.model.GraphUser;
 import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
@@ -46,7 +61,7 @@ import android.widget.Toast;
  *
  */
 public class VideoPlayerActivity extends BaseActivity 
-	implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
+implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 
 	private static final String TAG = VideoPlayerActivity.class.getSimpleName();
 
@@ -70,6 +85,7 @@ public class VideoPlayerActivity extends BaseActivity
 	private View mLoopButton;
 	private View mVolumeButton;
 	private View mVolumeButtonInDialog;
+	private View mFacebookButton;
 	private boolean mIsShowingControl;
 	private SurfaceView mSurfaceView;
 
@@ -153,6 +169,14 @@ public class VideoPlayerActivity extends BaseActivity
 				showVolumeSettingDialog();
 			}
 		});
+		mFacebookButton = findViewById(R.id.facebookButton);
+		mFacebookButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				KLog.v(TAG, "facebook clicked");
+				shareWithFacebook();
+			}
+		});
 		mDurationView = (TextView)findViewById(R.id.durationText);
 		mSeekBar = (SeekBar)findViewById(R.id.playerSeekBar);
 		mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -230,7 +254,7 @@ public class VideoPlayerActivity extends BaseActivity
 		SurfaceHolder holder = mSurfaceView.getHolder();
 		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		holder.addCallback(this);
-		
+
 		// PlayListView
 		mPlayListView = (ListView)findViewById(R.id.playListView);
 		mPlayListView.setOnItemClickListener(new OnItemClickListener() {
@@ -289,7 +313,7 @@ public class VideoPlayerActivity extends BaseActivity
 		getSupportMenuInflater().inflate(R.menu.activity_player, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -300,7 +324,7 @@ public class VideoPlayerActivity extends BaseActivity
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	/**
 	 * Add the current video to black list
 	 */
@@ -356,6 +380,123 @@ public class VideoPlayerActivity extends BaseActivity
 				}
 			}
 		}
+	}
+
+	private void shareWithFacebook() {
+		KLog.v(TAG, "share with FB");
+		Session session = new Session.Builder(this).build();
+		Session.setActiveSession(session);
+		Session.OpenRequest openRequest = new Session.OpenRequest(this);
+		List<String> permissions = new ArrayList<String>();
+		permissions.add("publish_stream");
+		openRequest.setPermissions(permissions);
+		openRequest.setCallback(new Session.StatusCallback() {
+			@Override
+			public void call(Session session, SessionState state, Exception exception) {
+
+				KLog.v("TAG", "call state = " + state.toString());
+
+				if (session.isOpened()) {
+					KLog.v(TAG, "is opened");
+					Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
+						@Override
+						public void onCompleted(GraphUser user, Response response) {
+							KLog.v(TAG, "is completed");
+							if (user != null) {
+								KLog.v(TAG, "Loggined with " + user.getName());
+								Toast.makeText(VideoPlayerActivity.this, "Success username = " + user.getName(), Toast.LENGTH_SHORT).show();
+								
+								publishStory();
+							} else {
+								Toast.makeText(VideoPlayerActivity.this, "User is null", Toast.LENGTH_SHORT).show();
+							}
+						}
+					});
+				} else {
+					KLog.v(TAG, "is closed");
+					if (state == SessionState.CLOSED_LOGIN_FAILED) {
+						KLog.e(TAG, "Login Failed.");
+						Toast.makeText(VideoPlayerActivity.this, "Facebook Login Failed.", Toast.LENGTH_SHORT).show();
+					}
+				}
+			}
+		});
+		session.openForPublish(openRequest);
+	}
+
+	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
+	private static final String PENDING_PUBLISH_KEY = "pendingPublishReauthorization";
+	private boolean pendingPublishReauthorization = false;
+
+	private boolean isSubsetOf(Collection<String> subset, Collection<String> superset) {
+		for (String string : subset) {
+			if (!superset.contains(string)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void publishStory() {
+		Session session = Session.getActiveSession();
+		if (session != null){
+			// Check for publish permissions    
+			List<String> permissions = session.getPermissions();
+			if (!isSubsetOf(PERMISSIONS, permissions)) {
+				pendingPublishReauthorization = true;
+				Session.NewPermissionsRequest newPermissionsRequest = new Session
+						.NewPermissionsRequest(this, PERMISSIONS);
+				session.requestNewPublishPermissions(newPermissionsRequest);
+				return;
+			}
+			
+			Video video = Playlist.getInstance().getCurrentVideo();
+
+			Bundle postParams = new Bundle();
+			postParams.putString("name", video.getTitle());
+			// postParams.putString("caption", "Build great social apps and get more installs.");
+			// postParams.putString("description", "The Facebook SDK for Android makes it easier and faster to develop Facebook integrated Android apps.");
+			postParams.putString("link", "https://developers.facebook.com/android");
+			postParams.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
+
+			Request.Callback callback= new Request.Callback() {
+				public void onCompleted(Response response) {
+					JSONObject graphResponse = response
+							.getGraphObject()
+							.getInnerJSONObject();
+					String postId = null;
+					try {
+						postId = graphResponse.getString("id");
+					} catch (JSONException e) {
+						KLog.i(TAG,
+								"JSON error "+ e.getMessage());
+					}
+					FacebookRequestError error = response.getError();
+					if (error != null) {
+						Toast.makeText(getApplicationContext(),
+								error.getErrorMessage(),
+								Toast.LENGTH_SHORT).show();
+					} else {
+						Toast.makeText(getApplicationContext(), 
+								postId,
+								Toast.LENGTH_LONG).show();
+					}
+				}
+			};
+
+			Request request = new Request(session, "me/feed", postParams, 
+					HttpMethod.POST, callback);
+
+			RequestAsyncTask task = new RequestAsyncTask(request);
+			task.execute();
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		KLog.v(TAG, "onActivityResult");
+		super.onActivityResult(requestCode, resultCode, data);
+		Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
 	}
 
 	@Override
@@ -415,7 +556,7 @@ public class VideoPlayerActivity extends BaseActivity
 		KLog.v(TAG, "onPrepared");
 		updateVideoInfo();
 		dismissProgress();
-		
+
 		// For Android 2.3: When start to play next video, attach SurfaceView again.
 		// attachSurfaceViewToPlayer();
 	}
@@ -466,14 +607,14 @@ public class VideoPlayerActivity extends BaseActivity
 		});
 		builder.create().show();
 	}
-	
+
 	private void showVolumeSettingDialog() {
 		final AudioManager am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		final int maxVolume = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 		KLog.v(TAG, "maxVolume = " + maxVolume);
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View layout = inflater.inflate(R.layout.dialog_volume, (ViewGroup)findViewById(R.id.layoutVoluemeDialog));
-		
+
 		mVolumeButtonInDialog = (ImageView)layout.findViewById(R.id.volumeImageView);
 		if (mService.isMute()) {
 			mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
@@ -484,7 +625,7 @@ public class VideoPlayerActivity extends BaseActivity
 				switchMute();
 			}
 		});
-		
+
 		SeekBar volumeBar = (SeekBar)layout.findViewById(R.id.volumeSeekBar);
 		volumeBar.setMax(maxVolume);
 		volumeBar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
@@ -506,9 +647,9 @@ public class VideoPlayerActivity extends BaseActivity
 		});
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setView(layout)
-			.setPositiveButton(R.string.loop_ok, null)
-			.setTitle(R.string.loop_video_player_volume_setting)
-			.create().show();
+		.setPositiveButton(R.string.loop_ok, null)
+		.setTitle(R.string.loop_video_player_volume_setting)
+		.create().show();
 	}
 
 	private void updateVideoInfo() {
@@ -564,6 +705,7 @@ public class VideoPlayerActivity extends BaseActivity
 			mPauseButton.setVisibility(View.INVISIBLE);
 			mPrevButton.setVisibility(View.INVISIBLE);
 			mNextButton.setVisibility(View.INVISIBLE);
+			mFacebookButton.setVisibility(View.INVISIBLE);
 		} else {
 			mVolumeButton.setVisibility(View.VISIBLE);
 			mLoopButton.setVisibility(View.VISIBLE);
@@ -572,6 +714,7 @@ public class VideoPlayerActivity extends BaseActivity
 			mPauseButton.setVisibility(View.VISIBLE);
 			mPrevButton.setVisibility(View.VISIBLE);
 			mNextButton.setVisibility(View.VISIBLE);
+			mFacebookButton.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -634,7 +777,7 @@ public class VideoPlayerActivity extends BaseActivity
 	public void onEndLoadVideo() {
 		dismissProgress();
 	}
-	
+
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		KLog.v(TAG, "surface destroyed");
@@ -653,7 +796,7 @@ public class VideoPlayerActivity extends BaseActivity
 		KLog.v(TAG, "w = " + width);
 		KLog.v(TAG, "h = " + height);
 	}
-	
+
 	/**
 	 * Set SurfaceView to MediaPlayer
 	 */
@@ -670,7 +813,7 @@ public class VideoPlayerActivity extends BaseActivity
 		setSurfaceViewSize(mSurfaceView, width, height);	// for Android 2.3
 		VideoPlayerService.setSurfaceHolder(holder);
 	}
-	
+
 	/**
 	 * For Android 2.3
 	 * @param view

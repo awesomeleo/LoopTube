@@ -48,5 +48,7 @@
     
     <string-array name="loop_black_word_list">
     </string-array>
+    
+    <string name="facebook_app_id">614833545197186</string>
 
 </resources>
