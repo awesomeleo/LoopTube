@@ -22,11 +22,14 @@ import com.kskkbys.loop.logger.KLog;
 public class BlackList {
 
 	private static final String TAG = BlackList.class.getSimpleName();
-	private static final String FILENAME_BLACKLIST = "black_list.txt";
+	private static final String FILENAME_USER_BLACKLIST = "user_black_list.txt";
+	private static final String FILENAME_APP_BLACKLIST = "app_black_list.txt";
 
 	private static BlackList mInstance = new BlackList();
-	// Black list regstered by user
+	// Black list registered by user
 	private List<String> mUserVideoIds;
+	// Black list registered by app
+	private List<String> mAppVideoIds;
 	private Context mContext;
 
 	private BlackList() {
@@ -40,25 +43,28 @@ public class BlackList {
 
 	public void initialize(Context context) {
 		mContext = context;
-		load();
+		loadUserBlackList();
+		loadAppBlackList();
 	}
 
-	public void add(String videoId) {
+	public void addUserBlackList(String videoId) {
 		KLog.v(TAG, "add: " + videoId);
 		mUserVideoIds.add(videoId);
-		save();
+		saveUserBlackList();
 	}
 
-	public void remove(String videoId) {
-		KLog.v(TAG, "remove: " + videoId);
-		mUserVideoIds.remove(videoId);
-		save();
+	public void addAppBlackList(String videoId) {
+		KLog.v(TAG, "addByApp: " + videoId);
+		mAppVideoIds.add(videoId);
+		saveAppBlackList();
 	}
 
 	public void clear() {
 		KLog.v(TAG, "clear");
 		mUserVideoIds.clear();
-		save();
+		mAppVideoIds.clear();
+		saveAppBlackList();
+		saveUserBlackList();
 	}
 
 	/**
@@ -66,10 +72,18 @@ public class BlackList {
 	 * @param videoId
 	 * @return
 	 */
-	public boolean contains(String videoId) {
+	public boolean containsByUser(String videoId) {
 		// KLog.v(TAG, "contains: " + videoId);
 		// Check users black list
 		if (mUserVideoIds.contains(videoId)) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean containsByApp(String videoId) {
+		// Check app's black list
+		if (mAppVideoIds.contains(videoId)) {
 			return true;
 		}
 		return false;
@@ -88,12 +102,12 @@ public class BlackList {
 		return false;
 	}
 
-	private void save() {
-		KLog.v(TAG, "save");
+	private void saveUserBlackList() {
+		KLog.v(TAG, "save user");
 		if (mContext != null) {
 			FileOutputStream fos;
 			try {
-				fos = mContext.openFileOutput(FILENAME_BLACKLIST, Context.MODE_PRIVATE);
+				fos = mContext.openFileOutput(FILENAME_USER_BLACKLIST, Context.MODE_PRIVATE);
 				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 				for (String videoId : mUserVideoIds) {
 					bw.write(videoId);
@@ -109,17 +123,60 @@ public class BlackList {
 		}
 	}
 
-	private void load() {
+	private void saveAppBlackList() {
+		KLog.v(TAG, "save app");
+		if (mContext != null) {
+			FileOutputStream fos;
+			try {
+				fos = mContext.openFileOutput(FILENAME_APP_BLACKLIST, Context.MODE_PRIVATE);
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+				for (String videoId : mAppVideoIds) {
+					bw.write(videoId);
+					bw.newLine();
+				}
+				bw.flush();
+				bw.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void loadUserBlackList() {
 		KLog.v(TAG, "load");
 		if (mContext != null) {
 			mUserVideoIds = new ArrayList<String>();
 			FileInputStream fis;
 			try {
-				fis = mContext.openFileInput(FILENAME_BLACKLIST);
+				fis = mContext.openFileInput(FILENAME_USER_BLACKLIST);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 				String line;
 				while ((line = br.readLine()) != null) {
 					mUserVideoIds.add(line);
+				}
+				br.close();
+			} catch (FileNotFoundException e) {
+				// Fisrt launching
+				KLog.w(TAG,"FileNotFound of black list. May be first launch.");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void loadAppBlackList() {
+		KLog.v(TAG, "load");
+		if (mContext != null) {
+			mAppVideoIds = new ArrayList<String>();
+			FileInputStream fis;
+			try {
+				fis = mContext.openFileInput(FILENAME_APP_BLACKLIST);
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+				String line;
+				while ((line = br.readLine()) != null) {
+					mAppVideoIds.add(line);
 				}
 				br.close();
 			} catch (FileNotFoundException e) {

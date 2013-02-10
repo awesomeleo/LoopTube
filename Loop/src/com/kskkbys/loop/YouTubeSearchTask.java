@@ -126,7 +126,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 				BlackList blackList = BlackList.getInstance();
 				if (blackList.isBlackTitle(v.getTitle())) {
 					KLog.v(TAG, "This video contains black word: " + v.getTitle());
-					blackList.add(v.getId());
+					blackList.addAppBlackList(v.getId());	// TODO App? User?
 				}
 			}
 		}

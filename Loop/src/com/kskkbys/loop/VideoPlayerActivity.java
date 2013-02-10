@@ -238,7 +238,8 @@ public class VideoPlayerActivity extends BaseActivity
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				KLog.v(TAG, "onItemClick " + position);
 				Video touchedVideo = Playlist.getInstance().getVideoAtIndex(position);
-				if (BlackList.getInstance().contains(touchedVideo.getId())) {
+				BlackList bl = BlackList.getInstance();
+				if (bl.containsByUser(touchedVideo.getId()) || bl.containsByApp(touchedVideo.getId())) {
 					// In blacklist: can not play it.
 					KLog.v(TAG, "This video can not be played.");
 					Toast.makeText(VideoPlayerActivity.this, R.string.loop_video_player_ignored_already, Toast.LENGTH_SHORT).show();
@@ -306,7 +307,7 @@ public class VideoPlayerActivity extends BaseActivity
 	private void ignoreCurrentVideo() {
 		KLog.v(TAG, "ignoreCurrentVideo");
 		String videoId = Playlist.getInstance().getCurrentVideo().getId();
-		BlackList.getInstance().add(videoId);
+		BlackList.getInstance().addUserBlackList(videoId);
 		//
 		Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
 		// Go next video
@@ -611,8 +612,10 @@ public class VideoPlayerActivity extends BaseActivity
 				ImageView imageView = (ImageView)v.findViewById(R.id.nowPlayingImageInList);
 				if (Playlist.getInstance().getPlayingIndex() == position) {
 					imageView.setImageResource(R.drawable.volume_plus2);
-				} else if (BlackList.getInstance().contains(video.getId())) {
+				} else if (BlackList.getInstance().containsByUser(video.getId())) {
 					imageView.setImageResource(R.drawable.prohibited);
+				} else if (BlackList.getInstance().containsByApp(video.getId())) {
+					imageView.setImageResource(R.drawable.circle_exclamation);
 				} else {
 					imageView.setImageBitmap(null);
 				}

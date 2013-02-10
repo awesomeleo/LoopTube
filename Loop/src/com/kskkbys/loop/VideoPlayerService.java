@@ -332,7 +332,8 @@ public class VideoPlayerService extends Service {
 		Video video = Playlist.getInstance().getCurrentVideo();
 		if (video != null) {
 			// check blacklist
-			if (BlackList.getInstance().contains(video.getId())) {
+			BlackList bl = BlackList.getInstance();
+			if (bl.containsByUser(video.getId()) || bl.containsByApp(video.getId())) {
 				KLog.v(TAG, "This video is registered in black list. Skip this video.");
 				next();
 			} else {
@@ -516,6 +517,8 @@ public class VideoPlayerService extends Service {
 			KLog.v(TAG, "video url = " + result);
 			if (result == null || result.length() == 0) {
 				KLog.v(TAG, "Invalid video.");
+				// Add this video to black list 
+				BlackList.getInstance().addAppBlackList(mVideoId);
 				return false;
 			}
 			setVideoUrl(result);
