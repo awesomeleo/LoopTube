@@ -21,6 +21,7 @@ import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.app.AlertDialog;
@@ -315,6 +316,12 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 	
+	private void openGooglePlay() {
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse("market://details?id=com.kskkbys.loop"));
+		startActivity(intent);
+	}
+	
 	private void showVersion() {
 		PackageManager pm = getPackageManager();
 		PackageInfo info;
@@ -329,6 +336,12 @@ public class MainActivity extends BaseActivity {
 			builder.setTitle(R.string.loop_app_name);
 			builder.setMessage(message);
 			builder.setPositiveButton(R.string.loop_ok, null);
+			builder.setNegativeButton(R.string.loop_main_open_google_play, new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					openGooglePlay();
+				}
+			});
 			builder.create().show();
 		} catch (NameNotFoundException e) {
 			KLog.e(TAG, "package not found", e);

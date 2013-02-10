@@ -29,6 +29,7 @@
     <string name="loop_main_dialog_not_playing">There is no playing video.</string>
     <string name="loop_main_error_no_video">No videos are found. Network state may be bad.</string>
     <string name="loop_main_error_bad_connection">Your device is not connected to network.</string>
+    <string name="loop_main_open_google_play">Open Google Play</string>
     
     <string name="loop_ok">OK</string>
     <string name="loop_cancel">Cancel</string>
