@@ -77,7 +77,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		ft.addToBackStack(null);
 		// Show dialog fragment
 		if (mCanShowDialog) {
-			AlertDialogFragment fragment = AlertDialogFragment.newInstance(this, resId, listener);
+			AlertDialogFragment fragment = AlertDialogFragment.newInstance(resId);
 			fragment.setCancelable(false);
 			fragment.show(ft, TAG_ALERT);
 		}
