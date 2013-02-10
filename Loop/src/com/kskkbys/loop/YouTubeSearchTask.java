@@ -17,6 +17,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.playlist.BlackList;
 
@@ -75,6 +76,8 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
 		}
 
