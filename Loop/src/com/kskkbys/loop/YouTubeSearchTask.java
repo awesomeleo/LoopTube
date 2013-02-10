@@ -34,7 +34,6 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 	private MainActivity mParent;
 	private YouTubeSearchResult mResult;
 	private String mQuery;
-	private ProgressDialog mProgressDialog;
 
 	public YouTubeSearchTask(MainActivity parent) {
 		this.mParent = parent;
@@ -86,17 +85,15 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	@Override
 	protected void onPreExecute() {
-		mProgressDialog = new ProgressDialog(this.mParent);
-		//mProgressDialog.setTitle(R.string.app_name);
-		mProgressDialog.setMessage(mParent.getText(R.string.loop_main_dialog_searching));
-		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		mProgressDialog.show();
+		if (mParent != null) {
+			mParent.showProgress(R.string.loop_main_dialog_searching);
+		}
 	}
 
 	@Override
 	protected void onPostExecute(String result) {
 		// Dismiss dialog and start to play
-		mProgressDialog.dismiss();
+		mParent.dismissProgress();
 		List<Video> videos = createVideoList(this.mResult);
 		if (videos != null && videos.size() > 0) {
 			this.mParent.startVideoPlayer(mQuery, videos);

@@ -18,19 +18,24 @@ import com.kskkbys.loop.logger.KLog;
 public class BaseActivity extends SherlockFragmentActivity {
 
 	private static final String TAG = BaseActivity.class.getSimpleName();
-
-	private ProgressDialogFragment mProgressDialogFragment;
+	
+	private static final String TAG_ALERT = "alert";
+	private static final String TAG_PROGRESS = "progress";
 	
 	/**
 	 * This flag indicates whether dialogs can be shown or not.
 	 */
-	private boolean mShowDialog;
+	private boolean mCanShowDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setTheme(R.style.Theme_Sherlock);
-		mShowDialog = true;
+		mCanShowDialog = true;
+	}
+	
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 	@Override
@@ -48,60 +53,66 @@ public class BaseActivity extends SherlockFragmentActivity {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+		// Before calling onSavedInstanceState, dismiss Dialog
+		mCanShowDialog = false;
+		dismissProgress();
+		//
 		super.onSaveInstanceState(outState);
-		mShowDialog = false;
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mShowDialog = true;
+		mCanShowDialog = true;
 	}
 
 	protected void showAlert(int resId, OnClickListener listener) {
 		KLog.v(TAG, "showAlert");
 		// Remove prev fragment
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+		Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_ALERT);
 		if (prev != null) {
 			ft.remove(prev);
 		}
 		ft.addToBackStack(null);
 		// Show dialog fragment
-		if (mShowDialog) {
+		if (mCanShowDialog) {
 			AlertDialogFragment fragment = AlertDialogFragment.newInstance(this, resId, listener);
 			fragment.setCancelable(false);
-			fragment.show(ft, "dialog");
+			fragment.show(ft, TAG_ALERT);
 		}
 	}
 
 	protected void showProgress(int resId) {
 		KLog.v(TAG, "showProgress");
 		// Remove prev fragment
+		/*
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+		Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_PROGRESS);
 		if (prev != null) {
 			ft.remove(prev);
 		}
 		ft.addToBackStack(null);
+		*/
 		// Show dialog fragment
-		if (mProgressDialogFragment == null && mShowDialog) {
-			mProgressDialogFragment = ProgressDialogFragment.newInstance(resId);
-			mProgressDialogFragment.setCancelable(false);
-			mProgressDialogFragment.show(ft, "dialog");
+		if (mCanShowDialog) {
+			ProgressDialogFragment frag = ProgressDialogFragment.newInstance(resId);
+			frag.setCancelable(false);
+			//frag.show(ft, TAG_PROGRESS);
+			frag.show(getSupportFragmentManager(), TAG_PROGRESS);
 		}
 	}
 	
 	protected void dismissProgress() {
 		KLog.v(TAG, "dismissProgress");
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+		// FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ProgressDialogFragment prev = (ProgressDialogFragment)getSupportFragmentManager().findFragmentByTag(TAG_PROGRESS);
 		if (prev != null) {
-			ft.remove(prev);
-		}
-		if (mProgressDialogFragment != null) {
-			mProgressDialogFragment.dismiss();
-			mProgressDialogFragment = null;
+			KLog.v(TAG, "Dismissed");
+			// ft.remove(prev);
+			prev.dismiss();
+		} else {
+			KLog.v(TAG, "already dismissed");
 		}
 	}
 
