@@ -389,6 +389,8 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	 * Show a dialog to publish facebook
 	 */
 	private void showFacebookDialog() {
+		FlurryLogger.logEvent(FlurryLogger.SEE_FACEBOOK_DIALOG);
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.loop_video_player_confirm_facebook);
 		LayoutInflater inflater = LayoutInflater.from(this);
@@ -501,6 +503,8 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 						showAlert(R.string.loop_video_player_failure_facebook, null);
 					} else {
 						showAlert(R.string.loop_video_player_success_facebook, null);
+						
+						FlurryLogger.logEvent(FlurryLogger.PUBLISH_FACEBOOK);
 					}
 					dismissProgress();
 				}

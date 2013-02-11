@@ -28,6 +28,8 @@ public class FlurryLogger {
 	public static final String SEE_PLAYER = "See video player screen";
 	public static final String SEARCH_ARTIST = "Search artist";
 	public static final String PLAY_VIDEO = "Play video";
+	public static final String SEE_FACEBOOK_DIALOG = "See Facebook dialog";
+	public static final String PUBLISH_FACEBOOK = "Publish facebook";
 	
 	/**
 	 * 
