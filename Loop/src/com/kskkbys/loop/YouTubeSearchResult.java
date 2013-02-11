@@ -40,6 +40,9 @@ public class YouTubeSearchResult {
 			// media$group
 			static class Media$Group {
 				public Media$Content[] media$content;
+				public Media$Description media$description;
+				public Media$Player[] media$player;
+				public Media$Thumbnail[] media$thumbnail;
 				
 				// media$content
 				static class Media$Content {
@@ -50,6 +53,25 @@ public class YouTubeSearchResult {
 					public String type;
 					public String url;
 					public int ys$format;
+				}
+				
+				// media$description
+				static class Media$Description {
+					public String $t;
+					public String type;
+				}
+				
+				// media$player
+				static class Media$Player {
+					public String url;
+				}
+				
+				// media$thumbnail
+				static class Media$Thumbnail {
+					public int height;
+					public String time;
+					public String url;
+					public int width;
 				}
 			}
 			

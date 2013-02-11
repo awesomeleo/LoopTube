@@ -24,6 +24,7 @@ import com.facebook.model.GraphUser;
 import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
 
@@ -38,6 +39,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -49,6 +51,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -174,7 +177,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			@Override
 			public void onClick(View v) {
 				KLog.v(TAG, "facebook clicked");
-				shareWithFacebook();
+				showFacebookDialog();
 			}
 		});
 		mDurationView = (TextView)findViewById(R.id.durationText);
@@ -381,42 +384,56 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			}
 		}
 	}
+	
+	/**
+	 * Show a dialog to publish facebook
+	 */
+	private void showFacebookDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.loop_video_player_confirm_facebook);
+		LayoutInflater inflater = LayoutInflater.from(this);
+		final View layout = inflater.inflate(R.layout.dialog_facebook, (ViewGroup)findViewById(R.id.layoutFacebookDialog));
+		builder.setView(layout);
+		builder.setPositiveButton(R.string.loop_ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// network state
+				if (!ConnectionState.isConnected(VideoPlayerActivity.this)) {
+					showAlert(R.string.loop_main_error_bad_connection, null);
+					return;
+				}
+				EditText edit = (EditText)layout.findViewById(R.id.facebookEditText);
+				String optionalMessage = edit.getEditableText().toString();
+				openSessionForPublishing(optionalMessage);
+			}
+		});
+		builder.setNegativeButton(R.string.loop_cancel, null);
+		builder.create().show();
+	}
 
-	private void shareWithFacebook() {
+	/**
+	 * Show a dialog to confirm Facebook publishing
+	 */
+	private void openSessionForPublishing(final String optionalMessage) {
 		KLog.v(TAG, "share with FB");
 		Session session = new Session.Builder(this).build();
 		Session.setActiveSession(session);
 		Session.OpenRequest openRequest = new Session.OpenRequest(this);
 		List<String> permissions = new ArrayList<String>();
-		permissions.add("publish_stream");
+		permissions.add("publish_actions");
 		openRequest.setPermissions(permissions);
 		openRequest.setCallback(new Session.StatusCallback() {
 			@Override
 			public void call(Session session, SessionState state, Exception exception) {
-
 				KLog.v("TAG", "call state = " + state.toString());
-
 				if (session.isOpened()) {
 					KLog.v(TAG, "is opened");
-					Request.executeMeRequestAsync(session, new Request.GraphUserCallback() {
-						@Override
-						public void onCompleted(GraphUser user, Response response) {
-							KLog.v(TAG, "is completed");
-							if (user != null) {
-								KLog.v(TAG, "Loggined with " + user.getName());
-								Toast.makeText(VideoPlayerActivity.this, "Success username = " + user.getName(), Toast.LENGTH_SHORT).show();
-								
-								publishStory();
-							} else {
-								Toast.makeText(VideoPlayerActivity.this, "User is null", Toast.LENGTH_SHORT).show();
-							}
-						}
-					});
+					publishStory(optionalMessage);
 				} else {
 					KLog.v(TAG, "is closed");
 					if (state == SessionState.CLOSED_LOGIN_FAILED) {
 						KLog.e(TAG, "Login Failed.");
-						Toast.makeText(VideoPlayerActivity.this, "Facebook Login Failed.", Toast.LENGTH_SHORT).show();
+						// Toast.makeText(VideoPlayerActivity.this, "Facebook Login Failed.", Toast.LENGTH_SHORT).show();
 					}
 				}
 			}
@@ -425,8 +442,8 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	}
 
 	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
-	private static final String PENDING_PUBLISH_KEY = "pendingPublishReauthorization";
-	private boolean pendingPublishReauthorization = false;
+	// private static final String PENDING_PUBLISH_KEY = "pendingPublishReauthorization";
+	// private boolean pendingPublishReauthorization = false;
 
 	private boolean isSubsetOf(Collection<String> subset, Collection<String> superset) {
 		for (String string : subset) {
@@ -437,50 +454,55 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		return true;
 	}
 
-	private void publishStory() {
+	/**
+	 * Publish a link of video
+	 */
+	private void publishStory(final String optionalMessage) {
+		KLog.v(TAG, "publish story");
 		Session session = Session.getActiveSession();
 		if (session != null){
-			// Check for publish permissions    
+			
+			// Check for publish permissions
+			// If the perimisson is invalid, start reauthorization
 			List<String> permissions = session.getPermissions();
 			if (!isSubsetOf(PERMISSIONS, permissions)) {
-				pendingPublishReauthorization = true;
+				KLog.v(TAG, "Invalid permission. Start reauthorization");
+				// pendingPublishReauthorization = true;
 				Session.NewPermissionsRequest newPermissionsRequest = new Session
 						.NewPermissionsRequest(this, PERMISSIONS);
 				session.requestNewPublishPermissions(newPermissionsRequest);
 				return;
 			}
 			
+			KLog.v(TAG, "Start to post");
+			showProgress(R.string.loop_video_player_dialog_publishing);
+			
 			Video video = Playlist.getInstance().getCurrentVideo();
 
 			Bundle postParams = new Bundle();
+			if (!TextUtils.isEmpty(optionalMessage)) {
+				postParams.putString("message", optionalMessage);
+			}
 			postParams.putString("name", video.getTitle());
-			// postParams.putString("caption", "Build great social apps and get more installs.");
-			// postParams.putString("description", "The Facebook SDK for Android makes it easier and faster to develop Facebook integrated Android apps.");
-			postParams.putString("link", "https://developers.facebook.com/android");
-			postParams.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
+			// postParams.putString("caption", video.getDescription());
+			postParams.putString("description", video.getDescription());
+			postParams.putString("link", video.getVideoUrl());
+			postParams.putString("picture", video.getThumbnailUrl());
 
 			Request.Callback callback= new Request.Callback() {
 				public void onCompleted(Response response) {
-					JSONObject graphResponse = response
-							.getGraphObject()
-							.getInnerJSONObject();
-					String postId = null;
-					try {
-						postId = graphResponse.getString("id");
-					} catch (JSONException e) {
-						KLog.i(TAG,
-								"JSON error "+ e.getMessage());
-					}
 					FacebookRequestError error = response.getError();
 					if (error != null) {
+						/*
 						Toast.makeText(getApplicationContext(),
 								error.getErrorMessage(),
 								Toast.LENGTH_SHORT).show();
+								*/
+						showAlert(R.string.loop_video_player_failure_facebook, null);
 					} else {
-						Toast.makeText(getApplicationContext(), 
-								postId,
-								Toast.LENGTH_LONG).show();
+						showAlert(R.string.loop_video_player_success_facebook, null);
 					}
+					dismissProgress();
 				}
 			};
 
@@ -489,6 +511,8 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 
 			RequestAsyncTask task = new RequestAsyncTask(request);
 			task.execute();
+		} else {
+			KLog.w(TAG, "session is null");
 		}
 	}
 

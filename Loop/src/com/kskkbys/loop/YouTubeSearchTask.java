@@ -120,7 +120,10 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 						getVideoId(entry.id.$t),
 						entry.title.$t, 
 						//entry.media$group.media$content[2].url, 
-						entry.media$group.media$content[0].duration * 1000);	// msec
+						entry.media$group.media$content[0].duration * 1000,
+						entry.media$group.media$description.$t,
+						entry.media$group.media$player[0].url,
+						entry.media$group.media$thumbnail[0].url);	// msec
 				videoList.add(v);
 				// Check brack words
 				BlackList blackList = BlackList.getInstance();

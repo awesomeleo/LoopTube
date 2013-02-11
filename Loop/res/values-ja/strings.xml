@@ -15,6 +15,12 @@
     <string name="loop_video_player_ignored">この動画はブラックリストに登録されました。今後再生されません。</string>
     <string name="loop_video_player_ignored_already">この動画はすでにブラックリストに登録されています。</string>
     <string name="loop_video_player_volume_setting">ボリューム設定</string>
+    <string name="loop_video_player_confirm_facebook">Facebookで共有</string>
+    <string name="loop_video_player_facebook_message">メッセージ（任意）</string>
+    <string name="loop_video_player_facebook_hint">ここにメッセージを入力して下さい（任意）</string>
+    <string name="loop_video_player_success_facebook">Facebookに投稿されました！</string>
+    <string name="loop_video_player_failure_facebook">Facebookへの投稿に失敗しました。しばらくしてからもう一度試してください。</string>
+    <string name="loop_video_player_dialog_publishing">投稿中...</string>
     
     <string name="loop_main_title">アーティストを検索</string>
     <string name="loop_main_search_artist">アーティスト名を入力してください</string>
