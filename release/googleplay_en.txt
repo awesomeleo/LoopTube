@@ -2,11 +2,10 @@ LoopTube - YouTube Player
 
 
 
-LoopTube is a simple YouTube Player which can be used as free music player!
-Once you enter the artist name, LoopTube will create a playlist of YouTube videos and loop it immediately.
-LoopTube plays videos without default YouTube app and can play in background and sleep mode.
+LoopTube is a simple YouTube Player which can be used as a free music player.
+LoopTube will create a playlist based on the artist name you enter which will get played immediately. At the end of a clip it will automatically skip to the next one, saving you that precious few finger strokes in between! LoopTube works standalone (without the official YouTube app), in background and even with the device in sleep mode.
 
-Input your favorite artist name and enjoy to watch YouTube videos :)
+In short: the stuff you love, in a few finger strokes, for as long as you want. So - what are you waiting for?
 
 
 

@@ -6,34 +6,34 @@
     
     <string name="loop_video_player_service_started">VideoPlayerService started</string>
     <string name="loop_video_player_invalid_video">This video can not be played.</string>
-    <string name="loop_video_player_unknown_error">Unknown error happens!</string>
+    <string name="loop_video_player_unknown_error">Unknown error occurred!</string>
     <string name="loop_video_player_default_duration">0:00 / 0:00</string>
     <string name="loop_video_player_playlist">Playlist</string>
     <string name="loop_video_player_dialog_seeking">Seeking&#8230;</string>
-    <string name="loop_video_player_dialog_end">Finished to play videos.</string>
+    <string name="loop_video_player_dialog_end">End of playlist.</string>
     <string name="loop_video_player_dialog_loading">Loading...</string>
-    <string name="loop_video_player_ignored">This video is registered with black list and will never be played.</string>
-    <string name="loop_video_player_ignored_already">This video has been registered with black list already.</string>
+    <string name="loop_video_player_ignored">This video is now in blacklist and will never be played.</string>
+    <string name="loop_video_player_ignored_already">This video is already in blacklist.</string>
     <string name="loop_video_player_volume_setting">Volume Setting</string>
-    <string name="loop_video_player_confirm_facebook">Share with Facebook</string>
+    <string name="loop_video_player_confirm_facebook">Share on Facebook</string>
     <string name="loop_video_player_facebook_message">Message (optional)</string>
-    <string name="loop_video_player_facebook_hint">Please input an optional message</string>
-    <string name="loop_video_player_success_facebook">This video has been published in your timeline successfully!</string>
+    <string name="loop_video_player_facebook_hint">Enter an optional message</string>
+    <string name="loop_video_player_success_facebook">Post successful!</string>
     <string name="loop_video_player_failure_facebook">Something went wrong. Please try later.</string>
-    <string name="loop_video_player_dialog_publishing">Publishing...</string>
+    <string name="loop_video_player_dialog_publishing">Posting...</string>
     
-    <string name="loop_main_title">Search artist</string>
-    <string name="loop_main_search_artist">Please input your favorite artist</string>
+    <string name="loop_main_title">Search by artist</string>
+    <string name="loop_main_search_artist">Artist name here</string>
     <string name="loop_main_recent_artists">Recent artists</string>
     <string name="loop_main_button_search">Search</string>
     <string name="loop_main_dialog_searching">Searching&#8230;</string>
     <string name="loop_main_no_history">No History</string>
     <string name="loop_main_search_hint">ex. Oasis</string>
-    <string name="loop_main_invalid_query">Please input correct artist.</string>
-    <string name="loop_main_confirm_clear_history">Are your ready to clear search history?</string>
-    <string name="loop_main_confirm_clear_blacklist">Are your ready to clear black list?</string>
+    <string name="loop_main_invalid_query">Invalid query.</string>
+    <string name="loop_main_confirm_clear_history">Search history will be cleared. Are you sure?</string>
+    <string name="loop_main_confirm_clear_blacklist">Blacklist will be cleared. Are you sure?</string>
     <string name="loop_main_dialog_not_playing">There is no playing video.</string>
-    <string name="loop_main_error_no_video">No videos are found. Network state may be bad.</string>
+    <string name="loop_main_error_no_video">No videos are found. Try checking your connection.</string>
     <string name="loop_main_error_bad_connection">Your device is not connected to network.</string>
     <string name="loop_main_open_google_play">Open Google Play</string>
     
@@ -45,12 +45,12 @@
     <string name="loop_menu_settings">Settings</string>
     <string name="loop_menu_item_show_player">Show video player</string>
     <string name="loop_menu_item_clear_history">Clear search history</string>
-    <string name="loop_menu_item_clear_blacklist">Clear black list</string>
+    <string name="loop_menu_item_clear_blacklist">Clear blacklist</string>
     <string name="loop_menu_item_version">About LoopTube</string>
     
     <string name="loop_menu_item_start_repeat">Repeat this video</string>
-    <string name="loop_menu_item_stop_repeat">Stop to repeat</string>
-    <string name="loop_menu_item_ignore">Register this video with black list</string>
+    <string name="loop_menu_item_stop_repeat">Stop repeat</string>
+    <string name="loop_menu_item_ignore">Add this video to blacklist</string>
     
     <string-array name="loop_black_word_list">
     </string-array>
