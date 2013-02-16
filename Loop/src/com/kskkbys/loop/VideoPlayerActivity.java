@@ -436,6 +436,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 					if (state == SessionState.CLOSED_LOGIN_FAILED) {
 						KLog.e(TAG, "Login Failed.");
 						// Toast.makeText(VideoPlayerActivity.this, "Facebook Login Failed.", Toast.LENGTH_SHORT).show();
+						showAlert(R.string.loop_video_player_failure_facebook, null);
 					}
 				}
 			}
@@ -484,15 +485,34 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			Bundle postParams = new Bundle();
 			if (!TextUtils.isEmpty(optionalMessage)) {
 				postParams.putString("message", optionalMessage);
+			} else {
+				KLog.w(TAG, "message is null");
 			}
-			postParams.putString("name", video.getTitle());
+			if (!TextUtils.isEmpty(video.getTitle())) {
+				postParams.putString("name", video.getTitle());
+			} else {
+				KLog.w(TAG, "name is null");
+			}
 			// postParams.putString("caption", video.getDescription());
-			postParams.putString("description", video.getDescription());
-			postParams.putString("link", video.getVideoUrl());
-			postParams.putString("picture", video.getThumbnailUrl());
-
+			if (!TextUtils.isEmpty(video.getDescription())) {
+				postParams.putString("description", video.getDescription());
+			} else {
+				KLog.w(TAG, "description is null");
+			}
+			if (!TextUtils.isEmpty(video.getVideoUrl())) {
+				postParams.putString("link", video.getVideoUrl());
+			} else {
+				KLog.w(TAG, "link is null");
+			}
+			if (!TextUtils.isEmpty(video.getThumbnailUrl())) {
+				postParams.putString("picture", video.getThumbnailUrl());
+			} else {
+				KLog.w(TAG, "picture is null");
+			}
+			
 			Request.Callback callback= new Request.Callback() {
 				public void onCompleted(Response response) {
+					KLog.v(TAG, "onCompleted");
 					FacebookRequestError error = response.getError();
 					if (error != null) {
 						/*
@@ -500,6 +520,10 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 								error.getErrorMessage(),
 								Toast.LENGTH_SHORT).show();
 								*/
+						KLog.e(TAG, "FB failed.");
+						KLog.e(TAG, "code: " + error.getErrorCode());
+						KLog.e(TAG, "type: " + error.getErrorType());
+						KLog.e(TAG, error.getErrorMessage());
 						showAlert(R.string.loop_video_player_failure_facebook, null);
 					} else {
 						showAlert(R.string.loop_video_player_success_facebook, null);
@@ -509,10 +533,9 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 					dismissProgress();
 				}
 			};
-
+			KLog.v(TAG, "Start AsyncTask");
 			Request request = new Request(session, "me/feed", postParams, 
 					HttpMethod.POST, callback);
-
 			RequestAsyncTask task = new RequestAsyncTask(request);
 			task.execute();
 		} else {

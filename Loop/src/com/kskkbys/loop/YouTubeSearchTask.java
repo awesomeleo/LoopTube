@@ -118,12 +118,17 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 			for (YouTubeSearchResult.Feed.Entry entry : result.feed.entry) {
 				Video v = new Video(
 						getVideoId(entry.id.$t),
-						entry.title.$t, 
-						//entry.media$group.media$content[2].url, 
-						entry.media$group.media$content[0].duration * 1000,
-						entry.media$group.media$description.$t,
-						entry.media$group.media$player[0].url,
-						entry.media$group.media$thumbnail[0].url);	// msec
+						entry.title.$t,
+						entry.media$group.media$content[0].duration * 1000);
+				if (entry.media$group.media$description != null) {
+					v.setDescription(entry.media$group.media$description.$t);
+				}
+				if (entry.media$group.media$player != null && entry.media$group.media$player.length > 0) {
+					v.setVideoUrl(entry.media$group.media$player[0].url);
+				}
+				if (entry.media$group.media$thumbnail != null && entry.media$group.media$thumbnail.length > 0) {
+					v.setThumbnailUrl(entry.media$group.media$thumbnail[0].url);
+				}
 				videoList.add(v);
 				// Check brack words
 				BlackList blackList = BlackList.getInstance();
