@@ -43,6 +43,7 @@ public class YouTubeSearchResult {
 				public Media$Description media$description;
 				public Media$Player[] media$player;
 				public Media$Thumbnail[] media$thumbnail;
+				public Yt$Duration yt$duration;
 				
 				// media$content
 				static class Media$Content {
@@ -73,6 +74,11 @@ public class YouTubeSearchResult {
 					public String url;
 					public int width;
 				}
+				
+				static class Yt$Duration {
+					public String seconds;
+				}
+				
 			}
 			
 			// title

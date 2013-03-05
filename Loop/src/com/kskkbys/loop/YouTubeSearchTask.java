@@ -116,25 +116,32 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		List<Video> videoList = new ArrayList<Video>();
 		if (result != null && result.feed != null && result.feed.entry != null) {
 			for (YouTubeSearchResult.Feed.Entry entry : result.feed.entry) {
-				Video v = new Video(
-						getVideoId(entry.id.$t),
-						entry.title.$t,
-						entry.media$group.media$content[0].duration * 1000);
-				if (entry.media$group.media$description != null) {
-					v.setDescription(entry.media$group.media$description.$t);
-				}
-				if (entry.media$group.media$player != null && entry.media$group.media$player.length > 0) {
-					v.setVideoUrl(entry.media$group.media$player[0].url);
-				}
-				if (entry.media$group.media$thumbnail != null && entry.media$group.media$thumbnail.length > 0) {
-					v.setThumbnailUrl(entry.media$group.media$thumbnail[0].url);
-				}
-				videoList.add(v);
-				// Check brack words
-				BlackList blackList = BlackList.getInstance();
-				if (blackList.isBlackTitle(v.getTitle())) {
-					KLog.v(TAG, "This video contains black word: " + v.getTitle());
-					blackList.addAppBlackList(v.getId());	// TODO App? User?
+				try {
+					Video v = new Video(
+							getVideoId(entry.id.$t),
+							entry.title.$t,
+							Integer.parseInt(entry.media$group.yt$duration.seconds) * 1000);
+							//entry.media$group.media$content[0].duration * 1000);
+					if (entry.media$group.media$description != null) {
+						v.setDescription(entry.media$group.media$description.$t);
+					}
+					if (entry.media$group.media$player != null && entry.media$group.media$player.length > 0) {
+						v.setVideoUrl(entry.media$group.media$player[0].url);
+					}
+					if (entry.media$group.media$thumbnail != null && entry.media$group.media$thumbnail.length > 0) {
+						v.setThumbnailUrl(entry.media$group.media$thumbnail[0].url);
+					}
+					videoList.add(v);
+					// Check brack words
+					BlackList blackList = BlackList.getInstance();
+					if (blackList.isBlackTitle(v.getTitle())) {
+						KLog.v(TAG, "This video contains black word: " + v.getTitle());
+						blackList.addAppBlackList(v.getId());	// TODO App? User?
+					}
+				} catch (NumberFormatException e) {
+					KLog.e(TAG, "error", e);
+				} catch (NullPointerException e) {
+					KLog.e(TAG, "error", e);
 				}
 			}
 		}
