@@ -20,4 +20,5 @@ before_install:
   - android update project --path ./facebook-android-sdk-3.0/facebook --target android-17
   - android update project --path ./Loop --target android-17
   - cd ./Loop
-install: ant debug
+script:
+  - ant debug
