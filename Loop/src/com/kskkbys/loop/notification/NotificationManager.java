@@ -31,7 +31,7 @@ public class NotificationManager {
 
 		// The PendingIntent to launch our activity if the user selects this notification
 		Intent intent = new Intent(context, MainActivity.class);
-		intent.putExtra("from_notification", true);
+		intent.putExtra(MainActivity.FROM_NOTIFICATION, true);
 		PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
 				intent, 0);
 		

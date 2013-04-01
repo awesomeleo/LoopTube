@@ -51,6 +51,8 @@ public class MainActivity extends BaseActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	private static final String FILENAME_SEARCH_HISTORY = "search_history.txt";
+	
+	public static final String FROM_NOTIFICATION = "from_notification";
 
 	private List<String> mRecentArtists = new ArrayList<String>();
 
@@ -124,7 +126,7 @@ public class MainActivity extends BaseActivity {
 		});
 
 		// If this activity is launched from notification, go to PlayerActivity
-		boolean isFromNotification = getIntent().getBooleanExtra("from_notification", false);
+		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
 			KLog.v(TAG, "Launched from notification. Go next activity.");
 			goNextActivity();
@@ -139,7 +141,7 @@ public class MainActivity extends BaseActivity {
 	protected void onNewIntent(Intent intent) {
 		KLog.v(TAG, "onNewIntent");
 		// If this activity is launched from notification, go to PlayerActivity
-		boolean isFromNotification = intent.getBooleanExtra("from_notification", false);
+		boolean isFromNotification = intent.getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
 			KLog.v(TAG, "Launched from notification. Go next activity.");
 			goNextActivity();
