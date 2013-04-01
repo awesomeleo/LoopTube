@@ -21,6 +21,7 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
+import com.kskkbys.loop.audio.MuteManager;
 import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
@@ -369,28 +370,26 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	 */
 	private void switchMute() {
 		if (Playlist.getInstance().getCurrentVideo() != null) {
-			if (mService != null) {
-				if (mService.isMute()) {
-					KLog.v(TAG, "Mute Off");
-					mService.setMute(false);
-					mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
-					mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_plus2);
-				} else {
-					KLog.v(TAG, "Mute On");
-					mService.setMute(true);
-					mVolumeButton.setBackgroundResource(R.drawable.volume_off);
-					mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
-				}
+			if (MuteManager.getInstance().isMute()) {
+				KLog.v(TAG, "Mute Off");
+				MuteManager.getInstance().setMute(this, false);
+				mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
+				mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_plus2);
+			} else {
+				KLog.v(TAG, "Mute On");
+				MuteManager.getInstance().setMute(this, true);
+				mVolumeButton.setBackgroundResource(R.drawable.volume_off);
+				mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
 			}
 		}
 	}
-	
+
 	/**
 	 * Show a dialog to publish facebook
 	 */
 	private void showFacebookDialog() {
 		FlurryLogger.logEvent(FlurryLogger.SEE_FACEBOOK_DIALOG);
-		
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.loop_video_player_confirm_facebook);
 		LayoutInflater inflater = LayoutInflater.from(this);
@@ -464,7 +463,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		KLog.v(TAG, "publish story");
 		Session session = Session.getActiveSession();
 		if (session != null){
-			
+
 			// Check for publish permissions
 			// If the perimisson is invalid, start reauthorization
 			List<String> permissions = session.getPermissions();
@@ -476,10 +475,10 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 				session.requestNewPublishPermissions(newPermissionsRequest);
 				return;
 			}
-			
+
 			KLog.v(TAG, "Start to post");
 			showProgress(R.string.loop_video_player_dialog_publishing);
-			
+
 			Video video = Playlist.getInstance().getCurrentVideo();
 
 			Bundle postParams = new Bundle();
@@ -509,7 +508,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			} else {
 				KLog.w(TAG, "picture is null");
 			}
-			
+
 			Request.Callback callback= new Request.Callback() {
 				public void onCompleted(Response response) {
 					KLog.v(TAG, "onCompleted");
@@ -519,7 +518,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 						Toast.makeText(getApplicationContext(),
 								error.getErrorMessage(),
 								Toast.LENGTH_SHORT).show();
-								*/
+						 */
 						KLog.e(TAG, "FB failed.");
 						KLog.e(TAG, "code: " + error.getErrorCode());
 						KLog.e(TAG, "type: " + error.getErrorType());
@@ -527,7 +526,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 						showAlert(R.string.loop_video_player_failure_facebook, null);
 					} else {
 						showAlert(R.string.loop_video_player_success_facebook, null);
-						
+
 						FlurryLogger.logEvent(FlurryLogger.PUBLISH_FACEBOOK);
 					}
 					dismissProgress();
@@ -667,7 +666,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		View layout = inflater.inflate(R.layout.dialog_volume, (ViewGroup)findViewById(R.id.layoutVoluemeDialog));
 
 		mVolumeButtonInDialog = (ImageView)layout.findViewById(R.id.volumeImageView);
-		if (mService.isMute()) {
+		if (MuteManager.getInstance().isMute()) {
 			mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
 		}
 		mVolumeButtonInDialog.setOnClickListener(new OnClickListener() {
@@ -739,7 +738,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
 		}
 
-		if (mService.isMute()) {
+		if (MuteManager.getInstance().isMute()) {
 			mVolumeButton.setBackgroundResource(R.drawable.volume_off);
 		} else {
 			mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);

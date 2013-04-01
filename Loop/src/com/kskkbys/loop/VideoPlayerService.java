@@ -51,8 +51,6 @@ public class VideoPlayerService extends Service {
 	private static MediaPlayer mMediaPlayer;
 	private int mState;
 	private boolean mIsLooping;
-	private boolean mIsMute;
-	private float mVolume;
 	
 	// for Flurry
 	private boolean mIsPlaying;
@@ -80,8 +78,7 @@ public class VideoPlayerService extends Service {
 		// state of MediaPlayer
 		mState = STATE_INIT;
 		mIsLooping = false;
-		mIsMute = false;
-		mVolume = 1.0f;
+		
 		// for flurry
 		mIsPlaying = false;
 
@@ -254,20 +251,6 @@ public class VideoPlayerService extends Service {
 
 	public boolean isLooping() {
 		return mMediaPlayer.isLooping();
-	}
-	
-	public void setMute(boolean isMute) {
-		KLog.v(TAG, "setMute");
-		mIsMute = isMute;
-		if (mIsMute) {
-			mMediaPlayer.setVolume(0, 0);
-		} else {
-			mMediaPlayer.setVolume(mVolume, mVolume);
-		}
-	}
-	
-	public boolean isMute() {
-		return mIsMute;
 	}
 
 	/**
