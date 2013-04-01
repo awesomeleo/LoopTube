@@ -4,6 +4,8 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
 import com.kskkbys.loop.MainActivity;
@@ -35,7 +37,8 @@ public class NotificationManager {
 		
 		Notification notification = new NotificationCompat.Builder(context)
 			.setContentIntent(contentIntent)
-			.setSmallIcon(R.drawable.ic_launcher)
+			.setSmallIcon(R.drawable.ic_stat_name)
+			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
 			.setTicker(text)
 			.setContentTitle(context.getText(R.string.loop_app_name))
 			.setContentText(text)
