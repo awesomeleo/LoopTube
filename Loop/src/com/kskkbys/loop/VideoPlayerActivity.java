@@ -625,12 +625,8 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 
 	@Override
 	public void onSeekComplete(int positionMsec) {
-		int msec = mService.getCurrentPosition();
-		mSeekBar.setProgress(msec / 1000);
-
 		KLog.v(TAG, "onSeekComplete");
-		//Toast.makeText(this, "OnSeekComplete", Toast.LENGTH_SHORT).show();
-
+		mSeekBar.setProgress(positionMsec / 1000);
 		dismissProgress();
 		mIsSeeking = false;
 	}

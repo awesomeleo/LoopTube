@@ -306,11 +306,6 @@ public class VideoPlayerService extends Service {
 		mMediaPlayer.setLooping(isRepeat);
 	}
 
-	/*
-	public boolean isLooping() {
-		return mMediaPlayer.isLooping();
-	}*/
-
 	/**
 	 * Get the current position in the playing video
 	 * @return
