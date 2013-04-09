@@ -54,8 +54,10 @@ public class VideoPlayerService extends Service {
 	public static final int COMMAND_PAUSE = 2;
 	public static final int COMMAND_NEXT = 3;
 	public static final int COMMAND_PREV = 4;
+	public static final int COMMAND_LOOPING = 5;
 	
 	public static final String PLAY_RELOAD = "play_reload";
+	public static final String LOOPING = "looping";
 
 	// MediaPlayer
 	private static MediaPlayer mMediaPlayer;
@@ -155,6 +157,7 @@ public class VideoPlayerService extends Service {
 		
 		int command = intent.getIntExtra(COMMAND, COMMAND_UNKNOWN);
 		boolean isReload = intent.getBooleanExtra(PLAY_RELOAD, false);
+		boolean isLooping = intent.getBooleanExtra(LOOPING, false);
 		KLog.v(TAG, "command = " + command);
 		switch (command) {
 		case COMMAND_PLAY:
@@ -168,6 +171,9 @@ public class VideoPlayerService extends Service {
 			break;
 		case COMMAND_NEXT:
 			next();
+			break;
+		case COMMAND_LOOPING:
+			setLooping(isLooping);
 			break;
 		default:
 			KLog.e(TAG, "Unknown command!");
@@ -288,15 +294,16 @@ public class VideoPlayerService extends Service {
 		}
 	}
 
-	public void setLooping(boolean isRepeat) {
+	private void setLooping(boolean isRepeat) {
 		KLog.v(TAG, "setRepeat");
 		mIsLooping = isRepeat;
 		mMediaPlayer.setLooping(isRepeat);
 	}
 
+	/*
 	public boolean isLooping() {
 		return mMediaPlayer.isLooping();
-	}
+	}*/
 
 	/**
 	 * Get the current position in the playing video

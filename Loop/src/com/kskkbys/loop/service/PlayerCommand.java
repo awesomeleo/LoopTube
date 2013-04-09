@@ -1,6 +1,7 @@
 package com.kskkbys.loop.service;
 
 import com.kskkbys.loop.VideoPlayerService;
+import com.kskkbys.loop.playlist.LoopManager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -49,4 +50,16 @@ public class PlayerCommand {
 		context.startService(intent);
 	}
 	
+	/**
+	 * Send LOOPING command
+	 * @param context
+	 * @param isLooping
+	 */
+	public static void setLooping(Context context, boolean isLooping) {
+		LoopManager.getInstance().setLoop(isLooping);
+		Intent intent = new Intent(context, VideoPlayerService.class);
+		intent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_LOOPING);
+		intent.putExtra(VideoPlayerService.LOOPING, isLooping);
+		context.startService(intent);
+	}
 }

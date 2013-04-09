@@ -27,6 +27,7 @@ import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
+import com.kskkbys.loop.playlist.LoopManager;
 import com.kskkbys.loop.playlist.Playlist;
 import com.kskkbys.loop.service.PlayerCommand;
 
@@ -349,15 +350,15 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	private void switchLoop() {
 		if (Playlist.getInstance().getCurrentVideo() != null) {
 			if (mService != null) {
-				if (mService.isLooping()) {
+				if (LoopManager.getInstance().isLooping()) {
 					// stop looping
 					KLog.v(TAG, "Stop looping");
-					mService.setLooping(false);
+					PlayerCommand.setLooping(VideoPlayerActivity.this, false);
 					mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
 				} else {
 					// start looping
 					KLog.v(TAG, "Start looping");
-					mService.setLooping(true);
+					PlayerCommand.setLooping(VideoPlayerActivity.this, true);
 					mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
 				}
 			}
@@ -731,7 +732,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			mPauseButton.setBackgroundResource(R.drawable.play);
 		}
 
-		if (mService.isLooping()) {
+		if (LoopManager.getInstance().isLooping()) {
 			mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
 		} else {
 			mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
