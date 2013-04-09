@@ -55,9 +55,11 @@ public class VideoPlayerService extends Service {
 	public static final int COMMAND_NEXT = 3;
 	public static final int COMMAND_PREV = 4;
 	public static final int COMMAND_LOOPING = 5;
+	public static final int COMMAND_SEEK = 6;
 	
 	public static final String PLAY_RELOAD = "play_reload";
 	public static final String LOOPING = "looping";
+	public static final String SEEK_MSEC = "seek_msec";
 
 	// MediaPlayer
 	private static MediaPlayer mMediaPlayer;
@@ -158,6 +160,7 @@ public class VideoPlayerService extends Service {
 		int command = intent.getIntExtra(COMMAND, COMMAND_UNKNOWN);
 		boolean isReload = intent.getBooleanExtra(PLAY_RELOAD, false);
 		boolean isLooping = intent.getBooleanExtra(LOOPING, false);
+		int msec = intent.getIntExtra(SEEK_MSEC, 0);
 		KLog.v(TAG, "command = " + command);
 		switch (command) {
 		case COMMAND_PLAY:
@@ -174,6 +177,9 @@ public class VideoPlayerService extends Service {
 			break;
 		case COMMAND_LOOPING:
 			setLooping(isLooping);
+			break;
+		case COMMAND_SEEK:
+			seekTo(msec);
 			break;
 		default:
 			KLog.e(TAG, "Unknown command!");
@@ -287,7 +293,7 @@ public class VideoPlayerService extends Service {
 		return mMediaPlayer.isPlaying();
 	}
 
-	public void seekTo(int msec) {
+	private void seekTo(int msec) {
 		KLog.v(TAG, "seekTo");
 		if (mState == STATE_PLAYING) {
 			mMediaPlayer.seekTo(msec);

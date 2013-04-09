@@ -62,4 +62,16 @@ public class PlayerCommand {
 		intent.putExtra(VideoPlayerService.LOOPING, isLooping);
 		context.startService(intent);
 	}
+	
+	/**
+	 * SEEK command
+	 * @param context
+	 * @param msec
+	 */
+	public static void seek(Context context, int msec) {
+		Intent intent = new Intent(context, VideoPlayerService.class);
+		intent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_SEEK);
+		intent.putExtra(VideoPlayerService.SEEK_MSEC, msec);
+		context.startService(intent);
+	}
 }

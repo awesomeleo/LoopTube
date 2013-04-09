@@ -190,7 +190,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				KLog.v(TAG, "onStopTrackingTouch");
 				showProgress(R.string.loop_video_player_dialog_seeking);
-				mService.seekTo(mSeekBar.getProgress());
+				PlayerCommand.seek(VideoPlayerActivity.this, mSeekBar.getProgress());
 			}
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
