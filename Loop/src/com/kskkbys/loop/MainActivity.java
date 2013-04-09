@@ -24,12 +24,9 @@ import com.kskkbys.loop.service.PlayerCommand;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -57,26 +54,6 @@ public class MainActivity extends BaseActivity {
 
 	private List<String> mRecentArtists = new ArrayList<String>();
 
-	// Services
-	private VideoPlayerService mService;
-	private boolean mIsBound = false;
-
-	private ServiceConnection mConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mService = ((VideoPlayerService.VideoPlayerServiceBinder)service).getService();
-			//Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
-			KLog.v(TAG, "service connected");
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mService = null;
-			//Toast.makeText(MainActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
-			KLog.v(TAG, "service disconnected");
-		}
-	};
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -89,11 +66,6 @@ public class MainActivity extends BaseActivity {
 		// This api call is needed in order to keep the service alive 
 		// even when all activities are close.
 		startService(new Intent(MainActivity.this, VideoPlayerService.class));
-
-		// Bind player service
-		if (!mIsBound) {
-			doBindService();
-		}
 
 		// Read recent artist saved in the device
 		readHistory();
@@ -155,12 +127,6 @@ public class MainActivity extends BaseActivity {
 		super.onResume();
 		// update history
 		updateHistoryUI();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		doUnbindService();
 	}
 
 	private void searchQuery(String artist) {
@@ -387,22 +353,5 @@ public class MainActivity extends BaseActivity {
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(intent);
-	}
-
-	private void doBindService() {
-		// Establish a connection with the service.  We use an explicit
-		// class name because we want a specific service implementation that
-		// we know will be running in our own process (and thus won't be
-		// supporting component replacement by other applications).
-		bindService(new Intent(MainActivity.this, VideoPlayerService.class), mConnection, Context.BIND_AUTO_CREATE);
-		mIsBound = true;
-	}
-
-	private void doUnbindService() {
-		if (mIsBound) {
-			// Detach our existing connection.
-			unbindService(mConnection);
-			mIsBound = false;
-		}
 	}
 }
