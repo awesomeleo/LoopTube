@@ -28,6 +28,7 @@ import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
+import com.kskkbys.loop.service.PlayerCommand;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -134,14 +135,14 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		mPrevButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mService.prev();
+				PlayerCommand.prev(VideoPlayerActivity.this);
 			}
 		});
 		mNextButton = findViewById(R.id.nextButton);
 		mNextButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mService.next();
+				PlayerCommand.next(VideoPlayerActivity.this);
 			}
 		});
 		mPauseButton = findViewById(R.id.pauseButton);
@@ -149,10 +150,10 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			@Override
 			public void onClick(View v) {
 				if (mService.isPlaying()) {
-					mService.pause();
+					PlayerCommand.pause(VideoPlayerActivity.this);
 					mPauseButton.setBackgroundResource(R.drawable.play);
 				} else {
-					mService.play();
+					PlayerCommand.play(VideoPlayerActivity.this, false);
 					mPauseButton.setBackgroundResource(R.drawable.pause);
 				}
 			}
@@ -273,7 +274,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 					Toast.makeText(VideoPlayerActivity.this, R.string.loop_video_player_ignored_already, Toast.LENGTH_SHORT).show();
 				} else {
 					Playlist.getInstance().setPlayingIndex(position);
-					mService.startVideo();
+					PlayerCommand.play(VideoPlayerActivity.this, true);
 				}
 			}
 		});
@@ -339,9 +340,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		//
 		Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
 		// Go next video
-		if (mService != null) {
-			mService.next();
-		}
+		PlayerCommand.next(VideoPlayerActivity.this);
 	}
 
 	/**
@@ -652,7 +651,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		builder.setPositiveButton(R.string.loop_ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mService.next();
+				PlayerCommand.next(VideoPlayerActivity.this);
 			}
 		});
 		builder.create().show();

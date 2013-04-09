@@ -46,6 +46,16 @@ public class VideoPlayerService extends Service {
 	public static final int STATE_PEPARED = 1;
 	public static final int STATE_PLAYING = 2;
 	public static final int STATE_COMPLETE = 3;
+	
+	// Command
+	public static final String COMMAND = "command";
+	public static final int COMMAND_UNKNOWN = 0;
+	public static final int COMMAND_PLAY = 1;
+	public static final int COMMAND_PAUSE = 2;
+	public static final int COMMAND_NEXT = 3;
+	public static final int COMMAND_PREV = 4;
+	
+	public static final String PLAY_RELOAD = "play_reload";
 
 	// MediaPlayer
 	private static MediaPlayer mMediaPlayer;
@@ -141,7 +151,29 @@ public class VideoPlayerService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		KLog.i("LocalService", "Received start id " + startId + ": " + intent);
+		KLog.i(TAG, "Received start id " + startId + ": " + intent);
+		
+		int command = intent.getIntExtra(COMMAND, COMMAND_UNKNOWN);
+		boolean isReload = intent.getBooleanExtra(PLAY_RELOAD, false);
+		KLog.v(TAG, "command = " + command);
+		switch (command) {
+		case COMMAND_PLAY:
+			play(isReload);
+			break;
+		case COMMAND_PAUSE:
+			pause();
+			break;
+		case COMMAND_PREV:
+			prev();
+			break;
+		case COMMAND_NEXT:
+			next();
+			break;
+		default:
+			KLog.e(TAG, "Unknown command!");
+			break;
+		}
+		
 		// We want this service to continue running until it is explicitly
 		// stopped, so return sticky.
 		return START_STICKY;
@@ -184,29 +216,42 @@ public class VideoPlayerService extends Service {
 		NotificationManager.show(this, videoTitle);
 	}
 
-	public void prev() {
+	private void prev() {
 		KLog.v(TAG, "prev");
 		Playlist.getInstance().prev();
 		startVideo();
 	}
 
-	public void next() {
+	private void next() {
 		KLog.v(TAG,"next");
 		Playlist.getInstance().next();
 		startVideo();
 	}
+	
+	/**
+	 * Play command
+	 * @param reset		If true, reload video. Otherwise, only start.
+	 */
+	private void play(boolean reset) {
+		if (reset) {
+			startVideo();
+		} else {
+			play();
+		}
+	}
 
 	/**
+	 * This method starts MediaPlayer only.
 	 * After prepared, this method starts to play and changes its state to STATE_PLAYING.
 	 */
-	public void play() {
+	private void play() {
 		KLog.v(TAG, "play");
 		if (mState == STATE_PEPARED || mState == STATE_PLAYING) {
 			mState = STATE_PLAYING;
 			mMediaPlayer.start();
 			// show notification
 			showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
-			//
+			// logger
 			if (!mIsPlaying) {
 				mIsPlaying = true;
 				Map<String, String> param = new HashMap<String, String>();
@@ -217,7 +262,7 @@ public class VideoPlayerService extends Service {
 			KLog.w(TAG, "Invalid state: " + mState);
 		}
 	}
-	public void pause() {
+	private void pause() {
 		KLog.v(TAG, "pause");
 		if (mState == STATE_PLAYING) {
 			mMediaPlayer.pause();
@@ -269,7 +314,7 @@ public class VideoPlayerService extends Service {
 	/**
 	 * Start to play video
 	 */
-	public void startVideo() {
+	private void startVideo() {
 		KLog.v(TAG, "startVideo");
 		// Reset the current player
 		mMediaPlayer.reset();

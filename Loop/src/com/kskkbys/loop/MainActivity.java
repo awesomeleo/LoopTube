@@ -20,6 +20,7 @@ import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
+import com.kskkbys.loop.service.PlayerCommand;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -374,7 +375,7 @@ public class MainActivity extends BaseActivity {
 	 */
 	public void startVideoPlayer(String query, List<Video> result) {
 		Playlist.getInstance().setVideoList(query, result);
-		this.mService.startVideo();
+		PlayerCommand.play(this, true);
 		// Go next activity
 		goNextActivity();
 	}
