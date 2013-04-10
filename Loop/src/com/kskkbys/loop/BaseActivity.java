@@ -39,14 +39,14 @@ public class BaseActivity extends SherlockFragmentActivity {
 	}
 
 	@Override
-	public void onStart() {
+	protected void onStart() {
 		super.onStart();
 		FlurryLogger.onStartSession(this);
 		FlurryLogger.onPageView();
 	}
 
 	@Override
-	public void onStop() {
+	protected void onStop() {
 		super.onStop();
 		FlurryLogger.onEndSession(this);
 	}

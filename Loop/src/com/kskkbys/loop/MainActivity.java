@@ -21,6 +21,7 @@ import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
 import com.kskkbys.loop.service.PlayerCommand;
+import com.kskkbys.rate.RateThisApp;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -127,6 +128,13 @@ public class MainActivity extends BaseActivity {
 		super.onResume();
 		// update history
 		updateHistoryUI();
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		RateThisApp.onStart(this);
+		RateThisApp.showRateDialogIfNeeded(this);
 	}
 
 	private void searchQuery(String artist) {
