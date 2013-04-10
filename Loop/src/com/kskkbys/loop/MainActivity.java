@@ -35,11 +35,14 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * Search screen.
@@ -194,6 +197,12 @@ public class MainActivity extends BaseActivity {
 		saveSearchHistory();
 	}
 
+	private void clearHistory(int position) {
+		mRecentArtists.remove(position);
+		saveSearchHistory();
+	}
+
+	
 	/**
 	 * Update history view
 	 */
@@ -232,6 +241,26 @@ public class MainActivity extends BaseActivity {
 							searchQuery(artistName);
 						}
 					}
+				}
+			});
+			
+			listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+				@Override
+				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+						int position, long id) {
+					final int deletePos = mRecentArtists.size() - 1 - position;
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder.setMessage(R.string.loop_main_confirm_clear_one_history);
+					builder.setPositiveButton(R.string.loop_ok, new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							clearHistory(deletePos);
+							updateHistoryUI();
+						}
+					});
+					builder.setNegativeButton(R.string.loop_cancel, null);
+					builder.create().show();
+					return true;
 				}
 			});
 		} else {
