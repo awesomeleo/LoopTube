@@ -11,6 +11,9 @@ android update project --path ./
 cd ../../ActionBarSherlock/library
 android update project --path ./
 
+cd ../../Android-RateThisApp/library
+android update project --path ./
+
 cd ../../Loop
 android update project --path ./
 ant clean
