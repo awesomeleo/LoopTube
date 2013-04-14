@@ -46,7 +46,7 @@ public class VideoPlayerService extends Service {
 	public static final int STATE_PEPARED = 1;
 	public static final int STATE_PLAYING = 2;
 	public static final int STATE_COMPLETE = 3;
-	
+
 	// Command
 	public static final String COMMAND = "command";
 	public static final int COMMAND_UNKNOWN = 0;
@@ -56,7 +56,7 @@ public class VideoPlayerService extends Service {
 	public static final int COMMAND_PREV = 4;
 	public static final int COMMAND_LOOPING = 5;
 	public static final int COMMAND_SEEK = 6;
-	
+
 	public static final String PLAY_RELOAD = "play_reload";
 	public static final String LOOPING = "looping";
 	public static final String SEEK_MSEC = "seek_msec";
@@ -65,7 +65,7 @@ public class VideoPlayerService extends Service {
 	private static MediaPlayer mMediaPlayer;
 	private int mState;
 	private boolean mIsLooping;
-	
+
 	// for Flurry
 	private boolean mIsPlaying;
 
@@ -86,13 +86,13 @@ public class VideoPlayerService extends Service {
 	@Override
 	public void onCreate() {
 		KLog.v(TAG, "onCreate");
-		
+
 		FlurryLogger.onStartSession(VideoPlayerService.this);
 
 		// state of MediaPlayer
 		mState = STATE_INIT;
 		mIsLooping = false;
-		
+
 		// for flurry
 		mIsPlaying = false;
 
@@ -156,36 +156,37 @@ public class VideoPlayerService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		KLog.i(TAG, "Received start id " + startId + ": " + intent);
-		
-		int command = intent.getIntExtra(COMMAND, COMMAND_UNKNOWN);
-		boolean isReload = intent.getBooleanExtra(PLAY_RELOAD, false);
-		boolean isLooping = intent.getBooleanExtra(LOOPING, false);
-		int msec = intent.getIntExtra(SEEK_MSEC, 0);
-		KLog.v(TAG, "command = " + command);
-		switch (command) {
-		case COMMAND_PLAY:
-			play(isReload);
-			break;
-		case COMMAND_PAUSE:
-			pause();
-			break;
-		case COMMAND_PREV:
-			prev();
-			break;
-		case COMMAND_NEXT:
-			next();
-			break;
-		case COMMAND_LOOPING:
-			setLooping(isLooping);
-			break;
-		case COMMAND_SEEK:
-			seekTo(msec);
-			break;
-		default:
-			KLog.e(TAG, "Unknown command!");
-			break;
+
+		if (intent != null) {
+			int command = intent.getIntExtra(COMMAND, COMMAND_UNKNOWN);
+			boolean isReload = intent.getBooleanExtra(PLAY_RELOAD, false);
+			boolean isLooping = intent.getBooleanExtra(LOOPING, false);
+			int msec = intent.getIntExtra(SEEK_MSEC, 0);
+			KLog.v(TAG, "command = " + command);
+			switch (command) {
+			case COMMAND_PLAY:
+				play(isReload);
+				break;
+			case COMMAND_PAUSE:
+				pause();
+				break;
+			case COMMAND_PREV:
+				prev();
+				break;
+			case COMMAND_NEXT:
+				next();
+				break;
+			case COMMAND_LOOPING:
+				setLooping(isLooping);
+				break;
+			case COMMAND_SEEK:
+				seekTo(msec);
+				break;
+			default:
+				KLog.e(TAG, "Unknown command!");
+				break;
+			}
 		}
-		
 		// We want this service to continue running until it is explicitly
 		// stopped, so return sticky.
 		return START_STICKY;
@@ -194,9 +195,9 @@ public class VideoPlayerService extends Service {
 	@Override
 	public void onDestroy() {
 		KLog.v(TAG, "onDestroy");
-		
+
 		FlurryLogger.onEndSession(VideoPlayerService.this);
-		
+
 		// Cancel the persistent notification.
 		com.kskkbys.loop.notification.NotificationManager.cancel(this);
 
@@ -204,7 +205,7 @@ public class VideoPlayerService extends Service {
 		if (mMediaPlayer != null) {
 			mMediaPlayer.release();
 		}
-		
+
 		// If playing, send playing time to flurry
 		if (mIsPlaying) {
 			mIsPlaying = false;
@@ -239,7 +240,7 @@ public class VideoPlayerService extends Service {
 		Playlist.getInstance().next();
 		startVideo();
 	}
-	
+
 	/**
 	 * Play command
 	 * @param reset		If true, reload video. Otherwise, only start.
@@ -341,7 +342,7 @@ public class VideoPlayerService extends Service {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get the media player state
 	 * @return
