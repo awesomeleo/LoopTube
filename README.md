@@ -1,4 +1,5 @@
-# LoopTube
+# LoopTube [![Build Status](https://travis-ci.org/kskkbys/LoopTube.png?branch=master,develop)](https://travis-ci.org/kskkbys/LoopTube)
+
 
 ## About
 LoopTube is a simple YouTube player on Android platform.

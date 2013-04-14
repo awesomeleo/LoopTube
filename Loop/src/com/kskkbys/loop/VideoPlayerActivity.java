@@ -21,12 +21,15 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
+import com.kskkbys.loop.audio.MuteManager;
 import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
+import com.kskkbys.loop.playlist.LoopManager;
 import com.kskkbys.loop.playlist.Playlist;
+import com.kskkbys.loop.service.PlayerCommand;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -133,14 +136,14 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		mPrevButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mService.prev();
+				PlayerCommand.prev(VideoPlayerActivity.this);
 			}
 		});
 		mNextButton = findViewById(R.id.nextButton);
 		mNextButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mService.next();
+				PlayerCommand.next(VideoPlayerActivity.this);
 			}
 		});
 		mPauseButton = findViewById(R.id.pauseButton);
@@ -148,10 +151,10 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			@Override
 			public void onClick(View v) {
 				if (mService.isPlaying()) {
-					mService.pause();
+					PlayerCommand.pause(VideoPlayerActivity.this);
 					mPauseButton.setBackgroundResource(R.drawable.play);
 				} else {
-					mService.play();
+					PlayerCommand.play(VideoPlayerActivity.this, false);
 					mPauseButton.setBackgroundResource(R.drawable.pause);
 				}
 			}
@@ -187,7 +190,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				KLog.v(TAG, "onStopTrackingTouch");
 				showProgress(R.string.loop_video_player_dialog_seeking);
-				mService.seekTo(mSeekBar.getProgress());
+				PlayerCommand.seek(VideoPlayerActivity.this, mSeekBar.getProgress());
 			}
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
@@ -272,7 +275,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 					Toast.makeText(VideoPlayerActivity.this, R.string.loop_video_player_ignored_already, Toast.LENGTH_SHORT).show();
 				} else {
 					Playlist.getInstance().setPlayingIndex(position);
-					mService.startVideo();
+					PlayerCommand.play(VideoPlayerActivity.this, true);
 				}
 			}
 		});
@@ -338,9 +341,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		//
 		Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
 		// Go next video
-		if (mService != null) {
-			mService.next();
-		}
+		PlayerCommand.next(VideoPlayerActivity.this);
 	}
 
 	/**
@@ -349,15 +350,15 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	private void switchLoop() {
 		if (Playlist.getInstance().getCurrentVideo() != null) {
 			if (mService != null) {
-				if (mService.isLooping()) {
+				if (LoopManager.getInstance().isLooping()) {
 					// stop looping
 					KLog.v(TAG, "Stop looping");
-					mService.setLooping(false);
+					PlayerCommand.setLooping(VideoPlayerActivity.this, false);
 					mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
 				} else {
 					// start looping
 					KLog.v(TAG, "Start looping");
-					mService.setLooping(true);
+					PlayerCommand.setLooping(VideoPlayerActivity.this, true);
 					mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
 				}
 			}
@@ -369,28 +370,26 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	 */
 	private void switchMute() {
 		if (Playlist.getInstance().getCurrentVideo() != null) {
-			if (mService != null) {
-				if (mService.isMute()) {
-					KLog.v(TAG, "Mute Off");
-					mService.setMute(false);
-					mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
-					mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_plus2);
-				} else {
-					KLog.v(TAG, "Mute On");
-					mService.setMute(true);
-					mVolumeButton.setBackgroundResource(R.drawable.volume_off);
-					mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
-				}
+			if (MuteManager.getInstance().isMute()) {
+				KLog.v(TAG, "Mute Off");
+				MuteManager.getInstance().setMute(this, false);
+				mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
+				mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_plus2);
+			} else {
+				KLog.v(TAG, "Mute On");
+				MuteManager.getInstance().setMute(this, true);
+				mVolumeButton.setBackgroundResource(R.drawable.volume_off);
+				mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
 			}
 		}
 	}
-	
+
 	/**
 	 * Show a dialog to publish facebook
 	 */
 	private void showFacebookDialog() {
 		FlurryLogger.logEvent(FlurryLogger.SEE_FACEBOOK_DIALOG);
-		
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.loop_video_player_confirm_facebook);
 		LayoutInflater inflater = LayoutInflater.from(this);
@@ -464,7 +463,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		KLog.v(TAG, "publish story");
 		Session session = Session.getActiveSession();
 		if (session != null){
-			
+
 			// Check for publish permissions
 			// If the perimisson is invalid, start reauthorization
 			List<String> permissions = session.getPermissions();
@@ -476,10 +475,10 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 				session.requestNewPublishPermissions(newPermissionsRequest);
 				return;
 			}
-			
+
 			KLog.v(TAG, "Start to post");
 			showProgress(R.string.loop_video_player_dialog_publishing);
-			
+
 			Video video = Playlist.getInstance().getCurrentVideo();
 
 			Bundle postParams = new Bundle();
@@ -509,7 +508,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			} else {
 				KLog.w(TAG, "picture is null");
 			}
-			
+
 			Request.Callback callback= new Request.Callback() {
 				public void onCompleted(Response response) {
 					KLog.v(TAG, "onCompleted");
@@ -519,7 +518,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 						Toast.makeText(getApplicationContext(),
 								error.getErrorMessage(),
 								Toast.LENGTH_SHORT).show();
-								*/
+						 */
 						KLog.e(TAG, "FB failed.");
 						KLog.e(TAG, "code: " + error.getErrorCode());
 						KLog.e(TAG, "type: " + error.getErrorType());
@@ -527,7 +526,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 						showAlert(R.string.loop_video_player_failure_facebook, null);
 					} else {
 						showAlert(R.string.loop_video_player_success_facebook, null);
-						
+
 						FlurryLogger.logEvent(FlurryLogger.PUBLISH_FACEBOOK);
 					}
 					dismissProgress();
@@ -626,12 +625,8 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 
 	@Override
 	public void onSeekComplete(int positionMsec) {
-		int msec = mService.getCurrentPosition();
-		mSeekBar.setProgress(msec / 1000);
-
 		KLog.v(TAG, "onSeekComplete");
-		//Toast.makeText(this, "OnSeekComplete", Toast.LENGTH_SHORT).show();
-
+		mSeekBar.setProgress(positionMsec / 1000);
 		dismissProgress();
 		mIsSeeking = false;
 	}
@@ -653,7 +648,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		builder.setPositiveButton(R.string.loop_ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mService.next();
+				PlayerCommand.next(VideoPlayerActivity.this);
 			}
 		});
 		builder.create().show();
@@ -667,7 +662,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		View layout = inflater.inflate(R.layout.dialog_volume, (ViewGroup)findViewById(R.id.layoutVoluemeDialog));
 
 		mVolumeButtonInDialog = (ImageView)layout.findViewById(R.id.volumeImageView);
-		if (mService.isMute()) {
+		if (MuteManager.getInstance().isMute()) {
 			mVolumeButtonInDialog.setBackgroundResource(R.drawable.volume_off);
 		}
 		mVolumeButtonInDialog.setOnClickListener(new OnClickListener() {
@@ -733,13 +728,13 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			mPauseButton.setBackgroundResource(R.drawable.play);
 		}
 
-		if (mService.isLooping()) {
+		if (LoopManager.getInstance().isLooping()) {
 			mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
 		} else {
 			mLoopButton.setBackgroundResource(R.drawable.synchronize_off);
 		}
 
-		if (mService.isMute()) {
+		if (MuteManager.getInstance().isMute()) {
 			mVolumeButton.setBackgroundResource(R.drawable.volume_off);
 		} else {
 			mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);

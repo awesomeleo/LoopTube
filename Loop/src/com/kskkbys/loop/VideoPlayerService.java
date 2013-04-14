@@ -19,12 +19,10 @@ import org.apache.http.params.HttpParams;
 
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.notification.NotificationManager;
 import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -48,25 +46,31 @@ public class VideoPlayerService extends Service {
 	public static final int STATE_PEPARED = 1;
 	public static final int STATE_PLAYING = 2;
 	public static final int STATE_COMPLETE = 3;
-
-	private NotificationManager mNM;
+	
+	// Command
+	public static final String COMMAND = "command";
+	public static final int COMMAND_UNKNOWN = 0;
+	public static final int COMMAND_PLAY = 1;
+	public static final int COMMAND_PAUSE = 2;
+	public static final int COMMAND_NEXT = 3;
+	public static final int COMMAND_PREV = 4;
+	public static final int COMMAND_LOOPING = 5;
+	public static final int COMMAND_SEEK = 6;
+	
+	public static final String PLAY_RELOAD = "play_reload";
+	public static final String LOOPING = "looping";
+	public static final String SEEK_MSEC = "seek_msec";
 
 	// MediaPlayer
 	private static MediaPlayer mMediaPlayer;
 	private int mState;
 	private boolean mIsLooping;
-	private boolean mIsMute;
-	private float mVolume;
 	
 	// for Flurry
 	private boolean mIsPlaying;
 
 	// VideoPlayerActivity
 	private MediaPlayerCallback mListener;
-
-	// Unique Identification Number for the Notification.
-	// We use it on Notification start, and to cancel it.
-	private int NOTIFICATION_ID = R.string.loop_video_player_service_started;
 
 	/**
 	 * Class to access to this service
@@ -84,14 +88,11 @@ public class VideoPlayerService extends Service {
 		KLog.v(TAG, "onCreate");
 		
 		FlurryLogger.onStartSession(VideoPlayerService.this);
-		
-		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
 		// state of MediaPlayer
 		mState = STATE_INIT;
 		mIsLooping = false;
-		mIsMute = false;
-		mVolume = 1.0f;
+		
 		// for flurry
 		mIsPlaying = false;
 
@@ -121,7 +122,7 @@ public class VideoPlayerService extends Service {
 					startVideo();
 				} else {
 					// End of playlist
-					mNM.cancel(NOTIFICATION_ID);
+					NotificationManager.cancel(VideoPlayerService.this);
 				}
 				// Notify listeners
 				if (mListener != null) {
@@ -154,7 +155,37 @@ public class VideoPlayerService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		KLog.i("LocalService", "Received start id " + startId + ": " + intent);
+		KLog.i(TAG, "Received start id " + startId + ": " + intent);
+		
+		int command = intent.getIntExtra(COMMAND, COMMAND_UNKNOWN);
+		boolean isReload = intent.getBooleanExtra(PLAY_RELOAD, false);
+		boolean isLooping = intent.getBooleanExtra(LOOPING, false);
+		int msec = intent.getIntExtra(SEEK_MSEC, 0);
+		KLog.v(TAG, "command = " + command);
+		switch (command) {
+		case COMMAND_PLAY:
+			play(isReload);
+			break;
+		case COMMAND_PAUSE:
+			pause();
+			break;
+		case COMMAND_PREV:
+			prev();
+			break;
+		case COMMAND_NEXT:
+			next();
+			break;
+		case COMMAND_LOOPING:
+			setLooping(isLooping);
+			break;
+		case COMMAND_SEEK:
+			seekTo(msec);
+			break;
+		default:
+			KLog.e(TAG, "Unknown command!");
+			break;
+		}
+		
 		// We want this service to continue running until it is explicitly
 		// stopped, so return sticky.
 		return START_STICKY;
@@ -167,7 +198,7 @@ public class VideoPlayerService extends Service {
 		FlurryLogger.onEndSession(VideoPlayerService.this);
 		
 		// Cancel the persistent notification.
-		mNM.cancel(NOTIFICATION_ID);
+		com.kskkbys.loop.notification.NotificationManager.cancel(this);
 
 		// Stop mediaplayer
 		if (mMediaPlayer != null) {
@@ -194,59 +225,45 @@ public class VideoPlayerService extends Service {
 	 * @param videoTitle
 	 */
 	private void showNotification(String videoTitle) {
-		// In this sample, we'll use the same text for the ticker and the expanded notification
-		CharSequence text = "Now Playing: " + videoTitle;
-
-		// The PendingIntent to launch our activity if the user selects this notification
-		Intent intent = new Intent(this, MainActivity.class);
-		intent.putExtra("from_notification", true);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				intent, 0);
-
-		// Set the icon, scrolling text and timestamp
-		Notification notification = new Notification(R.drawable.ic_launcher, text,
-				System.currentTimeMillis());
-
-		// Set the info for the views that show in the notification panel.
-		notification.setLatestEventInfo(this, getText(R.string.loop_app_name), text, contentIntent);
-		
-		notification.flags = Notification.FLAG_ONGOING_EVENT;
-
-		/*
-		Notification notification = new Notification.Builder(this).setContentIntent(contentIntent)
-				.setSmallIcon(R.drawable.ic_launcher)
-				.setTicker("tickerText").setContentTitle("contentTitle")
-				.setContentText("contentText").setWhen(System.currentTimeMillis())
-				.build();
-		 */
-
-		// Send the notification.
-		mNM.notify(NOTIFICATION_ID, notification);
+		NotificationManager.show(this, videoTitle);
 	}
 
-	public void prev() {
+	private void prev() {
 		KLog.v(TAG, "prev");
 		Playlist.getInstance().prev();
 		startVideo();
 	}
 
-	public void next() {
+	private void next() {
 		KLog.v(TAG,"next");
 		Playlist.getInstance().next();
 		startVideo();
 	}
+	
+	/**
+	 * Play command
+	 * @param reset		If true, reload video. Otherwise, only start.
+	 */
+	private void play(boolean reset) {
+		if (reset) {
+			startVideo();
+		} else {
+			play();
+		}
+	}
 
 	/**
+	 * This method starts MediaPlayer only.
 	 * After prepared, this method starts to play and changes its state to STATE_PLAYING.
 	 */
-	public void play() {
+	private void play() {
 		KLog.v(TAG, "play");
 		if (mState == STATE_PEPARED || mState == STATE_PLAYING) {
 			mState = STATE_PLAYING;
 			mMediaPlayer.start();
 			// show notification
 			showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
-			//
+			// logger
 			if (!mIsPlaying) {
 				mIsPlaying = true;
 				Map<String, String> param = new HashMap<String, String>();
@@ -257,11 +274,11 @@ public class VideoPlayerService extends Service {
 			KLog.w(TAG, "Invalid state: " + mState);
 		}
 	}
-	public void pause() {
+	private void pause() {
 		KLog.v(TAG, "pause");
 		if (mState == STATE_PLAYING) {
 			mMediaPlayer.pause();
-			mNM.cancel(NOTIFICATION_ID);
+			NotificationManager.cancel(this);
 			if (mIsPlaying) {
 				mIsPlaying = false;
 				FlurryLogger.endTimedEvent(FlurryLogger.PLAY_VIDEO);
@@ -276,35 +293,17 @@ public class VideoPlayerService extends Service {
 		return mMediaPlayer.isPlaying();
 	}
 
-	public void seekTo(int msec) {
+	private void seekTo(int msec) {
 		KLog.v(TAG, "seekTo");
 		if (mState == STATE_PLAYING) {
 			mMediaPlayer.seekTo(msec);
 		}
 	}
 
-	public void setLooping(boolean isRepeat) {
+	private void setLooping(boolean isRepeat) {
 		KLog.v(TAG, "setRepeat");
 		mIsLooping = isRepeat;
 		mMediaPlayer.setLooping(isRepeat);
-	}
-
-	public boolean isLooping() {
-		return mMediaPlayer.isLooping();
-	}
-	
-	public void setMute(boolean isMute) {
-		KLog.v(TAG, "setMute");
-		mIsMute = isMute;
-		if (mIsMute) {
-			mMediaPlayer.setVolume(0, 0);
-		} else {
-			mMediaPlayer.setVolume(mVolume, mVolume);
-		}
-	}
-	
-	public boolean isMute() {
-		return mIsMute;
 	}
 
 	/**
@@ -323,7 +322,7 @@ public class VideoPlayerService extends Service {
 	/**
 	 * Start to play video
 	 */
-	public void startVideo() {
+	private void startVideo() {
 		KLog.v(TAG, "startVideo");
 		// Reset the current player
 		mMediaPlayer.reset();

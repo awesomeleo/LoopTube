@@ -14,31 +14,25 @@
         android:text="@string/loop_main_search_artist"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <LinearLayout
+    <EditText
+        android:id="@+id/searchText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:orientation="horizontal" >
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="@string/loop_main_search_hint" />
 
-        <EditText
-            android:id="@+id/searchText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:ems="10"
-            android:hint="@string/loop_main_search_hint" />
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/loop_main_button_search" />
 
-        <Button
-            android:id="@+id/searchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/loop_main_button_search" />
-
-    </LinearLayout>
-    
     <TextView
         android:id="@+id/recentArtistLabel"
         android:layout_width="wrap_content"
@@ -61,8 +55,8 @@
             android:id="@+id/noHistoryLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
             android:text="@string/loop_main_no_history"
             android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -72,9 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp" >
-
         </ListView>
-
     </FrameLayout>
 
 </LinearLayout>

@@ -20,15 +20,14 @@ import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.Playlist;
+import com.kskkbys.loop.service.PlayerCommand;
+import com.kskkbys.rate.RateThisApp;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -36,11 +35,14 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * Search screen.
@@ -51,28 +53,10 @@ public class MainActivity extends BaseActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	private static final String FILENAME_SEARCH_HISTORY = "search_history.txt";
+	
+	public static final String FROM_NOTIFICATION = "from_notification";
 
 	private List<String> mRecentArtists = new ArrayList<String>();
-
-	// Services
-	private VideoPlayerService mService;
-	private boolean mIsBound = false;
-
-	private ServiceConnection mConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mService = ((VideoPlayerService.VideoPlayerServiceBinder)service).getService();
-			//Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
-			KLog.v(TAG, "service connected");
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mService = null;
-			//Toast.makeText(MainActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
-			KLog.v(TAG, "service disconnected");
-		}
-	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,11 +70,6 @@ public class MainActivity extends BaseActivity {
 		// This api call is needed in order to keep the service alive 
 		// even when all activities are close.
 		startService(new Intent(MainActivity.this, VideoPlayerService.class));
-
-		// Bind player service
-		if (!mIsBound) {
-			doBindService();
-		}
 
 		// Read recent artist saved in the device
 		readHistory();
@@ -124,7 +103,7 @@ public class MainActivity extends BaseActivity {
 		});
 
 		// If this activity is launched from notification, go to PlayerActivity
-		boolean isFromNotification = getIntent().getBooleanExtra("from_notification", false);
+		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
 			KLog.v(TAG, "Launched from notification. Go next activity.");
 			goNextActivity();
@@ -139,7 +118,7 @@ public class MainActivity extends BaseActivity {
 	protected void onNewIntent(Intent intent) {
 		KLog.v(TAG, "onNewIntent");
 		// If this activity is launched from notification, go to PlayerActivity
-		boolean isFromNotification = intent.getBooleanExtra("from_notification", false);
+		boolean isFromNotification = intent.getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
 			KLog.v(TAG, "Launched from notification. Go next activity.");
 			goNextActivity();
@@ -153,11 +132,12 @@ public class MainActivity extends BaseActivity {
 		// update history
 		updateHistoryUI();
 	}
-
+	
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		doUnbindService();
+	protected void onStart() {
+		super.onStart();
+		RateThisApp.onStart(this);
+		RateThisApp.showRateDialogIfNeeded(this);
 	}
 
 	private void searchQuery(String artist) {
@@ -217,6 +197,12 @@ public class MainActivity extends BaseActivity {
 		saveSearchHistory();
 	}
 
+	private void clearHistory(int position) {
+		mRecentArtists.remove(position);
+		saveSearchHistory();
+	}
+
+	
 	/**
 	 * Update history view
 	 */
@@ -255,6 +241,26 @@ public class MainActivity extends BaseActivity {
 							searchQuery(artistName);
 						}
 					}
+				}
+			});
+			
+			listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+				@Override
+				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+						int position, long id) {
+					final int deletePos = mRecentArtists.size() - 1 - position;
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder.setMessage(R.string.loop_main_confirm_clear_one_history);
+					builder.setPositiveButton(R.string.loop_ok, new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							clearHistory(deletePos);
+							updateHistoryUI();
+						}
+					});
+					builder.setNegativeButton(R.string.loop_cancel, null);
+					builder.create().show();
+					return true;
 				}
 			});
 		} else {
@@ -372,7 +378,7 @@ public class MainActivity extends BaseActivity {
 	 */
 	public void startVideoPlayer(String query, List<Video> result) {
 		Playlist.getInstance().setVideoList(query, result);
-		this.mService.startVideo();
+		PlayerCommand.play(this, true);
 		// Go next activity
 		goNextActivity();
 	}
@@ -384,22 +390,5 @@ public class MainActivity extends BaseActivity {
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(intent);
-	}
-
-	private void doBindService() {
-		// Establish a connection with the service.  We use an explicit
-		// class name because we want a specific service implementation that
-		// we know will be running in our own process (and thus won't be
-		// supporting component replacement by other applications).
-		bindService(new Intent(MainActivity.this, VideoPlayerService.class), mConnection, Context.BIND_AUTO_CREATE);
-		mIsBound = true;
-	}
-
-	private void doUnbindService() {
-		if (mIsBound) {
-			// Detach our existing connection.
-			unbindService(mConnection);
-			mIsBound = false;
-		}
 	}
 }
