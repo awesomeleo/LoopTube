@@ -17,6 +17,7 @@ before_install:
   - ls ${ANDROID_HOME}/platforms
   # Make build.xml
   - android update project --path ./ActionBarSherlock/library --target android-17
+  - android update project --path ./Android-RateThisApp/library --target android-17
   - android update project --path ./facebook-android-sdk-3.0/facebook --target android-17
   - android update project --path ./Loop --target android-17
   - cd ./Loop
