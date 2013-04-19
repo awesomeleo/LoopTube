@@ -331,12 +331,15 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	 */
 	private void ignoreCurrentVideo() {
 		KLog.v(TAG, "ignoreCurrentVideo");
-		String videoId = Playlist.getInstance().getCurrentVideo().getId();
-		BlackList.getInstance().addUserBlackList(videoId);
-		//
-		Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
-		// Go next video
-		PlayerCommand.next(VideoPlayerActivity.this);
+		Video video = Playlist.getInstance().getCurrentVideo();
+		if (video != null) {
+			String videoId = video.getId();
+			BlackList.getInstance().addUserBlackList(videoId);
+			//
+			Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
+			// Go next video
+			PlayerCommand.next(VideoPlayerActivity.this);
+		}
 	}
 
 	/**
