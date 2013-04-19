@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.facebook.FacebookRequestError;
@@ -20,9 +17,7 @@ import com.facebook.RequestAsyncTask;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
-import com.facebook.model.GraphUser;
 import com.kskkbys.loop.audio.MuteManager;
-import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
@@ -580,13 +575,11 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	 */
 	private void doUnbindService() {
 		if (mIsBound) {
-			// Detach surfaceview
-			// mService.setSurfaceView(null);
-
 			// Remove listener of service
-			mService.setListener(null);
-			mService = null;
-
+			if (mService != null) {
+				mService.setListener(null);
+				mService = null;
+			}
 			// Detach our existing connection.
 			unbindService(mConnection);
 			mIsBound = false;
