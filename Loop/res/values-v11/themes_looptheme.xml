@@ -3,7 +3,7 @@
 <!-- Generated with http://android-holo-colors.com -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <style name="LoopTheme" parent="android:Theme.Holo">
+  <style name="LoopTheme" parent="@style/Theme.Loopactionbar">
 
     <item name="android:editTextBackground">@drawable/edit_text_holo_dark</item>
 
