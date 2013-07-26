@@ -1,26 +1,14 @@
 package com.kskkbys.loop;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.facebook.FacebookRequestError;
-import com.facebook.HttpMethod;
-import com.facebook.Request;
-import com.facebook.RequestAsyncTask;
-import com.facebook.Response;
-import com.facebook.Session;
-import com.facebook.SessionState;
 import com.kskkbys.loop.audio.MuteManager;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
-import com.kskkbys.loop.net.ConnectionState;
 import com.kskkbys.loop.playlist.BlackList;
 import com.kskkbys.loop.playlist.LoopManager;
 import com.kskkbys.loop.playlist.Playlist;
@@ -44,12 +32,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -86,7 +72,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	private View mLoopButton;
 	private View mVolumeButton;
 	private View mVolumeButtonInDialog;
-	private View mFacebookButton;
+	private View mFullScreenButton;
 	private boolean mIsShowingControl;
 	private SurfaceView mSurfaceView;
 
@@ -170,12 +156,11 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 				showVolumeSettingDialog();
 			}
 		});
-		mFacebookButton = findViewById(R.id.facebookButton);
-		mFacebookButton.setOnClickListener(new OnClickListener() {
+		mFullScreenButton = findViewById(R.id.fullScreenButton);
+		mFullScreenButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				KLog.v(TAG, "facebook clicked");
-				showFacebookDialog();
+				KLog.v(TAG, "fullScreen");
 			}
 		});
 		mDurationView = (TextView)findViewById(R.id.durationText);
@@ -318,6 +303,9 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.menu_share:
+			startShareIntent();
+			return true;
 		case R.id.menu_ignore:
 			ignoreCurrentVideo();
 			return true;
@@ -385,166 +373,15 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	/**
 	 * Show a dialog to publish facebook
 	 */
-	private void showFacebookDialog() {
-		FlurryLogger.logEvent(FlurryLogger.SEE_FACEBOOK_DIALOG);
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.loop_video_player_confirm_facebook);
-		LayoutInflater inflater = LayoutInflater.from(this);
-		final View layout = inflater.inflate(R.layout.dialog_facebook, (ViewGroup)findViewById(R.id.layoutFacebookDialog));
-		builder.setView(layout);
-		builder.setPositiveButton(R.string.loop_ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// network state
-				if (!ConnectionState.isConnected(VideoPlayerActivity.this)) {
-					showAlert(R.string.loop_main_error_bad_connection, null);
-					return;
-				}
-				EditText edit = (EditText)layout.findViewById(R.id.facebookEditText);
-				String optionalMessage = edit.getEditableText().toString();
-				openSessionForPublishing(optionalMessage);
-			}
-		});
-		builder.setNegativeButton(R.string.loop_cancel, null);
-		builder.create().show();
-	}
-
-	/**
-	 * Show a dialog to confirm Facebook publishing
-	 */
-	private void openSessionForPublishing(final String optionalMessage) {
-		KLog.v(TAG, "share with FB");
-		Session session = new Session.Builder(this).build();
-		Session.setActiveSession(session);
-		Session.OpenRequest openRequest = new Session.OpenRequest(this);
-		List<String> permissions = new ArrayList<String>();
-		permissions.add("publish_actions");
-		openRequest.setPermissions(permissions);
-		openRequest.setCallback(new Session.StatusCallback() {
-			@Override
-			public void call(Session session, SessionState state, Exception exception) {
-				KLog.v("TAG", "call state = " + state.toString());
-				if (session.isOpened()) {
-					KLog.v(TAG, "is opened");
-					publishStory(optionalMessage);
-				} else {
-					KLog.v(TAG, "is closed");
-					if (state == SessionState.CLOSED_LOGIN_FAILED) {
-						KLog.e(TAG, "Login Failed.");
-						// Toast.makeText(VideoPlayerActivity.this, "Facebook Login Failed.", Toast.LENGTH_SHORT).show();
-						showAlert(R.string.loop_video_player_failure_facebook, null);
-					}
-				}
-			}
-		});
-		session.openForPublish(openRequest);
-	}
-
-	private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
-	// private static final String PENDING_PUBLISH_KEY = "pendingPublishReauthorization";
-	// private boolean pendingPublishReauthorization = false;
-
-	private boolean isSubsetOf(Collection<String> subset, Collection<String> superset) {
-		for (String string : subset) {
-			if (!superset.contains(string)) {
-				return false;
-			}
+	private void startShareIntent() {
+		FlurryLogger.logEvent(FlurryLogger.SHARE_VIDEO);
+		String videoUrl = Playlist.getInstance().getCurrentVideo().getVideoUrl();
+		if (!TextUtils.isEmpty(videoUrl)) {
+			Intent intent = new Intent(Intent.ACTION_SEND);
+			intent.setType("text/plain");
+			intent.putExtra(Intent.EXTRA_TEXT, videoUrl);
+			startActivity(intent);
 		}
-		return true;
-	}
-
-	/**
-	 * Publish a link of video
-	 */
-	private void publishStory(final String optionalMessage) {
-		KLog.v(TAG, "publish story");
-		Session session = Session.getActiveSession();
-		if (session != null){
-
-			// Check for publish permissions
-			// If the perimisson is invalid, start reauthorization
-			List<String> permissions = session.getPermissions();
-			if (!isSubsetOf(PERMISSIONS, permissions)) {
-				KLog.v(TAG, "Invalid permission. Start reauthorization");
-				// pendingPublishReauthorization = true;
-				Session.NewPermissionsRequest newPermissionsRequest = new Session
-						.NewPermissionsRequest(this, PERMISSIONS);
-				session.requestNewPublishPermissions(newPermissionsRequest);
-				return;
-			}
-
-			KLog.v(TAG, "Start to post");
-			showProgress(R.string.loop_video_player_dialog_publishing);
-
-			Video video = Playlist.getInstance().getCurrentVideo();
-
-			Bundle postParams = new Bundle();
-			if (!TextUtils.isEmpty(optionalMessage)) {
-				postParams.putString("message", optionalMessage);
-			} else {
-				KLog.w(TAG, "message is null");
-			}
-			if (!TextUtils.isEmpty(video.getTitle())) {
-				postParams.putString("name", video.getTitle());
-			} else {
-				KLog.w(TAG, "name is null");
-			}
-			// postParams.putString("caption", video.getDescription());
-			if (!TextUtils.isEmpty(video.getDescription())) {
-				postParams.putString("description", video.getDescription());
-			} else {
-				KLog.w(TAG, "description is null");
-			}
-			if (!TextUtils.isEmpty(video.getVideoUrl())) {
-				postParams.putString("link", video.getVideoUrl());
-			} else {
-				KLog.w(TAG, "link is null");
-			}
-			if (!TextUtils.isEmpty(video.getThumbnailUrl())) {
-				postParams.putString("picture", video.getThumbnailUrl());
-			} else {
-				KLog.w(TAG, "picture is null");
-			}
-
-			Request.Callback callback= new Request.Callback() {
-				public void onCompleted(Response response) {
-					KLog.v(TAG, "onCompleted");
-					FacebookRequestError error = response.getError();
-					if (error != null) {
-						/*
-						Toast.makeText(getApplicationContext(),
-								error.getErrorMessage(),
-								Toast.LENGTH_SHORT).show();
-						 */
-						KLog.e(TAG, "FB failed.");
-						KLog.e(TAG, "code: " + error.getErrorCode());
-						KLog.e(TAG, "type: " + error.getErrorType());
-						KLog.e(TAG, error.getErrorMessage());
-						showAlert(R.string.loop_video_player_failure_facebook, null);
-					} else {
-						showAlert(R.string.loop_video_player_success_facebook, null);
-
-						FlurryLogger.logEvent(FlurryLogger.PUBLISH_FACEBOOK);
-					}
-					dismissProgress();
-				}
-			};
-			KLog.v(TAG, "Start AsyncTask");
-			Request request = new Request(session, "me/feed", postParams, 
-					HttpMethod.POST, callback);
-			RequestAsyncTask task = new RequestAsyncTask(request);
-			task.execute();
-		} else {
-			KLog.w(TAG, "session is null");
-		}
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		KLog.v(TAG, "onActivityResult");
-		super.onActivityResult(requestCode, resultCode, data);
-		Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
 	}
 
 	@Override
@@ -747,7 +584,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			mPauseButton.setVisibility(View.INVISIBLE);
 			mPrevButton.setVisibility(View.INVISIBLE);
 			mNextButton.setVisibility(View.INVISIBLE);
-			mFacebookButton.setVisibility(View.INVISIBLE);
+			mFullScreenButton.setVisibility(View.INVISIBLE);
 		} else {
 			mVolumeButton.setVisibility(View.VISIBLE);
 			mLoopButton.setVisibility(View.VISIBLE);
@@ -756,7 +593,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			mPauseButton.setVisibility(View.VISIBLE);
 			mPrevButton.setVisibility(View.VISIBLE);
 			mNextButton.setVisibility(View.VISIBLE);
-			mFacebookButton.setVisibility(View.VISIBLE);
+			mFullScreenButton.setVisibility(View.VISIBLE);
 		}
 	}
 
