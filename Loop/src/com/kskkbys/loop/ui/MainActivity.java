@@ -53,12 +53,15 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * Search screen.
@@ -140,17 +143,20 @@ public class MainActivity extends BaseActivity {
 		// Update recent artists view
 		updateHistoryUI();
 
-		//
+		// Initialize action bar
 		getSupportActionBar().setTitle(R.string.loop_main_title);
-		
 		mActionMode = null;
 		mLongSelectedPosition = -1;
+
+		// If a video is playing, show notification at bottom
+		updatePlayingNotification();
+
 
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
 			KLog.v(TAG, "Launched from notification. Go next activity.");
-			goNextActivity();
+			goToNextActivity();
 			return;
 		}
 	}
@@ -162,7 +168,7 @@ public class MainActivity extends BaseActivity {
 		boolean isFromNotification = intent.getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
 			KLog.v(TAG, "Launched from notification. Go next activity.");
-			goNextActivity();
+			goToNextActivity();
 			return;
 		}
 	}
@@ -172,6 +178,8 @@ public class MainActivity extends BaseActivity {
 		super.onResume();
 		// update history
 		updateHistoryUI();
+		// update notification
+		updatePlayingNotification();
 	}
 
 	@Override
@@ -243,6 +251,30 @@ public class MainActivity extends BaseActivity {
 		saveSearchHistory();
 	}
 
+	private void updatePlayingNotification() {
+		if (Playlist.getInstance().getCurrentVideo() != null) {
+			RelativeLayout base = (RelativeLayout)findViewById(R.id.main_base);
+			View notification = base.findViewById(R.id.notification_base);
+			if (notification == null) {
+				// Add
+				notification = getLayoutInflater().inflate(R.layout.main_playing_notification, null);
+				RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				notification.setLayoutParams(params);
+				notification.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						goToNextActivity();
+					}
+				});
+				base.addView(notification);
+			}
+			// Update
+			TextView title = (TextView)notification.findViewById(R.id.notification_title);
+			title.setText(Playlist.getInstance().getCurrentVideo().getTitle());
+		}
+	}
 
 	/**
 	 * Update history view
@@ -274,7 +306,7 @@ public class MainActivity extends BaseActivity {
 						String currentArtist = Playlist.getInstance().getQuery();
 						if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artistName)) {
 							KLog.v(TAG, "Already playing. Go player without seraching.");
-							goNextActivity();
+							goToNextActivity();
 						} else {
 							searchQuery(artistName);
 						}
@@ -442,13 +474,13 @@ public class MainActivity extends BaseActivity {
 		Playlist.getInstance().setVideoList(query, result);
 		PlayerCommand.play(this, true);
 		// Go next activity
-		goNextActivity();
+		goToNextActivity();
 	}
 
 	/**
 	 * Go next activity
 	 */
-	private void goNextActivity() {
+	private void goToNextActivity() {
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(intent);
