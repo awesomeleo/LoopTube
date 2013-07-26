@@ -59,6 +59,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -494,18 +495,28 @@ public class MainActivity extends BaseActivity {
 		 */
 		public ArtistAdapter(Activity activity, List<String> objects) {
 			super(activity, R.layout.search_history_list_item, R.id.search_history_artist, objects);
+			mActivity = activity;
 		}
-		/*
+		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (view == null) {
-				this.
 				LayoutInflater inflater = mActivity.getLayoutInflater();
 				view = inflater.inflate(R.layout.search_history_list_item, parent, false);
 			}
+			
+			String artist = getItem(position);
+			
+			// Set title
+			TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
+			titleView.setText(artist);
+			
+			// Set image
+			//ImageView imageView = (ImageView)view.findViewById(R.id.search_history_image);
+			//imageView.setImageResource(R.drawable.dummy_video_thumbnail);
+			
 			return view;
 		}
-		 */
 	}
 }
