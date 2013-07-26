@@ -1,4 +1,4 @@
-package com.kskkbys.loop.playlist;
+package com.kskkbys.loop.model;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

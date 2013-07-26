@@ -2,7 +2,6 @@ package com.kskkbys.loop.ui;
 
 import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
-import com.kskkbys.loop.R.layout;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 
@@ -18,9 +17,6 @@ public class SplashActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		KLog.v(TAG, "onCreate");
-		
-		getSupportActionBar().hide();
-		
 		// If first launch, show splash
 		LoopApplication app = (LoopApplication)getApplication();
 		if (app.isFirstLaunch()) {

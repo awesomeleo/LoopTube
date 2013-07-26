@@ -22,7 +22,8 @@
         <activity
             android:name="com.kskkbys.loop.ui.SplashActivity"
             android:label="@string/loop_app_name" 
-            android:configChanges="screenSize|orientation">
+            android:configChanges="screenSize|orientation"
+            android:theme="@style/Theme.Sherlock.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -41,7 +42,7 @@
             android:label="@string/loop_app_name">
         </activity>
         
-        <service android:name="com.kskkbys.loop.VideoPlayerService">
+        <service android:name="com.kskkbys.loop.service.VideoPlayerService">
         </service>
     </application>
 

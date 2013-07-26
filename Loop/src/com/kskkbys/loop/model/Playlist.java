@@ -1,9 +1,8 @@
-package com.kskkbys.loop.playlist;
+package com.kskkbys.loop.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kskkbys.loop.Video;
 
 /**
  * Playlist class

@@ -1,9 +1,14 @@
 package com.kskkbys.loop;
 
-import com.kskkbys.loop.playlist.BlackList;
+import com.kskkbys.loop.model.BlackList;
 
 import android.app.Application;
 
+/**
+ * Application class.
+ * @author Keisuke Kobayashi
+ *
+ */
 public class LoopApplication extends Application {
 	
 	private boolean mIsFirstLaunch;

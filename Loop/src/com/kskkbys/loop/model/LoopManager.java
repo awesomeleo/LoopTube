@@ -1,4 +1,4 @@
-package com.kskkbys.loop.playlist;
+package com.kskkbys.loop.model;
 
 /**
  * Looping state manager

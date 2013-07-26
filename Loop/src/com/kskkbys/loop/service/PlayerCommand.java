@@ -1,7 +1,6 @@
 package com.kskkbys.loop.service;
 
-import com.kskkbys.loop.VideoPlayerService;
-import com.kskkbys.loop.playlist.LoopManager;
+import com.kskkbys.loop.model.LoopManager;
 
 import android.content.Context;
 import android.content.Intent;

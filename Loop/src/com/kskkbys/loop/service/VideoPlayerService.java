@@ -1,4 +1,4 @@
-package com.kskkbys.loop;
+package com.kskkbys.loop.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,9 +19,10 @@ import org.apache.http.params.HttpParams;
 
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.model.BlackList;
+import com.kskkbys.loop.model.Playlist;
+import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.notification.NotificationManager;
-import com.kskkbys.loop.playlist.BlackList;
-import com.kskkbys.loop.playlist.Playlist;
 
 import android.app.Service;
 import android.content.Intent;

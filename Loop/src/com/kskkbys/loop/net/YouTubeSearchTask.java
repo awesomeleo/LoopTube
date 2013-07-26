@@ -1,4 +1,4 @@
-package com.kskkbys.loop;
+package com.kskkbys.loop.net;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +21,8 @@ import com.google.gson.JsonSyntaxException;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.R.string;
 import com.kskkbys.loop.logger.KLog;
-import com.kskkbys.loop.playlist.BlackList;
+import com.kskkbys.loop.model.BlackList;
+import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.ui.MainActivity;
 
 import android.app.ProgressDialog;
