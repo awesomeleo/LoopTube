@@ -4,29 +4,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.kskkbys.loop.R;
-import com.kskkbys.loop.R.string;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.ui.MainActivity;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.os.Build;
 
 /**
  * Asynchronous task to search youtube videos
@@ -35,6 +27,9 @@ import android.os.AsyncTask;
 public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	private static final String TAG = YouTubeSearchTask.class.getSimpleName();
+
+	private static final int CONNECT_TIMEOUT = 30 * 1000;
+	private static final int READ_TIMEOUT = 30 * 1000;
 
 	private MainActivity mParent;
 	private YouTubeSearchResult mResult;
@@ -46,7 +41,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	@Override
 	protected String doInBackground(String... query) {
-		
+
 		mQuery = query[0];
 
 		String uri = null;
@@ -55,38 +50,35 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 					+ URLEncoder.encode(query[0], "UTF-8") + "&alt=json&max-results=50";
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
+			return null;
 		}
-
-		DefaultHttpClient client = new DefaultHttpClient();
-		HttpParams params = client.getParams();
-		HttpConnectionParams.setConnectionTimeout(params, 5000);
-		HttpConnectionParams.setSoTimeout(params, 5000);
-		HttpGet request = new HttpGet(uri);
+		disableConnectionReuseIfNecessary();
+		HttpURLConnection connection = null;
 		try {
-			HttpResponse response = client.execute(request);
-			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-				KLog.v(TAG, "OK");
-				InputStreamReader isr = new InputStreamReader(response.getEntity().getContent());
-				BufferedReader br = new BufferedReader(isr);
-				String line = br.readLine();
-				KLog.v(TAG, line);
-				br.close();
+			URL url = new URL(uri);
+			connection = (HttpURLConnection)url.openConnection();
+			connection.setConnectTimeout(CONNECT_TIMEOUT);
+			connection.setReadTimeout(READ_TIMEOUT);
+			connection.setDefaultUseCaches(false);
 
-				Gson gson = new Gson();
-				this.mResult = gson.fromJson(line, YouTubeSearchResult.class);
-			} else {
-				KLog.e(TAG, "NG: " + response.getStatusLine().getStatusCode());
+			InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+			BufferedReader br = new BufferedReader(isr);
+			String response = "";
+			String line;
+			while ((line = br.readLine()) != null) {
+				response += line;
 			}
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			br.close();
+			// Convert JSON to gson
+			Gson gson = new Gson();
+			this.mResult = gson.fromJson(response, YouTubeSearchResult.class);
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (JsonSyntaxException e) {
-			e.printStackTrace();
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
 		}
-
-		client.getConnectionManager().shutdown();
-
 		return null;
 	}
 
@@ -126,7 +118,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 							getVideoId(entry.id.$t),
 							entry.title.$t,
 							Integer.parseInt(entry.media$group.yt$duration.seconds) * 1000);
-							//entry.media$group.media$content[0].duration * 1000);
+					//entry.media$group.media$content[0].duration * 1000);
 					if (entry.media$group.media$description != null) {
 						v.setDescription(entry.media$group.media$description.$t);
 					}
@@ -161,5 +153,15 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 	 */
 	private String getVideoId(String str) {
 		return str.replaceAll("http://gdata.youtube.com/feeds/api/videos/", "");
+	}
+
+	/**
+	 * For 2.2
+	 */
+	private void disableConnectionReuseIfNecessary() {
+		// Work around pre-Froyo bugs in HTTP connection reuse.
+		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
+			System.setProperty("http.keepAlive", "false");
+		}
 	}
 }
