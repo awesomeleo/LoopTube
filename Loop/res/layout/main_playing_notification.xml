@@ -35,6 +35,8 @@
             android:layout_marginRight="5dp"
             android:layout_weight="1"
             android:text="TextView"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@android:color/white" />
     </LinearLayout>

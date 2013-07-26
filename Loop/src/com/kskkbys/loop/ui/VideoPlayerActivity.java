@@ -5,7 +5,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.audio.MuteManager;
@@ -42,6 +44,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -290,6 +293,45 @@ implements SurfaceHolder.Callback {
 				}
 			}
 		});
+		mPlayListView.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				final int longClickedPos = position;
+				startActionMode(new ActionMode.Callback() {
+					@Override
+					public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+						MenuInflater inflater = getSupportMenuInflater();
+						inflater.inflate(R.menu.activity_player_cab, menu);
+						return true;
+					}
+					@Override
+					public boolean onPrepareActionMode(ActionMode mode,
+							Menu menu) {
+						return false;
+					}
+
+					@Override
+					public boolean onActionItemClicked(ActionMode mode,
+							MenuItem item) {
+						switch (item.getItemId()) {
+						case R.id.menu_ignore:
+							ignoreVideo(longClickedPos);
+							mode.finish(); // Action picked, so close the CAB
+							return true;
+						default:
+							return false;
+						}
+					}
+
+					@Override
+					public void onDestroyActionMode(ActionMode mode) {
+					}
+					
+				});
+				return true;
+			}
+		});
 
 		mIsSeeking = false;
 		mIsShowingControl = true;
@@ -353,7 +395,7 @@ implements SurfaceHolder.Callback {
 		case R.id.menu_share:
 			startShareIntent();
 			return true;
-		case R.id.menu_ignore:
+		case R.id.menu_ignore_current:
 			ignoreCurrentVideo();
 			return true;
 		default:
@@ -374,6 +416,17 @@ implements SurfaceHolder.Callback {
 			Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
 			// Go next video
 			PlayerCommand.next(VideoPlayerActivity.this);
+		}
+	}
+	
+	private void ignoreVideo(int position) {
+		KLog.v(TAG, "ignoreVideo");
+		Video video = Playlist.getInstance().getVideoAtIndex(position);
+		if (video != null) {
+			String videoId = video.getId();
+			BlackList.getInstance().addUserBlackList(videoId);
+			//
+			Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
 		}
 	}
 

@@ -2,14 +2,15 @@
 
     <item
         android:id="@+id/menu_share"
+        android:icon="@android:drawable/ic_menu_share"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:icon="@android:drawable/ic_menu_share"
         android:title="@string/loop_menu_item_share"/>
     <item
-        android:id="@+id/menu_ignore"
+        android:id="@+id/menu_ignore_current"
+        android:icon="@android:drawable/ic_menu_delete"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        android:showAsAction="ifRoom"
         android:title="@string/loop_menu_item_ignore"/>
 
 </menu>
