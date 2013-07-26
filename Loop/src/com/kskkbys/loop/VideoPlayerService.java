@@ -69,9 +69,6 @@ public class VideoPlayerService extends Service {
 	// for Flurry
 	private boolean mIsPlaying;
 
-	// VideoPlayerActivity
-	private MediaPlayerCallback mListener;
-
 	/**
 	 * Class to access to this service
 	 */
@@ -104,9 +101,9 @@ public class VideoPlayerService extends Service {
 				KLog.e(TAG, "onError");
 				KLog.e(TAG, "what = " + what);
 				KLog.e(TAG, "extra = " + extra);
-				if (mListener != null) {
-					mListener.onError();
-				}
+				Intent intent = new Intent();
+				intent.setAction(PlayerEvent.Error.getAction());
+				sendBroadcast(intent);
 				//return false;	// go to OnComptionListener
 				return true;	// dont go to OnCompletion
 			}
@@ -125,9 +122,8 @@ public class VideoPlayerService extends Service {
 					NotificationManager.cancel(VideoPlayerService.this);
 				}
 				// Notify listeners
-				if (mListener != null) {
-					mListener.onCompletion();
-				}
+				Intent intent = new Intent(PlayerEvent.Complete.getAction());
+				sendBroadcast(intent);
 			}
 		});
 		mMediaPlayer.setOnPreparedListener(new OnPreparedListener() {
@@ -138,17 +134,16 @@ public class VideoPlayerService extends Service {
 				mp.setLooping(mIsLooping);	//set loop setting
 				play();
 				// Notify
-				if (mListener != null) {
-					mListener.onPrepared();
-				}
+				Intent intent = new Intent(PlayerEvent.Prepared.getAction());
+				sendBroadcast(intent);
 			}
 		});
 		mMediaPlayer.setOnSeekCompleteListener(new OnSeekCompleteListener() {
 			@Override
 			public void onSeekComplete(MediaPlayer mp) {
-				if (mListener != null) {
-					mListener.onSeekComplete(mp.getCurrentPosition());
-				}
+				Intent intent = new Intent(PlayerEvent.SeekComplete.getAction());
+				intent.putExtra("msec", mp.getCurrentPosition());
+				sendBroadcast(intent);
 			}
 		});
 	}
@@ -352,14 +347,6 @@ public class VideoPlayerService extends Service {
 	}
 
 	/**
-	 * Set the lister for media player events of this service
-	 * @param listener
-	 */
-	public void setListener(MediaPlayerCallback listener) {
-		this.mListener = listener;
-	}
-
-	/**
 	 * Attach SurfaceView instance to MediaPlayer
 	 * @param surfaceView
 	 */
@@ -418,9 +405,8 @@ public class VideoPlayerService extends Service {
 		@Override
 		protected void onPreExecute() {
 			KLog.v(TAG, "onPreExecute");
-			if (mListener != null) {
-				mListener.onStartLoadVideo();
-			}
+			Intent intent = new Intent(PlayerEvent.StartToLoad.getAction());
+			sendBroadcast(intent);
 		}
 
 		@Override
@@ -530,52 +516,39 @@ public class VideoPlayerService extends Service {
 		protected void onPostExecute(Boolean success) {
 			KLog.v(TAG, "onPostExecute");
 			KLog.v(TAG, "PlayTask onPostExecute");
-			if (mListener != null) {
-				mListener.onEndLoadVideo();
-				if (!success) {
-					mListener.onInvalidVideoError();
-				}
+
+			Intent endIntent = new Intent(PlayerEvent.EndToLoad.getAction());
+			sendBroadcast(endIntent);
+
+			if (!success) {
+				Intent invalidIntent = new Intent(PlayerEvent.InvalidVideoError.getAction());
+				sendBroadcast(invalidIntent);
 			}
 		}
 
 	}
 
 	/**
-	 * Listener for the MediaPlayer events
-	 * Video player which needs media player events must implement this interface
+	 * Player events.
+	 * @author Keisuke Kobayashi
+	 *
 	 */
-	public interface MediaPlayerCallback {
-		/**
-		 * On error
-		 */
-		public void onError();
-		/**
-		 * On completion 
-		 */
-		public void onCompletion();
-		/**
-		 * On prepared
-		 */
-		public void onPrepared();
-		/**
-		 * On seek complete
-		 * @param new position in msec
-		 */
-		public void onSeekComplete(int positionMsec);
+	public enum PlayerEvent {
+		Error,
+		InvalidVideoError,
+		Complete,
+		Prepared,
+		SeekComplete,
+		StartToLoad,
+		EndToLoad;
 
 		/**
-		 * Invoked when the YouTube video can not be played (does not have valid URL)
+		 * Get action for intent.
+		 * @param context
+		 * @return
 		 */
-		public void onInvalidVideoError();
-
-		/**
-		 * Invoked when start to load video
-		 */
-		public void onStartLoadVideo();
-
-		/**
-		 * Invoked when end to load video
-		 */
-		public void onEndLoadVideo();
+		public String getAction() {
+			return "com.kskkbys.loop." + name();
+		}
 	}
 }

@@ -10,13 +10,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.Video;
 import com.kskkbys.loop.VideoPlayerService;
-import com.kskkbys.loop.R.drawable;
-import com.kskkbys.loop.R.id;
-import com.kskkbys.loop.R.layout;
-import com.kskkbys.loop.R.menu;
-import com.kskkbys.loop.R.string;
-import com.kskkbys.loop.VideoPlayerService.MediaPlayerCallback;
-import com.kskkbys.loop.VideoPlayerService.VideoPlayerServiceBinder;
+import com.kskkbys.loop.VideoPlayerService.PlayerEvent;
 import com.kskkbys.loop.audio.MuteManager;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
@@ -26,10 +20,12 @@ import com.kskkbys.loop.playlist.Playlist;
 import com.kskkbys.loop.service.PlayerCommand;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.media.AudioManager;
@@ -59,7 +55,7 @@ import android.widget.Toast;
  *
  */
 public class VideoPlayerActivity extends BaseActivity 
-implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
+implements SurfaceHolder.Callback {
 
 	private static final String TAG = VideoPlayerActivity.class.getSimpleName();
 
@@ -88,6 +84,28 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	private SurfaceView mSurfaceView;
 
 	private ListView mPlayListView;
+	
+	private BroadcastReceiver mPlayerReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if (action.equals(PlayerEvent.Error.getAction())) {
+				
+			} else if (action.equals(PlayerEvent.InvalidVideoError.getAction())) {
+				handleInvalidVideoError();
+			} else if (action.equals(PlayerEvent.Complete.getAction())) {
+				handleCompletion();
+			} else if (action.equals(PlayerEvent.EndToLoad.getAction())) {
+				handleEndLoadVideo();
+			} else if (action.equals(PlayerEvent.StartToLoad.getAction())) {
+				handleStartLoadVideo();
+			} else if (action.equals(PlayerEvent.SeekComplete.getAction())) {
+				handleSeekComplete(intent.getExtras().getInt("msec"));
+			} else if (action.equals(PlayerEvent.Prepared.getAction())) {
+				handlePrepared();
+			}
+		}
+	};
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 		@Override
@@ -95,9 +113,6 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			KLog.v(TAG, "service connected");
 			mService = ((VideoPlayerService.VideoPlayerServiceBinder)service).getService();
 			// Toast.makeText(VideoPlayerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
-
-			// Set this activity to the service
-			mService.setListener(VideoPlayerActivity.this);
 
 			// If the MediaPlayer is INIT_STATE(= loading video), show progress
 			if (mService.getState() == VideoPlayerService.STATE_INIT) {
@@ -288,6 +303,14 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			getSupportActionBar().hide();
 		}
+		
+		// Register broadcast
+		IntentFilter filter = new IntentFilter();
+		PlayerEvent[] eventTypes = PlayerEvent.values();
+		for (PlayerEvent pe: eventTypes) {
+			filter.addAction(pe.getAction());
+		}
+		registerReceiver(mPlayerReceiver, filter);
 	}
 
 	@Override
@@ -301,6 +324,8 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 			mTouchEventTimer.cancel();
 		}
 		doUnbindService();
+		// unregister
+		unregisterReceiver(mPlayerReceiver);
 	}
 
 	@Override
@@ -437,27 +462,13 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	 */
 	private void doUnbindService() {
 		if (mIsBound) {
-			// Remove listener of service
-			if (mService != null) {
-				mService.setListener(null);
-				mService = null;
-			}
 			// Detach our existing connection.
 			unbindService(mConnection);
 			mIsBound = false;
 		}
 	}
 
-	@Override
-	public void onError() {
-		KLog.v(TAG, "OnError");
-		//Toast.makeText(this, "OnError", Toast.LENGTH_SHORT).show();
-	}
-
-
-
-	@Override
-	public void onPrepared() {
+	private void handlePrepared() {
 		KLog.v(TAG, "onPrepared");
 		updateVideoInfo();
 		dismissProgress();
@@ -466,8 +477,7 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		// attachSurfaceViewToPlayer();
 	}
 
-	@Override
-	public void onCompletion() {
+	private void handleCompletion() {
 		KLog.v(TAG, "OnCompletion");
 		//Toast.makeText(this, "OnCompletion", Toast.LENGTH_SHORT).show();
 
@@ -478,16 +488,14 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 		}
 	}
 
-	@Override
-	public void onSeekComplete(int positionMsec) {
+	private void handleSeekComplete(int positionMsec) {
 		KLog.v(TAG, "onSeekComplete");
 		mSeekBar.setProgress(positionMsec / 1000);
 		dismissProgress();
 		mIsSeeking = false;
 	}
 
-	@Override
-	public void onInvalidVideoError() {
+	private void handleInvalidVideoError() {
 		this.showInvalidVideoError();
 	}
 
@@ -669,13 +677,11 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 
 	}
 
-	@Override
-	public void onStartLoadVideo() {
+	private void handleStartLoadVideo() {
 		showProgress(R.string.loop_video_player_dialog_loading);
 	}
 
-	@Override
-	public void onEndLoadVideo() {
+	private void handleEndLoadVideo() {
 		dismissProgress();
 	}
 
