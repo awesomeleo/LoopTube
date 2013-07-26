@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
@@ -76,6 +78,42 @@ public class MainActivity extends BaseActivity {
 
 	private MenuItem mSearchItem;
 
+	// Contextual Action Bar
+	private ActionMode mActionMode;
+	private int mLongSelectedPosition;
+	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			mActionMode = null;
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = getSupportMenuInflater();
+			inflater.inflate(R.menu.activity_main_cab, menu);
+			return true;
+		}
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			switch (item.getItemId()) {
+			case R.id.menu_delete:
+				clearHistory(mLongSelectedPosition);
+				mAdapter.notifyDataSetChanged();
+				mode.finish(); // Action picked, so close the CAB
+				return true;
+			default:
+				return false;
+			}
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -95,7 +133,7 @@ public class MainActivity extends BaseActivity {
 		mAdapter = new ArtistAdapter(this, mRecentArtists);
 		mListView = (ListView)findViewById(R.id.main_search_history);
 		mListView.setAdapter(mAdapter);
-		
+
 		// Read recent artist saved in the device
 		readHistory();
 
@@ -104,6 +142,9 @@ public class MainActivity extends BaseActivity {
 
 		//
 		getSupportActionBar().setTitle(R.string.loop_main_title);
+		
+		mActionMode = null;
+		mLongSelectedPosition = -1;
 
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
@@ -243,20 +284,15 @@ public class MainActivity extends BaseActivity {
 
 			mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 				@Override
-				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+				public boolean onItemLongClick(AdapterView<?> arg0, View view,
 						int position, long id) {
-					final int deletePos = mRecentArtists.size() - 1 - position;
-					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-					builder.setMessage(R.string.loop_main_confirm_clear_one_history);
-					builder.setPositiveButton(R.string.loop_ok, new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							clearHistory(deletePos);
-							updateHistoryUI();
-						}
-					});
-					builder.setNegativeButton(R.string.loop_cancel, null);
-					builder.create().show();
+					// Show contextual action bar
+					if (mActionMode != null) {
+						return false;
+					}
+					mLongSelectedPosition = position;
+					mActionMode = startActionMode(mActionModeCallback);
+					view.setSelected(true);
 					return true;
 				}
 			});

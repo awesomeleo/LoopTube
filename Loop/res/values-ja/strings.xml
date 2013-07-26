@@ -49,6 +49,7 @@
     <string name="loop_menu_item_clear_history">検索履歴を消去する</string>
     <string name="loop_menu_item_clear_blacklist">ブラックリストを消去する</string>
     <string name="loop_menu_item_version">このアプリについて</string>
+    <string name="loop_menu_item_delete">削除</string>
     
     <string name="loop_menu_item_start_repeat">この動画をリピートする</string>
     <string name="loop_menu_item_stop_repeat">リピートを解除する</string>

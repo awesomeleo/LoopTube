@@ -49,6 +49,7 @@
     <string name="loop_menu_item_clear_history">Clear search history</string>
     <string name="loop_menu_item_clear_blacklist">Clear blacklist</string>
     <string name="loop_menu_item_version">About LoopTube</string>
+    <string name="loop_menu_item_delete">Share this video</string>
     
     <string name="loop_menu_item_start_repeat">Repeat this video</string>
     <string name="loop_menu_item_stop_repeat">Stop repeat</string>
