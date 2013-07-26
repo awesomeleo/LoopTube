@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -25,10 +24,6 @@ import com.kskkbys.loop.R;
 import com.kskkbys.loop.Video;
 import com.kskkbys.loop.VideoPlayerService;
 import com.kskkbys.loop.YouTubeSearchTask;
-import com.kskkbys.loop.R.id;
-import com.kskkbys.loop.R.layout;
-import com.kskkbys.loop.R.menu;
-import com.kskkbys.loop.R.string;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
@@ -48,7 +43,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
-import android.support.v4.view.MenuItemCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,9 +51,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -497,7 +488,7 @@ public class MainActivity extends BaseActivity {
 			super(activity, R.layout.search_history_list_item, R.id.search_history_artist, objects);
 			mActivity = activity;
 		}
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
@@ -505,17 +496,13 @@ public class MainActivity extends BaseActivity {
 				LayoutInflater inflater = mActivity.getLayoutInflater();
 				view = inflater.inflate(R.layout.search_history_list_item, parent, false);
 			}
-			
+
 			String artist = getItem(position);
-			
+
 			// Set title
 			TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
 			titleView.setText(artist);
-			
-			// Set image
-			//ImageView imageView = (ImageView)view.findViewById(R.id.search_history_image);
-			//imageView.setImageResource(R.drawable.dummy_video_thumbnail);
-			
+
 			return view;
 		}
 	}

@@ -37,6 +37,7 @@
     <string name="loop_main_error_bad_connection">端末がネットワークに接続されていません。</string>
     <string name="loop_main_open_google_play">Google Playを開く</string>
     <string name="loop_main_confirm_clear_one_history">このアーティストを履歴から消去しますか？</string>
+    <string name="loop_main_now_playing">現在再生中の動画</string>
     
     <string name="loop_ok">OK</string>
     <string name="loop_cancel">キャンセル</string>

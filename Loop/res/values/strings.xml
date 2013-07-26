@@ -37,6 +37,7 @@
     <string name="loop_main_error_bad_connection">Your device is not connected to network.</string>
     <string name="loop_main_open_google_play">Open Google Play</string>
     <string name="loop_main_confirm_clear_one_history">This artist will be cleared. Are you sure?</string>
+    <string name="loop_main_now_playing">Now Playing</string>
     
     <string name="loop_ok">OK</string>
     <string name="loop_cancel">Cancel</string>
