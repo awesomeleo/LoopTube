@@ -1,4 +1,4 @@
-package com.kskkbys.loop;
+package com.kskkbys.loop.ui;
 
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
@@ -30,7 +30,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTheme(R.style.Theme_Sherlock);
 		mCanShowDialog = true;
 	}
 	
@@ -66,7 +65,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		mCanShowDialog = true;
 	}
 
-	protected void showAlert(int resId, OnClickListener listener) {
+	public void showAlert(int resId, OnClickListener listener) {
 		KLog.v(TAG, "showAlert");
 		// Remove prev fragment
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -83,7 +82,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		}
 	}
 
-	protected void showProgress(int resId) {
+	public void showProgress(int resId) {
 		KLog.v(TAG, "showProgress");
 		// Remove prev fragment
 		/*
@@ -103,7 +102,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		}
 	}
 	
-	protected void dismissProgress() {
+	public void dismissProgress() {
 		KLog.v(TAG, "dismissProgress");
 		// FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ProgressDialogFragment prev = (ProgressDialogFragment)getSupportFragmentManager().findFragmentByTag(TAG_PROGRESS);

@@ -76,7 +76,7 @@ public class VideoPlayerService extends Service {
 	 * Class to access to this service
 	 */
 	public class VideoPlayerServiceBinder extends Binder {
-		VideoPlayerService getService() {
+		public VideoPlayerService getService() {
 			return VideoPlayerService.this;
 		}
 	}

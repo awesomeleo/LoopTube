@@ -1,4 +1,4 @@
-package com.kskkbys.loop;
+package com.kskkbys.loop.util;
 
 public class Util {
 

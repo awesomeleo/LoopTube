@@ -18,8 +18,11 @@ import org.apache.http.params.HttpParams;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.kskkbys.loop.R;
+import com.kskkbys.loop.R.string;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.playlist.BlackList;
+import com.kskkbys.loop.ui.MainActivity;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;

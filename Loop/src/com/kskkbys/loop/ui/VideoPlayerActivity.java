@@ -1,4 +1,4 @@
-package com.kskkbys.loop;
+package com.kskkbys.loop.ui;
 
 import java.util.Date;
 import java.util.Timer;
@@ -6,6 +6,16 @@ import java.util.TimerTask;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.kskkbys.loop.R;
+import com.kskkbys.loop.Video;
+import com.kskkbys.loop.VideoPlayerService;
+import com.kskkbys.loop.R.drawable;
+import com.kskkbys.loop.R.id;
+import com.kskkbys.loop.R.layout;
+import com.kskkbys.loop.R.menu;
+import com.kskkbys.loop.R.string;
+import com.kskkbys.loop.VideoPlayerService.MediaPlayerCallback;
+import com.kskkbys.loop.VideoPlayerService.VideoPlayerServiceBinder;
 import com.kskkbys.loop.audio.MuteManager;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;

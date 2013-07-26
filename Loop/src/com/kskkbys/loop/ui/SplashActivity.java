@@ -1,5 +1,8 @@
-package com.kskkbys.loop;
+package com.kskkbys.loop.ui;
 
+import com.kskkbys.loop.LoopApplication;
+import com.kskkbys.loop.R;
+import com.kskkbys.loop.R.layout;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 

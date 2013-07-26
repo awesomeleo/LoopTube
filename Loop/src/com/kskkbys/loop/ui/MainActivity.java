@@ -1,4 +1,4 @@
-package com.kskkbys.loop;
+package com.kskkbys.loop.ui;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,8 +13,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
+import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
+import com.kskkbys.loop.BuildConfig;
+import com.kskkbys.loop.R;
+import com.kskkbys.loop.Video;
+import com.kskkbys.loop.VideoPlayerService;
+import com.kskkbys.loop.YouTubeSearchTask;
+import com.kskkbys.loop.R.id;
+import com.kskkbys.loop.R.layout;
+import com.kskkbys.loop.R.menu;
+import com.kskkbys.loop.R.string;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.net.ConnectionState;
@@ -33,16 +45,15 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
+import android.support.v4.view.MenuItemCompat;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * Search screen.
@@ -61,6 +72,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setupActionBar();
 		setContentView(R.layout.activity_main);
 
 		KLog.v(TAG, "onCreate");
@@ -138,6 +150,11 @@ public class MainActivity extends BaseActivity {
 		super.onStart();
 		RateThisApp.onStart(this);
 		RateThisApp.showRateDialogIfNeeded(this);
+	}
+	
+	private void setupActionBar() {
+		ActionBar actionBar = getSupportActionBar();
+		//actionBar.
 	}
 
 	private void searchQuery(String artist) {
@@ -274,6 +291,35 @@ public class MainActivity extends BaseActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getSupportMenuInflater().inflate(R.menu.activity_main, menu);
+		
+		// Set action view
+		MenuItem searchItem = menu.findItem(R.id.menu_search);
+		final SearchView sv = (SearchView) searchItem.getActionView();
+		sv.setQueryHint(getText(R.string.loop_main_search_hint));
+		sv.setOnQueryTextListener(new OnQueryTextListener() {
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				// Check connection
+				if (!ConnectionState.isConnected(MainActivity.this)) {
+					KLog.w(TAG, "bad connection");
+					showAlert(R.string.loop_main_error_bad_connection, null);
+				} else {
+					KLog.v(TAG, "connection ok");
+					// Search query
+					Map<String, String> param = new HashMap<String, String>();
+					param.put("query", query);
+					FlurryLogger.logEvent(FlurryLogger.SEARCH_ARTIST, param);
+					searchQuery(query);
+				}
+				return true;
+			}
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+		});
+		
 		return true;
 	}
 

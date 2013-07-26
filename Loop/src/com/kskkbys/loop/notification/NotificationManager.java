@@ -7,8 +7,8 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
-import com.kskkbys.loop.MainActivity;
 import com.kskkbys.loop.R;
+import com.kskkbys.loop.ui.MainActivity;
 
 public class NotificationManager {
 

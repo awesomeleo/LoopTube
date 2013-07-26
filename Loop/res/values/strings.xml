@@ -44,6 +44,7 @@
     <string name="loop_video_player_play">Play</string>
     
     <string name="loop_menu_settings">Settings</string>
+    <string name="loop_menu_item_search">Search</string>
     <string name="loop_menu_item_show_player">Show video player</string>
     <string name="loop_menu_item_clear_history">Clear search history</string>
     <string name="loop_menu_item_clear_blacklist">Clear blacklist</string>
