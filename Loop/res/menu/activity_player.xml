@@ -1,6 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/menu_share"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/loop_menu_item_share"/>
+    <item
         android:id="@+id/menu_ignore"
         android:orderInCategory="100"
         android:showAsAction="never"

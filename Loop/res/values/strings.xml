@@ -52,6 +52,7 @@
     <string name="loop_menu_item_start_repeat">Repeat this video</string>
     <string name="loop_menu_item_stop_repeat">Stop repeat</string>
     <string name="loop_menu_item_ignore">Add this video to blacklist</string>
+    <string name="loop_menu_item_share">Share this video</string>
     
     <string-array name="loop_black_word_list">
     </string-array>
