@@ -375,14 +375,6 @@ public class MainActivity extends BaseActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		AlertDialog.Builder builder;
 		switch (item.getItemId()) {
-		case R.id.menu_show_player:
-			if (Playlist.getInstance().getCurrentVideo() != null) {
-				startActivity(new Intent(MainActivity.this, VideoPlayerActivity.class));
-			} else {
-				//SimpleErrorDialog.show(this, R.string.loop_main_dialog_not_playing);
-				showAlert(R.string.loop_main_dialog_not_playing, null);
-			}
-			return true;
 		case R.id.menu_clear_history:
 			builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.loop_main_confirm_clear_history)
