@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.kskkbys.loop.R;
@@ -117,6 +118,11 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// action bar
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		
 		setContentView(R.layout.activity_video_player);
 
 		KLog.v(TAG, "onCreate");
@@ -313,6 +319,12 @@ implements VideoPlayerService.MediaPlayerCallback, SurfaceHolder.Callback {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			Intent intent = new Intent(this, MainActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			finish();
+			return true;
 		case R.id.menu_share:
 			startShareIntent();
 			return true;

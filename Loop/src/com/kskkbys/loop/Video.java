@@ -4,9 +4,9 @@ public class Video {
 	
 	//private static final String TAG = Video.class.getSimpleName();
 
-	private String mId;
-	private String mTitle;
-	private int mDuration;
+	private final String mId;
+	private final String mTitle;
+	private final int mDuration;
 	private String mDescription;
 	private String mVideoUrl;
 	private String mThumbnailUrl;
@@ -55,5 +55,17 @@ public class Video {
 	
 	public void setThumbnailUrl(String thumbnailUrl) {
 		mThumbnailUrl = thumbnailUrl;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("ID=" + mId + ", ");
+		sb.append("Title=" + mTitle + ", ");
+		sb.append("Duration=" + mDuration + ", ");
+		sb.append("Description=" + mDescription + ", ");
+		sb.append("VideoUrl=" + mVideoUrl + ", ");
+		sb.append("ThumbnailUrl=" + mThumbnailUrl + ", ");
+		return sb.toString();
 	}
 }

@@ -120,6 +120,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		if (result != null && result.feed != null && result.feed.entry != null) {
 			for (YouTubeSearchResult.Feed.Entry entry : result.feed.entry) {
 				try {
+					//Create video
 					Video v = new Video(
 							getVideoId(entry.id.$t),
 							entry.title.$t,
@@ -135,6 +136,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 						v.setThumbnailUrl(entry.media$group.media$thumbnail[0].url);
 					}
 					videoList.add(v);
+					KLog.v(TAG, "Video added: " + v.toString());
 					// Check brack words
 					BlackList blackList = BlackList.getInstance();
 					if (blackList.isBlackTitle(v.getTitle())) {
