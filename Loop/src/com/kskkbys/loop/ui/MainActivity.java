@@ -37,6 +37,7 @@ import com.kskkbys.rate.RateThisApp;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -47,7 +48,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
 import android.support.v4.view.MenuItemCompat;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
@@ -64,15 +67,19 @@ public class MainActivity extends BaseActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	private static final String FILENAME_SEARCH_HISTORY = "search_history.txt";
-	
+
 	public static final String FROM_NOTIFICATION = "from_notification";
 
-	private List<String> mRecentArtists = new ArrayList<String>();
+	private List<String> mRecentArtists;
+	private ArtistAdapter mAdapter;
+	private ListView mListView;
+
+	private MenuItem mSearchItem;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setupActionBar();
+
 		setContentView(R.layout.activity_main);
 
 		KLog.v(TAG, "onCreate");
@@ -83,36 +90,20 @@ public class MainActivity extends BaseActivity {
 		// even when all activities are close.
 		startService(new Intent(MainActivity.this, VideoPlayerService.class));
 
+		// Set up listview
+		mRecentArtists = new ArrayList<String>();
+		mAdapter = new ArtistAdapter(this, mRecentArtists);
+		mListView = (ListView)findViewById(R.id.main_search_history);
+		mListView.setAdapter(mAdapter);
+		
 		// Read recent artist saved in the device
 		readHistory();
 
 		// Update recent artists view
 		updateHistoryUI();
 
-		Button button = (Button)findViewById(R.id.searchButton);
-		button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// Check connection
-				if (!ConnectionState.isConnected(MainActivity.this)) {
-					KLog.w(TAG, "bad connection");
-					// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
-					showAlert(R.string.loop_main_error_bad_connection, null);
-					return;
-				} else {
-					KLog.v(TAG, "connection ok");
-					// Search query
-					EditText searchEditText = (EditText)findViewById(R.id.searchText);
-					String query = searchEditText.getEditableText().toString();
-
-					Map<String, String> param = new HashMap<String, String>();
-					param.put("query", query);
-					FlurryLogger.logEvent(FlurryLogger.SEARCH_ARTIST, param);
-
-					searchQuery(query);
-				}
-			}
-		});
+		//
+		getSupportActionBar().setTitle(R.string.loop_main_title);
 
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
@@ -121,9 +112,6 @@ public class MainActivity extends BaseActivity {
 			goNextActivity();
 			return;
 		}
-
-		//
-		getSupportActionBar().setTitle(R.string.loop_main_title);
 	}
 
 	@Override
@@ -144,17 +132,12 @@ public class MainActivity extends BaseActivity {
 		// update history
 		updateHistoryUI();
 	}
-	
+
 	@Override
 	protected void onStart() {
 		super.onStart();
 		RateThisApp.onStart(this);
 		RateThisApp.showRateDialogIfNeeded(this);
-	}
-	
-	private void setupActionBar() {
-		ActionBar actionBar = getSupportActionBar();
-		//actionBar.
 	}
 
 	private void searchQuery(String artist) {
@@ -190,7 +173,7 @@ public class MainActivity extends BaseActivity {
 	 * Read search history from saved file
 	 */
 	private void readHistory() {
-		mRecentArtists = new ArrayList<String>();
+		mRecentArtists.clear();
 		FileInputStream fis;
 		try {
 			fis = openFileInput(FILENAME_SEARCH_HISTORY);
@@ -219,25 +202,22 @@ public class MainActivity extends BaseActivity {
 		saveSearchHistory();
 	}
 
-	
+
 	/**
 	 * Update history view
 	 */
 	private void updateHistoryUI() {
 		if (mRecentArtists != null && mRecentArtists.size() > 0) {
 			// Has history
-			findViewById(R.id.listView1).setVisibility(View.VISIBLE);
-			findViewById(R.id.noHistoryLabel).setVisibility(View.INVISIBLE);
+			mListView.setVisibility(View.VISIBLE);
+			//TODO findViewById(R.id.noHistoryLabel).setVisibility(View.INVISIBLE);
 
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 			for (int i = mRecentArtists.size() - 1; i >= 0; i--) {
 				adapter.add(mRecentArtists.get(i));
 			}
 
-			ListView listView = (ListView)findViewById(R.id.listView1);
-			listView.setAdapter(adapter);
-
-			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
@@ -260,8 +240,8 @@ public class MainActivity extends BaseActivity {
 					}
 				}
 			});
-			
-			listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 				@Override
 				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 						int position, long id) {
@@ -282,8 +262,8 @@ public class MainActivity extends BaseActivity {
 			});
 		} else {
 			// no histroy
-			findViewById(R.id.noHistoryLabel).setVisibility(View.VISIBLE);
-			findViewById(R.id.listView1).setVisibility(View.INVISIBLE);
+			// TODO findViewById(R.id.noHistoryLabel).setVisibility(View.VISIBLE);
+			findViewById(R.id.main_search_history).setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -291,10 +271,10 @@ public class MainActivity extends BaseActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getSupportMenuInflater().inflate(R.menu.activity_main, menu);
-		
+
 		// Set action view
-		MenuItem searchItem = menu.findItem(R.id.menu_search);
-		final SearchView sv = (SearchView) searchItem.getActionView();
+		mSearchItem = menu.findItem(R.id.menu_search);
+		final SearchView sv = (SearchView) mSearchItem.getActionView();
 		sv.setQueryHint(getText(R.string.loop_main_search_hint));
 		sv.setOnQueryTextListener(new OnQueryTextListener() {
 			@Override
@@ -319,7 +299,7 @@ public class MainActivity extends BaseActivity {
 				return false;
 			}
 		});
-		
+
 		return true;
 	}
 
@@ -367,13 +347,13 @@ public class MainActivity extends BaseActivity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	private void openGooglePlay() {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("market://details?id=com.kskkbys.loop"));
 		startActivity(intent);
 	}
-	
+
 	private void showVersion() {
 		PackageManager pm = getPackageManager();
 		PackageInfo info;
@@ -383,7 +363,7 @@ public class MainActivity extends BaseActivity {
 			if (BuildConfig.DEBUG) {
 				message += " (Debug)";
 			}
-			
+
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.loop_app_name);
 			builder.setMessage(message);
@@ -436,5 +416,36 @@ public class MainActivity extends BaseActivity {
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(intent);
+	}
+
+	/**
+	 * Adapter class of artist
+	 * @author Keisuke Kobayashi
+	 *
+	 */
+	private static class ArtistAdapter extends ArrayAdapter<String> {
+
+		private Activity mActivity;
+
+		/**
+		 * Constructor.
+		 * @param activity
+		 * @param objects
+		 */
+		public ArtistAdapter(Activity activity, List<String> objects) {
+			super(activity, R.layout.search_history_list_item, R.id.search_history_artist, objects);
+		}
+		/*
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view = convertView;
+			if (view == null) {
+				this.
+				LayoutInflater inflater = mActivity.getLayoutInflater();
+				view = inflater.inflate(R.layout.search_history_list_item, parent, false);
+			}
+			return view;
+		}
+		 */
 	}
 }
