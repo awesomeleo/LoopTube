@@ -23,11 +23,11 @@
     <string name="loop_video_player_dialog_publishing">Posting...</string>
     
     <string name="loop_main_title">Search by artist</string>
-    <string name="loop_main_search_artist">Artist name here</string>
+    <string name="loop_main_search_artist">Search now</string>
     <string name="loop_main_recent_artists">Recent artists</string>
     <string name="loop_main_button_search">Search</string>
     <string name="loop_main_dialog_searching">Searching&#8230;</string>
-    <string name="loop_main_no_history">No History</string>
+    <string name="loop_main_no_history">There is no search history.</string>
     <string name="loop_main_search_hint">ex. Oasis</string>
     <string name="loop_main_invalid_query">Invalid query.</string>
     <string name="loop_main_confirm_clear_history">Search history will be cleared. Are you sure?</string>

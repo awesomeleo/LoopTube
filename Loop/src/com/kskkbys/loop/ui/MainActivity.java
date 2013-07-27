@@ -70,7 +70,7 @@ public class MainActivity extends BaseActivity {
 	private List<String> mRecentArtists;
 	private ArtistAdapter mAdapter;
 	private ListView mListView;
-
+	
 	private MenuItem mSearchItem;
 
 	// Contextual Action Bar
@@ -123,6 +123,14 @@ public class MainActivity extends BaseActivity {
 		// even when all activities are close.
 		startService(new Intent(MainActivity.this, VideoPlayerService.class));
 
+		// Set up empty view
+		findViewById(R.id.main_search_button).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mSearchItem.expandActionView();
+			}
+		});
+		
 		// Set up listview
 		mRecentArtists = new ArrayList<String>();
 		mAdapter = new ArtistAdapter(this, mRecentArtists);
