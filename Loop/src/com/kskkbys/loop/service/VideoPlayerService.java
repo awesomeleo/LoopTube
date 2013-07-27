@@ -9,6 +9,7 @@ import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
@@ -67,19 +68,11 @@ public class VideoPlayerService extends Service {
 	private int mState;
 	private boolean mIsLooping;
 
+	// Timer task to notify current time to activity/widget.
+	private Timer mTimer;
+
 	// for Flurry
 	private boolean mIsPlaying;
-
-	/**
-	 * Class to access to this service
-	 */
-	public class VideoPlayerServiceBinder extends Binder {
-		public VideoPlayerService getService() {
-			return VideoPlayerService.this;
-		}
-	}
-
-	private final IBinder mBinder = new VideoPlayerServiceBinder();
 
 	@Override
 	public void onCreate() {
@@ -90,6 +83,8 @@ public class VideoPlayerService extends Service {
 		// state of MediaPlayer
 		mState = STATE_INIT;
 		mIsLooping = false;
+
+		mTimer = null;
 
 		// for flurry
 		mIsPlaying = false;
@@ -117,7 +112,7 @@ public class VideoPlayerService extends Service {
 				// Service starts to play next video
 				Playlist.getInstance().next();
 				if (Playlist.getInstance().getCurrentVideo() != null) {
-					startVideo();
+					restartVideo();
 				} else {
 					// End of playlist
 					NotificationManager.cancel(VideoPlayerService.this);
@@ -153,6 +148,12 @@ public class VideoPlayerService extends Service {
 	}
 
 	@Override
+	public IBinder onBind(Intent intent) {
+		// This class will not be bind.
+		return null;
+	}
+
+	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		KLog.i(TAG, "Received start id " + startId + ": " + intent);
 
@@ -164,7 +165,11 @@ public class VideoPlayerService extends Service {
 			KLog.v(TAG, "command = " + command);
 			switch (command) {
 			case COMMAND_PLAY:
-				play(isReload);
+				if (isReload) {
+					restartVideo();
+				} else {
+					play();
+				}
 				break;
 			case COMMAND_PAUSE:
 				pause();
@@ -215,11 +220,6 @@ public class VideoPlayerService extends Service {
 		KLog.v(TAG, "VideoPlayerService stopped.");
 	}
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return this.mBinder;
-	}
-
 	/**
 	 * Show a notification in status bar
 	 * @param videoTitle
@@ -231,25 +231,13 @@ public class VideoPlayerService extends Service {
 	private void prev() {
 		KLog.v(TAG, "prev");
 		Playlist.getInstance().prev();
-		startVideo();
+		restartVideo();
 	}
 
 	private void next() {
 		KLog.v(TAG,"next");
 		Playlist.getInstance().next();
-		startVideo();
-	}
-
-	/**
-	 * Play command
-	 * @param reset		If true, reload video. Otherwise, only start.
-	 */
-	private void play(boolean reset) {
-		if (reset) {
-			startVideo();
-		} else {
-			play();
-		}
+		restartVideo();
 	}
 
 	/**
@@ -288,10 +276,6 @@ public class VideoPlayerService extends Service {
 		}
 	}
 
-	private boolean isPlaying() {
-		return mMediaPlayer.isPlaying();
-	}
-
 	private void seekTo(int msec) {
 		KLog.v(TAG, "seekTo");
 		if (mState == STATE_PLAYING) {
@@ -306,21 +290,10 @@ public class VideoPlayerService extends Service {
 	}
 
 	/**
-	 * Get the current position in the playing video
-	 * @return
+	 * Restart to play video.<br>
+	 * This method must reset MediaPlayer and send HTTP request to load raw video.
 	 */
-	private int getCurrentPosition() {
-		if (mState == STATE_PLAYING) {
-			return mMediaPlayer.getCurrentPosition();
-		} else {
-			return 0;
-		}
-	}
-
-	/**
-	 * Start to play video
-	 */
-	private void startVideo() {
+	private void restartVideo() {
 		KLog.v(TAG, "startVideo");
 		// Reset the current player
 		mMediaPlayer.reset();
@@ -334,18 +307,10 @@ public class VideoPlayerService extends Service {
 				KLog.v(TAG, "This video is registered in black list. Skip this video.");
 				next();
 			} else {
-				YouTubePlayTask task = new YouTubePlayTask(video.getId());
+				YouTubeVideoLoadTask task = new YouTubeVideoLoadTask(video.getId());
 				task.execute();
 			}
 		}
-	}
-
-	/**
-	 * Get the media player state
-	 * @return
-	 */
-	public int getState() {
-		return this.mState;
 	}
 
 	/**
@@ -391,16 +356,14 @@ public class VideoPlayerService extends Service {
 	/**
 	 * Inner class to play YouTube video with MediaPlayer
 	 */
-	private class YouTubePlayTask extends AsyncTask<String, Void, Boolean> {
-
-		//private ProgressDialog mDialog = new ProgressDialog(VideoPlayerService.this);
+	private class YouTubeVideoLoadTask extends AsyncTask<String, Void, Boolean> {
 
 		private String mVideoId;
 
 		/**
 		 * Constructor
 		 */
-		public YouTubePlayTask(String videoId) {
+		public YouTubeVideoLoadTask(String videoId) {
 			this.mVideoId = videoId;
 		}
 

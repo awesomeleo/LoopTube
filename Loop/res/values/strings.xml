@@ -15,12 +15,6 @@
     <string name="loop_video_player_ignored">This video is now in blacklist and will never be played.</string>
     <string name="loop_video_player_ignored_already">This video is already in blacklist.</string>
     <string name="loop_video_player_volume_setting">Volume Setting</string>
-    <string name="loop_video_player_confirm_facebook">Share on Facebook</string>
-    <string name="loop_video_player_facebook_message">Message (optional)</string>
-    <string name="loop_video_player_facebook_hint">Enter an optional message</string>
-    <string name="loop_video_player_success_facebook">Post successful!</string>
-    <string name="loop_video_player_failure_facebook">Something went wrong. Please try later.</string>
-    <string name="loop_video_player_dialog_publishing">Posting...</string>
     
     <string name="loop_main_title">Search by artist</string>
     <string name="loop_main_search_artist">Search now</string>
@@ -59,7 +53,5 @@
     
     <string-array name="loop_black_word_list">
     </string-array>
-    
-    <string name="facebook_app_id">614833545197186</string>
 
 </resources>

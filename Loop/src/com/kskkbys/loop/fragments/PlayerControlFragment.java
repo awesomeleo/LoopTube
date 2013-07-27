@@ -102,11 +102,13 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			@Override
 			public void onClick(View v) {
 				// TODO Judge play/pause from view
-				if (true) {
+				if (mPauseButton.getContentDescription().equals("pause")) {
 					PlayerCommand.pause(getActivity());
+					mPauseButton.setContentDescription("play");
 					mPauseButton.setBackgroundResource(R.drawable.play);
 				} else {
 					PlayerCommand.play(getActivity(), false);
+					mPauseButton.setContentDescription("pause");
 					mPauseButton.setBackgroundResource(R.drawable.pause);
 				}
 			}
