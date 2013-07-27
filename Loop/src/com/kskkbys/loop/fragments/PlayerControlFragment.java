@@ -405,7 +405,7 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 		mIsSeeking = false;
 	}
 	
-	public void handleUpdate(int positionMsec) {
+	public void handleUpdate(int positionMsec, boolean isPlaying) {
 		// When seeking, it does not update seek bar
 		if (!mIsSeeking) {
 			int currentMinitues = (positionMsec / 1000) / 60;
@@ -415,6 +415,14 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			mDurationView.setText(String.format("%d:%02d / %d:%02d", 
 					currentMinitues, currentSeconds, durationMinitues, durationSeconds));
 			mSeekBar.setProgress(positionMsec);
+			
+			if (!isPlaying) {
+				mPauseButton.setContentDescription("play");
+				mPauseButton.setBackgroundResource(R.drawable.play);
+			} else {
+				mPauseButton.setContentDescription("pause");
+				mPauseButton.setBackgroundResource(R.drawable.pause);
+			}
 		}
 	}
 }

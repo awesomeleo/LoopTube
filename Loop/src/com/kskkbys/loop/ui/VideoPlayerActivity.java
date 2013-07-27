@@ -62,7 +62,8 @@ public class VideoPlayerActivity extends BaseActivity {
 				handlePrepared();
 			} else if (action.equals(PlayerEvent.Update.getAction())) {
 				int msec = intent.getExtras().getInt("msec");
-				handleUpdate(msec);
+				boolean isPlaying = intent.getExtras().getBoolean("is_playing");
+				handleUpdate(msec, isPlaying);
 			}
 		}
 	};
@@ -272,7 +273,7 @@ public class VideoPlayerActivity extends BaseActivity {
 		dismissProgress();
 	}
 	
-	private void handleUpdate(int msec) {
-		mControlFragment.handleUpdate(msec);
+	private void handleUpdate(int msec, boolean isPlaying) {
+		mControlFragment.handleUpdate(msec, isPlaying);
 	}
 }

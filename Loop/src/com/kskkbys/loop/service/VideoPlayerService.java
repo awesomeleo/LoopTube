@@ -45,10 +45,13 @@ import android.view.SurfaceHolder;
 public class VideoPlayerService extends Service {
 
 	private static final String TAG = VideoPlayerService.class.getSimpleName();
-	public static final int STATE_INIT = 0;
-	public static final int STATE_PEPARED = 1;
-	public static final int STATE_PLAYING = 2;
-	public static final int STATE_COMPLETE = 3;
+	
+	private static enum PlayerState {
+		Init,
+		Prepared,
+		Playing,
+		Complete
+	}
 
 	// Command
 	public static final String COMMAND = "command";
@@ -66,7 +69,7 @@ public class VideoPlayerService extends Service {
 
 	// MediaPlayer
 	private static MediaPlayer mMediaPlayer;
-	private int mState;
+	private PlayerState mState;
 	private boolean mIsLooping;
 
 	// Timer task to notify current time to activity/widget.
@@ -84,7 +87,7 @@ public class VideoPlayerService extends Service {
 		FlurryLogger.onStartSession(VideoPlayerService.this);
 
 		// state of MediaPlayer
-		mState = STATE_INIT;
+		mState = PlayerState.Init;
 		mIsLooping = false;
 
 		// for flurry
@@ -109,7 +112,7 @@ public class VideoPlayerService extends Service {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
 				//
-				mState = STATE_COMPLETE;
+				mState = PlayerState.Complete;
 				// Service starts to play next video
 				Playlist.getInstance().next();
 				if (Playlist.getInstance().getCurrentVideo() != null) {
@@ -128,7 +131,7 @@ public class VideoPlayerService extends Service {
 			@Override
 			public void onPrepared(MediaPlayer mp) {
 				// When prepared, start to play video
-				mState = STATE_PEPARED;
+				mState = PlayerState.Prepared;
 				mp.setLooping(mIsLooping);	//set loop setting
 				play();
 				// Notify
@@ -154,7 +157,7 @@ public class VideoPlayerService extends Service {
 			@Override
 			public void run() {
 				// Only broadcast on playing.
-				if (mMediaPlayer != null && mState == STATE_PLAYING) {
+				if (mMediaPlayer != null && mState == PlayerState.Playing) {
 					Intent intent = new Intent(PlayerEvent.Update.getAction());
 					intent.putExtra("msec", mMediaPlayer.getCurrentPosition());
 					intent.putExtra("is_playing", mMediaPlayer.isPlaying());
@@ -267,8 +270,8 @@ public class VideoPlayerService extends Service {
 	 */
 	private void play() {
 		KLog.v(TAG, "play");
-		if (mState == STATE_PEPARED || mState == STATE_PLAYING) {
-			mState = STATE_PLAYING;
+		if (mState == PlayerState.Prepared || mState == PlayerState.Playing) {
+			mState = PlayerState.Playing;
 			mMediaPlayer.start();
 			// show notification
 			showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
@@ -285,7 +288,7 @@ public class VideoPlayerService extends Service {
 	}
 	private void pause() {
 		KLog.v(TAG, "pause");
-		if (mState == STATE_PLAYING) {
+		if (mState == PlayerState.Playing) {
 			mMediaPlayer.pause();
 			NotificationManager.cancel(this);
 			if (mIsPlaying) {
@@ -299,7 +302,7 @@ public class VideoPlayerService extends Service {
 
 	private void seekTo(int msec) {
 		KLog.v(TAG, "seekTo");
-		if (mState == STATE_PLAYING) {
+		if (mState == PlayerState.Playing) {
 			mMediaPlayer.seekTo(msec);
 		}
 	}
@@ -318,7 +321,7 @@ public class VideoPlayerService extends Service {
 		KLog.v(TAG, "startVideo");
 		// Reset the current player
 		mMediaPlayer.reset();
-		mState = STATE_INIT;
+		mState = PlayerState.Init;
 		// Search and start to play
 		Video video = Playlist.getInstance().getCurrentVideo();
 		if (video != null) {
