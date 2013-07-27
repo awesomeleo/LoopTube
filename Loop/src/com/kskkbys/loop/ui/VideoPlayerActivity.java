@@ -31,6 +31,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -133,6 +134,7 @@ implements SurfaceHolder.Callback {
 			//Toast.makeText(VideoPlayerActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
 		}
 	};
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -272,7 +274,9 @@ implements SurfaceHolder.Callback {
 		// getWindow().setFormat(PixelFormat.TRANSPARENT);		// needed???
 		mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
 		SurfaceHolder holder = mSurfaceView.getHolder();
-		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		}
 		holder.addCallback(this);
 
 		// PlayListView

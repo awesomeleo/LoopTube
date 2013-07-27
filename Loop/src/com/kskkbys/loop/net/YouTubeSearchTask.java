@@ -160,7 +160,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 	 */
 	private void disableConnectionReuseIfNecessary() {
 		// Work around pre-Froyo bugs in HTTP connection reuse.
-		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
 			System.setProperty("http.keepAlive", "false");
 		}
 	}
