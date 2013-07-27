@@ -389,7 +389,6 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			mSeekBar.setProgress(0);
 		} else {
 			mDurationView.setText("0:00 / 0:00");
-			mSeekBar.setMax(100);
 			mSeekBar.setProgress(0);
 		}
 
@@ -416,10 +415,12 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 		if (!mIsSeeking) {
 			int currentMinitues = (positionMsec / 1000) / 60;
 			int currentSeconds = (positionMsec / 1000) % 60;
-			int durationMinitues = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) / 60;
-			int durationSeconds = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) % 60;
+			Video video = Playlist.getInstance().getCurrentVideo();
+			int durationMinitues = (video.getDuration() / 1000) / 60;
+			int durationSeconds = (video.getDuration() / 1000) % 60;
 			mDurationView.setText(String.format("%d:%02d / %d:%02d", 
 					currentMinitues, currentSeconds, durationMinitues, durationSeconds));
+			mSeekBar.setMax(video.getDuration());
 			mSeekBar.setProgress(positionMsec);
 			
 			if (!isPlaying) {
