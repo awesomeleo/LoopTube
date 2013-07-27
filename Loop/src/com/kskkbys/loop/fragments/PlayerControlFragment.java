@@ -380,9 +380,11 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			int seconds = (video.getDuration() / 1000) % 60;
 			mDurationView.setText(String.format("0:00 / %d:%02d", minutes, seconds));
 			mSeekBar.setMax(video.getDuration());
+			mSeekBar.setProgress(0);
 		} else {
 			mDurationView.setText("0:00 / 0:00");
 			mSeekBar.setMax(100);
+			mSeekBar.setProgress(0);
 		}
 
 		if (LoopManager.getInstance().isLooping()) {
@@ -406,12 +408,11 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 	public void handleUpdate(int positionMsec) {
 		// When seeking, it does not update seek bar
 		if (!mIsSeeking) {
-			TextView durationView = (TextView)getView().findViewById(R.id.durationText);
 			int currentMinitues = (positionMsec / 1000) / 60;
 			int currentSeconds = (positionMsec / 1000) % 60;
 			int durationMinitues = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) / 60;
 			int durationSeconds = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) % 60;
-			durationView.setText(String.format("%d:%02d / %d:%02d", 
+			mDurationView.setText(String.format("%d:%02d / %d:%02d", 
 					currentMinitues, currentSeconds, durationMinitues, durationSeconds));
 			mSeekBar.setProgress(positionMsec);
 		}

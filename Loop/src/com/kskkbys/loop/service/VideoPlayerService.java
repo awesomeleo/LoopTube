@@ -147,17 +147,20 @@ public class VideoPlayerService extends Service {
 				sendBroadcast(intent);
 			}
 		});
-		
+
 		// Start scheduled task to notify current position to activity/widget.
 		mTimer = new Timer();
 		mTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				Intent intent = new Intent(PlayerEvent.Update.getAction());
-				intent.putExtra("msec", mMediaPlayer.getCurrentPosition());
-				intent.putExtra("is_playing", mMediaPlayer.isPlaying());
-				intent.setPackage(getPackageName());
-				sendBroadcast(intent);
+				// Only broadcast on playing.
+				if (mMediaPlayer != null && mState == STATE_PLAYING) {
+					Intent intent = new Intent(PlayerEvent.Update.getAction());
+					intent.putExtra("msec", mMediaPlayer.getCurrentPosition());
+					intent.putExtra("is_playing", mMediaPlayer.isPlaying());
+					intent.setPackage(getPackageName());
+					sendBroadcast(intent);
+				}
 			}
 		}, 0, NOTIFY_INTERVAL);
 	}
@@ -222,7 +225,7 @@ public class VideoPlayerService extends Service {
 
 		// Stop timer task
 		mTimer.cancel();
-		
+
 		// Stop mediaplayer
 		if (mMediaPlayer != null) {
 			mMediaPlayer.release();
