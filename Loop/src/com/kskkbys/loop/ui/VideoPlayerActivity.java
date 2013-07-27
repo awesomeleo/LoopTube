@@ -5,6 +5,7 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.fragments.PlayerControlFragment;
 import com.kskkbys.loop.fragments.PlayerListFragment;
@@ -26,6 +27,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 /**
@@ -39,7 +41,7 @@ public class VideoPlayerActivity extends BaseActivity {
 	// Fragments in this activity
 	private PlayerListFragment mListFragment;
 	private PlayerControlFragment mControlFragment;
-	
+
 	// Receiver instance to handle action intent from service.
 	private BroadcastReceiver mPlayerReceiver = new BroadcastReceiver() {
 		@Override
@@ -71,28 +73,30 @@ public class VideoPlayerActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		KLog.v(TAG, "onCreate");
 		FlurryLogger.logEvent(FlurryLogger.SEE_PLAYER);
-		
+
 		// action bar
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			getSupportActionBar().hide();
+			this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		} else {
 			Video currentVideo = Playlist.getInstance().getCurrentVideo();
 			if (currentVideo != null) {
 				getSupportActionBar().setTitle(currentVideo.getTitle());
 			}
 		}
-		
+
 		// Content view and fragments
 		setContentView(R.layout.activity_player);
 		FragmentManager fm = getSupportFragmentManager();
 		mControlFragment = (PlayerControlFragment)fm.findFragmentById(R.id.fragment_control);
 		mListFragment = (PlayerListFragment)fm.findFragmentById(R.id.fragment_list);
-		
+
 		// Register broadcast
 		IntentFilter filter = new IntentFilter();
 		PlayerEvent[] eventTypes = PlayerEvent.values();
@@ -142,7 +146,7 @@ public class VideoPlayerActivity extends BaseActivity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	public void startContextualActionBar(int position) {
 		final int longClickedPos = position;
 		startActionMode(new ActionMode.Callback() {
@@ -192,7 +196,7 @@ public class VideoPlayerActivity extends BaseActivity {
 			PlayerCommand.next(VideoPlayerActivity.this);
 		}
 	}
-	
+
 	private void ignoreVideo(int position) {
 		KLog.v(TAG, "ignoreVideo");
 		Video video = Playlist.getInstance().getVideoAtIndex(position);
@@ -231,7 +235,7 @@ public class VideoPlayerActivity extends BaseActivity {
 			finish();
 		}
 	}
-	
+
 	private void handleSeekComplete(int positionMsec) {
 		KLog.v(TAG, "onSeekComplete");
 		mControlFragment.handleSeekComplete(positionMsec);
@@ -264,7 +268,7 @@ public class VideoPlayerActivity extends BaseActivity {
 		} else {
 			getSupportActionBar().setTitle(R.string.loop_app_name);
 		}
-		
+
 		// For fragments
 		mControlFragment.updateVideoInfo();
 		if (mListFragment != null) {
@@ -279,7 +283,7 @@ public class VideoPlayerActivity extends BaseActivity {
 	private void handleEndLoadVideo() {
 		dismissProgress();
 	}
-	
+
 	private void handleUpdate(int msec, boolean isPlaying) {
 		mControlFragment.handleUpdate(msec, isPlaying);
 	}

@@ -63,6 +63,12 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 	private SurfaceView mSurfaceView;
 
 	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setRetainInstance(true);
+	}
+	
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		KLog.v(TAG, "onCreateView");
 		View view = inflater.inflate(R.layout.fragment_player_control, container, false);
