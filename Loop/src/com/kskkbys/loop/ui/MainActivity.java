@@ -70,7 +70,7 @@ public class MainActivity extends BaseActivity {
 	private List<String> mRecentArtists;
 	private ArtistAdapter mAdapter;
 	private ListView mListView;
-	
+
 	private MenuItem mSearchItem;
 
 	// Contextual Action Bar
@@ -123,18 +123,18 @@ public class MainActivity extends BaseActivity {
 		// even when all activities are close.
 		startService(new Intent(MainActivity.this, VideoPlayerService.class));
 
-		// Set up empty view
-		findViewById(R.id.main_search_button).setOnClickListener(new View.OnClickListener() {
+		// Set up listview and empty view
+		mListView = (ListView)findViewById(R.id.main_search_history);
+		View emptyView = findViewById(R.id.main_empty);
+		emptyView.findViewById(R.id.main_search_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				mSearchItem.expandActionView();
 			}
 		});
-		
-		// Set up listview
+		mListView.setEmptyView(emptyView);
 		mRecentArtists = new ArrayList<String>();
 		mAdapter = new ArtistAdapter(this, mRecentArtists);
-		mListView = (ListView)findViewById(R.id.main_search_history);
 		mListView.setAdapter(mAdapter);
 
 		// Read recent artist saved in the device
@@ -239,16 +239,19 @@ public class MainActivity extends BaseActivity {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		mAdapter.notifyDataSetChanged();
 	}
 
 	private void clearHistory() {
-		mRecentArtists = new ArrayList<String>();
+		mRecentArtists.clear();
 		saveSearchHistory();
+		mAdapter.notifyDataSetChanged();
 	}
 
 	private void clearHistory(int position) {
 		mRecentArtists.remove(position);
 		saveSearchHistory();
+		mAdapter.notifyDataSetChanged();
 	}
 
 	private void updatePlayingNotification() {
@@ -333,6 +336,7 @@ public class MainActivity extends BaseActivity {
 			// TODO findViewById(R.id.noHistoryLabel).setVisibility(View.VISIBLE);
 			findViewById(R.id.main_search_history).setVisibility(View.INVISIBLE);
 		}
+		mAdapter.notifyDataSetChanged();
 	}
 
 	@Override
