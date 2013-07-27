@@ -6,7 +6,7 @@
     tools:context=".VideoPlayerActivity" >
 
     <fragment
-        android:id="@+id/fragment1"
+        android:id="@+id/fragment_control"
         android:name="com.kskkbys.loop.fragments.PlayerControlFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

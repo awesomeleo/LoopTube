@@ -262,7 +262,9 @@ public class VideoPlayerActivity extends BaseActivity {
 		
 		// For fragments
 		mControlFragment.updateVideoInfo();
-		mListFragment.updateVideoInfo();
+		if (mListFragment != null) {
+			mListFragment.updateVideoInfo();
+		}
 	}
 
 	private void handleStartLoadVideo() {
