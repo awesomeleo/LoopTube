@@ -34,6 +34,14 @@ public class Playlist {
 	}
 	
 	/**
+	 * Get video list
+	 * @return
+	 */
+	public List<Video> getVideos() {
+		return mVideoList;
+	}
+	
+	/**
 	 * Get the current playing video
 	 * @return
 	 */

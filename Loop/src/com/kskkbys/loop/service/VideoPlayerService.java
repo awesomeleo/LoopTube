@@ -104,9 +104,9 @@ public class VideoPlayerService extends Service {
 				KLog.e(TAG, "extra = " + extra);
 				Intent intent = new Intent();
 				intent.setAction(PlayerEvent.Error.getAction());
+				intent.setPackage(getPackageName());
 				sendBroadcast(intent);
-				//return false;	// go to OnComptionListener
-				return true;	// dont go to OnCompletion
+				return true;
 			}
 		});
 		mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
@@ -124,6 +124,7 @@ public class VideoPlayerService extends Service {
 				}
 				// Notify listeners
 				Intent intent = new Intent(PlayerEvent.Complete.getAction());
+				intent.setPackage(getPackageName());
 				sendBroadcast(intent);
 			}
 		});
@@ -136,6 +137,7 @@ public class VideoPlayerService extends Service {
 				play();
 				// Notify
 				Intent intent = new Intent(PlayerEvent.Prepared.getAction());
+				intent.setPackage(getPackageName());
 				sendBroadcast(intent);
 			}
 		});
@@ -144,6 +146,7 @@ public class VideoPlayerService extends Service {
 			public void onSeekComplete(MediaPlayer mp) {
 				Intent intent = new Intent(PlayerEvent.SeekComplete.getAction());
 				intent.putExtra("msec", mp.getCurrentPosition());
+				intent.setPackage(getPackageName());
 				sendBroadcast(intent);
 			}
 		});
@@ -285,8 +288,7 @@ public class VideoPlayerService extends Service {
 		}
 	}
 
-	public boolean isPlaying() {
-		KLog.v(TAG, "isPlaying");
+	private boolean isPlaying() {
 		return mMediaPlayer.isPlaying();
 	}
 
@@ -307,8 +309,7 @@ public class VideoPlayerService extends Service {
 	 * Get the current position in the playing video
 	 * @return
 	 */
-	public int getCurrentPosition() {
-		//KLog.v(TAG, "getCurrentPosition");	// called in 1sec
+	private int getCurrentPosition() {
 		if (mState == STATE_PLAYING) {
 			return mMediaPlayer.getCurrentPosition();
 		} else {
