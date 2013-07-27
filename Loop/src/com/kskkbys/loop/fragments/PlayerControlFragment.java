@@ -6,6 +6,7 @@ import java.util.TimerTask;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
+import com.kskkbys.loop.ui.VideoPlayerActivity;
 
 /**
  * This class is a fragment of video control.
@@ -62,19 +64,23 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 	private boolean mIsShowingControl;
 	private SurfaceView mSurfaceView;
 
+	private boolean mIsFullScreen;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);
+		
+		mIsFullScreen = false;
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		KLog.v(TAG, "onCreateView");
 		View view = inflater.inflate(R.layout.fragment_player_control, container, false);
 		return view;
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -83,7 +89,7 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 
 		mIsSeeking = false;
 		mIsShowingControl = true;
-		
+
 		// Controller
 		View view = getView();
 		mPrevButton = view.findViewById(R.id.prevButton);
@@ -133,10 +139,14 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			}
 		});
 		mFullScreenButton = view.findViewById(R.id.fullScreenButton);
+		if (mIsFullScreen) {
+			mFullScreenButton.setBackgroundResource(R.drawable.return_from_full_screen);
+		}
 		mFullScreenButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				KLog.v(TAG, "fullScreen");
+				toggleOrientation();
 			}
 		});
 		mDurationView = (TextView)view.findViewById(R.id.durationText);
@@ -204,7 +214,7 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 		}
 		return true;
 	}
-	
+
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
@@ -239,7 +249,24 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			mTouchEventTimer.cancel();
 		}
 	}
-	
+
+	private void toggleOrientation() {
+		VideoPlayerActivity activity = (VideoPlayerActivity)getActivity();
+		if (mIsFullScreen) {
+			// Back to sensor mode
+			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			mIsFullScreen = false;
+			// Show full screen button
+			mFullScreenButton.setBackgroundResource(R.drawable.full_screen);
+		} else {
+			// Fix landscape
+			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			mIsFullScreen = true;
+			// Show return from full screen button
+			mFullScreenButton.setBackgroundResource(R.drawable.return_from_full_screen);
+		}
+	}
+
 	/**
 	 * Switch looping
 	 */
@@ -404,12 +431,12 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			mVolumeButton.setBackgroundResource(R.drawable.volume_plus2);
 		}
 	}
-	
+
 	public void handleSeekComplete(int positionMsec) {
 		mSeekBar.setProgress(positionMsec / 1000);
 		mIsSeeking = false;
 	}
-	
+
 	public void handleUpdate(int positionMsec, boolean isPlaying) {
 		// When seeking, it does not update seek bar
 		if (!mIsSeeking) {
@@ -422,7 +449,7 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 					currentMinitues, currentSeconds, durationMinitues, durationSeconds));
 			mSeekBar.setMax(video.getDuration());
 			mSeekBar.setProgress(positionMsec);
-			
+
 			if (!isPlaying) {
 				mPauseButton.setContentDescription("play");
 				mPauseButton.setBackgroundResource(R.drawable.play);
