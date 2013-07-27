@@ -27,6 +27,7 @@ import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.net.YouTubeSearchTask;
+import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.util.ConnectionState;
@@ -34,8 +35,10 @@ import com.kskkbys.rate.RateThisApp;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.SearchRecentSuggestions;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -164,12 +167,34 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onNewIntent(Intent intent) {
 		KLog.v(TAG, "onNewIntent");
-		// If this activity is launched from notification, go to PlayerActivity
-		boolean isFromNotification = intent.getBooleanExtra(FROM_NOTIFICATION, false);
-		if (isFromNotification) {
-			KLog.v(TAG, "Launched from notification. Go next activity.");
-			goToNextActivity();
-			return;
+		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+			// When receiving SEARCH intent
+			KLog.v(TAG, "Receiving SEARCH intent");
+			String query = intent.getStringExtra(SearchManager.QUERY);
+			SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
+					ArtistSuggestionsProvider.AUTHORITY, ArtistSuggestionsProvider.MODE);
+			suggestions.saveRecentQuery(query, null);
+			
+			// Check connection
+			if (!ConnectionState.isConnected(MainActivity.this)) {
+				KLog.w(TAG, "bad connection");
+				showAlert(R.string.loop_main_error_bad_connection, null);
+			} else {
+				KLog.v(TAG, "connection ok");
+				// Search query
+				Map<String, String> param = new HashMap<String, String>();
+				param.put("query", query);
+				FlurryLogger.logEvent(FlurryLogger.SEARCH_ARTIST, param);
+				searchQuery(query);
+			}
+		} else {
+			// If this activity is launched from notification, go to PlayerActivity
+			boolean isFromNotification = intent.getBooleanExtra(FROM_NOTIFICATION, false);
+			if (isFromNotification) {
+				KLog.v(TAG, "Launched from notification. Go next activity.");
+				goToNextActivity();
+				return;
+			}
 		}
 	}
 
@@ -243,9 +268,14 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void clearHistory() {
+		// App's search history
 		mRecentArtists.clear();
 		saveSearchHistory();
 		mAdapter.notifyDataSetChanged();
+		// OS's search history
+		SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
+				ArtistSuggestionsProvider.AUTHORITY, ArtistSuggestionsProvider.MODE);
+		suggestions.clearHistory();
 	}
 
 	private void clearHistory(int position) {
@@ -347,30 +377,10 @@ public class MainActivity extends BaseActivity {
 		// Set action view
 		mSearchItem = menu.findItem(R.id.menu_search);
 		final SearchView sv = (SearchView) mSearchItem.getActionView();
-		sv.setQueryHint(getText(R.string.loop_main_search_hint));
-		sv.setOnQueryTextListener(new OnQueryTextListener() {
-			@Override
-			public boolean onQueryTextSubmit(String query) {
-				// Check connection
-				if (!ConnectionState.isConnected(MainActivity.this)) {
-					KLog.w(TAG, "bad connection");
-					showAlert(R.string.loop_main_error_bad_connection, null);
-				} else {
-					KLog.v(TAG, "connection ok");
-					// Search query
-					Map<String, String> param = new HashMap<String, String>();
-					param.put("query", query);
-					FlurryLogger.logEvent(FlurryLogger.SEARCH_ARTIST, param);
-					searchQuery(query);
-				}
-				return true;
-			}
-			@Override
-			public boolean onQueryTextChange(String newText) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-		});
+		// Get the SearchView and set the searchable configuration
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		// Assumes current activity is the searchable activity
+		sv.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
 		return true;
 	}

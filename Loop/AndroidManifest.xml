@@ -18,32 +18,40 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/loop_app_name"
         android:theme="@style/AppTheme" >
-        
         <activity
             android:name="com.kskkbys.loop.ui.SplashActivity"
-            android:label="@string/loop_app_name" 
             android:configChanges="screenSize|orientation"
-            android:theme="@style/Theme.Sherlock.NoActionBar">
+            android:label="@string/loop_app_name"
+            android:theme="@style/Theme.Sherlock.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
         <activity
             android:name="com.kskkbys.loop.ui.MainActivity"
-            android:label="@string/loop_app_name"
             android:configChanges="screenSize|orientation"
+            android:label="@string/loop_app_name"
             android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
-        
         <activity
             android:name="com.kskkbys.loop.ui.VideoPlayerActivity"
-            android:label="@string/loop_app_name">
+            android:label="@string/loop_app_name" >
         </activity>
-        
-        <service android:name="com.kskkbys.loop.service.VideoPlayerService">
+
+        <service android:name="com.kskkbys.loop.service.VideoPlayerService" >
         </service>
+
+        <provider
+            android:name="com.kskkbys.loop.search.ArtistSuggestionsProvider"
+            android:authorities="com.kskkbys.loop.search.ArtistSuggestionsProvider" />
     </application>
 
 </manifest>
