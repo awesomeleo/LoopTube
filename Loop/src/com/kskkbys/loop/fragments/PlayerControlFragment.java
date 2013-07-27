@@ -32,7 +32,6 @@ import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
-import com.kskkbys.loop.ui.VideoPlayerActivity;
 
 /**
  * This class is a fragment of video control.
@@ -81,8 +80,6 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 		
 		// Controller
 		View view = getView();
-		
-		
 		mPrevButton = view.findViewById(R.id.prevButton);
 		mPrevButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -156,38 +153,6 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 				// KLog.v(TAG, "onProgressChanged");
 			}
 		});
-
-		// Update seek position with handler
-		mSeekBarTimer = new Timer();
-		/*
-		mSeekBarTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				mHandler.post(new Runnable() {
-					@Override
-					public void run() {
-						//KLog.v(TAG, "SeekBar update");
-						if (Playlist.getInstance().getCurrentVideo() == null) {
-							// finished to play
-							mSeekBarTimer.cancel();
-						} else {
-							if (mService != null && !mIsSeeking) {
-								TextView durationView = (TextView)view.findViewById(R.id.durationText);
-								int currentMinitues = (mService.getCurrentPosition() / 1000) / 60;
-								int currentSeconds = (mService.getCurrentPosition() / 1000) % 60;
-								int durationMinitues = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) / 60;
-								int durationSeconds = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) % 60;
-								durationView.setText(String.format("%d:%02d / %d:%02d", 
-										currentMinitues, currentSeconds, durationMinitues, durationSeconds));
-
-								mSeekBar.setProgress(mService.getCurrentPosition());
-							}
-						}
-					}
-				});
-			}
-		}, 0, 500);
-		*/
 
 		mLastTouchDate = new Date();
 		mTouchEventTimer = new Timer();
@@ -404,6 +369,9 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 		view.setLayoutParams(layout);
 	}
 
+	/**
+	 * Invoked when video is prepared or invalid video.
+	 */
 	public void updateVideoInfo() {
 		// For current video
 		Video video = Playlist.getInstance().getCurrentVideo();
@@ -416,13 +384,6 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			mDurationView.setText("0:00 / 0:00");
 			mSeekBar.setMax(100);
 		}
-
-		/*
-		if (mService.isPlaying()) {
-			mPauseButton.setBackgroundResource(R.drawable.pause);
-		} else {
-			mPauseButton.setBackgroundResource(R.drawable.play);
-		}*/
 
 		if (LoopManager.getInstance().isLooping()) {
 			mLoopButton.setBackgroundResource(R.drawable.synchronize_on);
@@ -440,5 +401,19 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 	public void handleSeekComplete(int positionMsec) {
 		mSeekBar.setProgress(positionMsec / 1000);
 		mIsSeeking = false;
+	}
+	
+	public void handleUpdate(int positionMsec) {
+		// When seeking, it does not update seek bar
+		if (!mIsSeeking) {
+			TextView durationView = (TextView)getView().findViewById(R.id.durationText);
+			int currentMinitues = (positionMsec / 1000) / 60;
+			int currentSeconds = (positionMsec / 1000) % 60;
+			int durationMinitues = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) / 60;
+			int durationSeconds = (Playlist.getInstance().getCurrentVideo().getDuration() / 1000) % 60;
+			durationView.setText(String.format("%d:%02d / %d:%02d", 
+					currentMinitues, currentSeconds, durationMinitues, durationSeconds));
+			mSeekBar.setProgress(positionMsec);
+		}
 	}
 }

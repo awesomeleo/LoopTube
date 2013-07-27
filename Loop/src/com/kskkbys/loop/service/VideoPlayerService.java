@@ -10,6 +10,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
@@ -70,6 +71,8 @@ public class VideoPlayerService extends Service {
 
 	// Timer task to notify current time to activity/widget.
 	private Timer mTimer;
+	// msec
+	private static final int NOTIFY_INTERVAL = 500;
 
 	// for Flurry
 	private boolean mIsPlaying;
@@ -83,8 +86,6 @@ public class VideoPlayerService extends Service {
 		// state of MediaPlayer
 		mState = STATE_INIT;
 		mIsLooping = false;
-
-		mTimer = null;
 
 		// for flurry
 		mIsPlaying = false;
@@ -141,10 +142,24 @@ public class VideoPlayerService extends Service {
 			public void onSeekComplete(MediaPlayer mp) {
 				Intent intent = new Intent(PlayerEvent.SeekComplete.getAction());
 				intent.putExtra("msec", mp.getCurrentPosition());
+				intent.putExtra("is_playing", mp.isPlaying());
 				intent.setPackage(getPackageName());
 				sendBroadcast(intent);
 			}
 		});
+		
+		// Start scheduled task to notify current position to activity/widget.
+		mTimer = new Timer();
+		mTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				Intent intent = new Intent(PlayerEvent.Update.getAction());
+				intent.putExtra("msec", mMediaPlayer.getCurrentPosition());
+				intent.putExtra("is_playing", mMediaPlayer.isPlaying());
+				intent.setPackage(getPackageName());
+				sendBroadcast(intent);
+			}
+		}, 0, NOTIFY_INTERVAL);
 	}
 
 	@Override
@@ -205,6 +220,9 @@ public class VideoPlayerService extends Service {
 		// Cancel the persistent notification.
 		com.kskkbys.loop.notification.NotificationManager.cancel(this);
 
+		// Stop timer task
+		mTimer.cancel();
+		
 		// Stop mediaplayer
 		if (mMediaPlayer != null) {
 			mMediaPlayer.release();

@@ -56,11 +56,13 @@ public class VideoPlayerActivity extends BaseActivity {
 			} else if (action.equals(PlayerEvent.StartToLoad.getAction())) {
 				handleStartLoadVideo();
 			} else if (action.equals(PlayerEvent.SeekComplete.getAction())) {
-				handleSeekComplete(intent.getExtras().getInt("msec"));
+				int msec = intent.getExtras().getInt("msec");
+				handleSeekComplete(msec);
 			} else if (action.equals(PlayerEvent.Prepared.getAction())) {
 				handlePrepared();
 			} else if (action.equals(PlayerEvent.Update.getAction())) {
-				handleUpdate();
+				int msec = intent.getExtras().getInt("msec");
+				handleUpdate(msec);
 			}
 		}
 	};
@@ -230,14 +232,10 @@ public class VideoPlayerActivity extends BaseActivity {
 		dismissProgress();
 	}
 
-	private void handleInvalidVideo() {
-		this.showInvalidVideoError();
-	}
-
 	/**
 	 * Show error when the video does not have valid url
 	 */
-	private void showInvalidVideoError() {
+	private void handleInvalidVideo() {
 		// Update UI (video title)
 		updateVideoInfo();
 		// Show error dialog
@@ -274,7 +272,7 @@ public class VideoPlayerActivity extends BaseActivity {
 		dismissProgress();
 	}
 	
-	private void handleUpdate() {
-		
+	private void handleUpdate(int msec) {
+		mControlFragment.handleUpdate(msec);
 	}
 }
