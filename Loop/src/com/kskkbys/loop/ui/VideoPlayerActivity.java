@@ -80,6 +80,11 @@ public class VideoPlayerActivity extends BaseActivity {
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			getSupportActionBar().hide();
+		} else {
+			Video currentVideo = Playlist.getInstance().getCurrentVideo();
+			if (currentVideo != null) {
+				getSupportActionBar().setTitle(currentVideo.getTitle());
+			}
 		}
 		
 		// Content view and fragments
