@@ -70,6 +70,7 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 		return view;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		KLog.v(TAG, "onActivityCreated");
@@ -80,6 +81,8 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 		
 		// Controller
 		View view = getView();
+		
+		
 		mPrevButton = view.findViewById(R.id.prevButton);
 		mPrevButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -212,6 +215,7 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		}
 		holder.addCallback(this);
+		mSurfaceView.setOnTouchListener(this);
 	}
 
 	@Override
@@ -220,10 +224,7 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 		if (event.getAction() == MotionEvent.ACTION_UP) {
 			KLog.v(TAG, "onTouchEvent(up)");
 			mLastTouchDate = new Date();
-			if (mIsShowingControl) {
-				// mIsShowingControl = false;
-				// updateControlVisibility();
-			} else {
+			if (!mIsShowingControl) {
 				mIsShowingControl = true;
 				updateControlVisibility();
 			}
