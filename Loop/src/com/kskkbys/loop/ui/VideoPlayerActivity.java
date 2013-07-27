@@ -1,63 +1,33 @@
 package com.kskkbys.loop.ui;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.kskkbys.loop.R;
-import com.kskkbys.loop.audio.MuteManager;
 import com.kskkbys.loop.fragments.PlayerControlFragment;
 import com.kskkbys.loop.fragments.PlayerListFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
-import com.kskkbys.loop.model.LoopManager;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.service.PlayerCommand;
-import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.media.AudioManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -72,19 +42,15 @@ public class VideoPlayerActivity extends BaseActivity {
 	private PlayerListFragment mListFragment;
 	private PlayerControlFragment mControlFragment;
 	
-	// Services
-	private VideoPlayerService mService;
-	private boolean mIsBound = false;
-	
 	// Receiver instance to handle action intent from service.
 	private BroadcastReceiver mPlayerReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			if (action.equals(PlayerEvent.Error.getAction())) {
-				
-			} else if (action.equals(PlayerEvent.InvalidVideoError.getAction())) {
-				handleInvalidVideoError();
+				KLog.e(TAG, "PlayerEvent.Error occurs!");
+			} else if (action.equals(PlayerEvent.InvalidVideo.getAction())) {
+				handleInvalidVideo();
 			} else if (action.equals(PlayerEvent.Complete.getAction())) {
 				handleCompletion();
 			} else if (action.equals(PlayerEvent.EndToLoad.getAction())) {
@@ -95,33 +61,12 @@ public class VideoPlayerActivity extends BaseActivity {
 				handleSeekComplete(intent.getExtras().getInt("msec"));
 			} else if (action.equals(PlayerEvent.Prepared.getAction())) {
 				handlePrepared();
+			} else if (action.equals(PlayerEvent.Update.getAction())) {
+				handleUpdate();
 			}
 		}
 	};
 
-	private ServiceConnection mConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			KLog.v(TAG, "service connected");
-			mService = ((VideoPlayerService.VideoPlayerServiceBinder)service).getService();
-			// Toast.makeText(VideoPlayerActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
-
-			// If the MediaPlayer is INIT_STATE(= loading video), show progress
-			if (mService.getState() == VideoPlayerService.STATE_INIT) {
-				showProgress(R.string.loop_video_player_dialog_loading);
-			}
-
-			//
-			updateVideoInfo();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mService = null;
-			KLog.v(TAG, "Service disconnected");
-			//Toast.makeText(VideoPlayerActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
-		}
-	};
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -139,16 +84,9 @@ public class VideoPlayerActivity extends BaseActivity {
 		
 		// Content view and fragments
 		setContentView(R.layout.activity_player);
-		mControlFragment = new PlayerControlFragment();
-		mListFragment = new PlayerListFragment();
-		
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		FragmentTransaction transaction = fragmentManager.beginTransaction();
-		
-		// Connect surfaceview to mediaplayer
-		if (!mIsBound) {
-			doBindService();
-		}
+		FragmentManager fm = getSupportFragmentManager();
+		mControlFragment = (PlayerControlFragment)fm.findFragmentById(R.id.fragment_control);
+		mListFragment = (PlayerListFragment)fm.findFragmentById(R.id.fragment_list);
 		
 		// Register broadcast
 		IntentFilter filter = new IntentFilter();
@@ -163,8 +101,6 @@ public class VideoPlayerActivity extends BaseActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 		KLog.v(TAG, "onDestroy");
-		//
-		doUnbindService();
 		// unregister
 		unregisterReceiver(mPlayerReceiver);
 	}
@@ -277,26 +213,6 @@ public class VideoPlayerActivity extends BaseActivity {
 		}
 	}
 
-	private void doBindService() {
-		// Establish a connection with the service.  We use an explicit
-		// class name because we want a specific service implementation that
-		// we know will be running in our own process (and thus won't be
-		// supporting component replacement by other applications).
-		bindService(new Intent(VideoPlayerActivity.this, VideoPlayerService.class), mConnection, Context.BIND_AUTO_CREATE);
-		mIsBound = true;
-	}
-
-	/**
-	 * Unbind player service with this activity
-	 */
-	private void doUnbindService() {
-		if (mIsBound) {
-			// Detach our existing connection.
-			unbindService(mConnection);
-			mIsBound = false;
-		}
-	}
-
 	private void handlePrepared() {
 		KLog.v(TAG, "onPrepared");
 		updateVideoInfo();
@@ -317,7 +233,7 @@ public class VideoPlayerActivity extends BaseActivity {
 		dismissProgress();
 	}
 
-	private void handleInvalidVideoError() {
+	private void handleInvalidVideo() {
 		this.showInvalidVideoError();
 	}
 
@@ -340,11 +256,6 @@ public class VideoPlayerActivity extends BaseActivity {
 	}
 
 	private void updateVideoInfo() {
-		if (mService == null) {
-			KLog.e(TAG, "Not connected with Service!");
-			return;
-		}
-		
 		// Update action bar (video title)
 		Video video = Playlist.getInstance().getCurrentVideo();
 		if (video != null) {
@@ -364,5 +275,9 @@ public class VideoPlayerActivity extends BaseActivity {
 
 	private void handleEndLoadVideo() {
 		dismissProgress();
+	}
+	
+	private void handleUpdate() {
+		
 	}
 }

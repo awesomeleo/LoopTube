@@ -523,7 +523,7 @@ public class VideoPlayerService extends Service {
 			sendBroadcast(endIntent);
 
 			if (!success) {
-				Intent invalidIntent = new Intent(PlayerEvent.InvalidVideoError.getAction());
+				Intent invalidIntent = new Intent(PlayerEvent.InvalidVideo.getAction());
 				sendBroadcast(invalidIntent);
 			}
 		}
@@ -536,13 +536,38 @@ public class VideoPlayerService extends Service {
 	 *
 	 */
 	public enum PlayerEvent {
+		/**
+		 * Unhandled error
+		 */
 		Error,
-		InvalidVideoError,
+		/**
+		 * Found a video which can not be played on Android
+		 */
+		InvalidVideo,
+		/**
+		 * Completed to play
+		 */
 		Complete,
+		/**
+		 * Prepared video
+		 */
 		Prepared,
+		/**
+		 * Completed to seek
+		 */
 		SeekComplete,
+		/**
+		 * Start to load video
+		 */
 		StartToLoad,
-		EndToLoad;
+		/**
+		 * End to load video
+		 */
+		EndToLoad,
+		/**
+		 * General update of player state
+		 */
+		Update;
 
 		/**
 		 * Get action for intent.

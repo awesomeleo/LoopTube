@@ -37,19 +37,13 @@ public class PlayerListFragment extends SherlockFragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		if (container == null) {
-			return null;
-		}
-		View view = inflater.inflate(R.layout.fragment_player_control, container, false);
+		View view = inflater.inflate(R.layout.fragment_player_list, container, false);
 		return view;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		// Set adapter
-		mAdapter = new VideoAdapter(getActivity());
-		mPlayListView.setAdapter(mAdapter);
 
 		// PlayListView
 		mPlayListView = (ListView)getView().findViewById(R.id.playListView);
@@ -78,6 +72,10 @@ public class PlayerListFragment extends SherlockFragment {
 				return true;
 			}
 		});
+
+		// Set adapter
+		mAdapter = new VideoAdapter(getActivity());
+		mPlayListView.setAdapter(mAdapter);
 	}
 
 	/**
