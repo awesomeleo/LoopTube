@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.kskkbys.loop.logger.KLog;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -45,10 +47,28 @@ public class ArtistStorage {
 	}
 
 	/**
-	 * Add entry (artist and its thumbnails)
+	 * Add entry (artist and its thumbnails).<br>
+	 * Notice that this method may take a few seconds.
+	 * If you don't need wait to complete, please set async flag true.
 	 * @param entry
 	 */
-	public void insertOrUpdate(Entry entry) {
+	public void insertOrUpdate(final Entry entry, final boolean isAsync) {
+		KLog.v(TAG, "start insertOrUpdate");
+		if (isAsync) {
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					insertOpUpdateInner(entry);
+				}
+			}).start();
+		} else {
+			insertOpUpdateInner(entry);
+		}
+		KLog.v(TAG, "end insertOrUpdate");
+	}
+	
+	private void insertOpUpdateInner(Entry entry) {
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 
 		db.beginTransaction();

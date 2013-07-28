@@ -347,7 +347,7 @@ public class MainActivity extends BaseActivity {
 			entry.date = new Date();
 			mRecentArtists.add(entry);
 		}
-		mStorage.insertOrUpdate(entry);
+		// mStorage.insertOrUpdate(entry);
 
 		YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
 		searchTask.execute(artist);
@@ -409,7 +409,7 @@ public class MainActivity extends BaseActivity {
 		// Store to SQLite
 		if (updatedEntry != null) {
 			ArtistStorage storage = new ArtistStorage(this);
-			storage.insertOrUpdate(updatedEntry);
+			storage.insertOrUpdate(updatedEntry, true);
 		}
 	}
 
