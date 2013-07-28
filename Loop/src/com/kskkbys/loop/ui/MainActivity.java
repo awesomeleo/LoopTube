@@ -1,8 +1,10 @@
 package com.kskkbys.loop.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.storage.ArtistStorage;
+import com.kskkbys.loop.ui.widget.HorizontalAutoScrollView;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -50,6 +53,7 @@ import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -66,10 +70,12 @@ public class MainActivity extends BaseActivity {
 
 	public static final String FROM_NOTIFICATION = "from_notification";
 
+	// ListView
 	private List<ArtistStorage.Entry> mRecentArtists;
 	private ArtistAdapter mAdapter;
 	private ListView mListView;
 
+	// Menu
 	private MenuItem mSearchItem;
 
 	private ArtistStorage mStorage;
@@ -188,7 +194,7 @@ public class MainActivity extends BaseActivity {
 				return true;
 			}
 		});
-
+		
 		mStorage = new ArtistStorage(this);
 
 		// Read recent artist saved in the device
@@ -256,6 +262,11 @@ public class MainActivity extends BaseActivity {
 		updateHistoryUI();
 		// update notification
 		updatePlayingNotification();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -542,7 +553,7 @@ public class MainActivity extends BaseActivity {
 
 			// Set click / long click events
 			setUpImageView((ListView)parent, view.findViewById(R.id.search_history_overlay), position);
-
+			
 			// Set background images
 			LinearLayout container = (LinearLayout)view.findViewById(R.id.search_history_image_container);
 			if (prevArtist == null || !prevArtist.equals(artist.name) || container.getChildCount() == 0) {
