@@ -40,7 +40,7 @@ public class HorizontalAutoScrollView extends HorizontalScrollView {
 		scrollTo(0, 0);
 		mTimer = new CountDownTimer(SCROLL_INTERVAL, 20) {
 			public void onTick(long millisUntilFinished) {
-				KLog.v(TAG, "onTick");
+				// KLog.v(TAG, "onTick");
 				long x = getRight() * (SCROLL_INTERVAL - millisUntilFinished) / SCROLL_INTERVAL;
 				scrollTo((int)x, 0);
 			}

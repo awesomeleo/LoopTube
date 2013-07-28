@@ -19,6 +19,9 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -352,19 +355,64 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 	private void updateControlVisibility() {
 		// Dismiss UI controls when touch event has not been invoked
 		if (!mIsShowingControl) {
-			mVolumeButton.setVisibility(View.INVISIBLE);
-			mLoopButton.setVisibility(View.INVISIBLE);
-			mSeekBar.setVisibility(View.INVISIBLE);
-			mDurationView.setVisibility(View.INVISIBLE);
-			mPauseButton.setVisibility(View.INVISIBLE);
-			mPrevButton.setVisibility(View.INVISIBLE);
-			mNextButton.setVisibility(View.INVISIBLE);
-			mFullScreenButton.setVisibility(View.INVISIBLE);
+			
+			// DOWN animation
+			Animation downAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_to_bottom);
+			downAnimation.setAnimationListener(new AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+				}
+				
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+				}
+				
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					mVolumeButton.setVisibility(View.INVISIBLE);
+					mPauseButton.setVisibility(View.INVISIBLE);
+					mPrevButton.setVisibility(View.INVISIBLE);
+					mNextButton.setVisibility(View.INVISIBLE);
+					mFullScreenButton.setVisibility(View.INVISIBLE);
+				}
+			});
+			mVolumeButton.startAnimation(downAnimation);
+			mPauseButton.startAnimation(downAnimation);
+			mPrevButton.startAnimation(downAnimation);
+			mNextButton.startAnimation(downAnimation);
+			mFullScreenButton.startAnimation(downAnimation);
+			
+			
+			// UP Animation
+			Animation upAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_to_top);
+			upAnimation.setAnimationListener(new AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+				}
+				
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+				}
+				
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					mLoopButton.setVisibility(View.INVISIBLE);
+					mSeekBar.setVisibility(View.INVISIBLE);
+					mDurationView.setVisibility(View.INVISIBLE);
+				}
+			});
+			mLoopButton.startAnimation(upAnimation);
+			mSeekBar.startAnimation(upAnimation);
+			mDurationView.startAnimation(upAnimation);
+			
 		} else {
-			mVolumeButton.setVisibility(View.VISIBLE);
+			// upper
 			mLoopButton.setVisibility(View.VISIBLE);
 			mSeekBar.setVisibility(View.VISIBLE);
 			mDurationView.setVisibility(View.VISIBLE);
+			
+			// lower
+			mVolumeButton.setVisibility(View.VISIBLE);
 			mPauseButton.setVisibility(View.VISIBLE);
 			mPrevButton.setVisibility(View.VISIBLE);
 			mNextButton.setVisibility(View.VISIBLE);
