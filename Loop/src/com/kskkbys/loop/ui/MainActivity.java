@@ -1,15 +1,5 @@
 package com.kskkbys.loop.ui;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,7 +11,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
-import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.kskkbys.loop.BuildConfig;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.FlurryLogger;
@@ -36,11 +25,10 @@ import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.storage.ArtistStorage;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.provider.SearchRecentSuggestions;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -52,24 +40,20 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
@@ -158,6 +142,51 @@ public class MainActivity extends BaseActivity {
 		mRecentArtists = new ArrayList<ArtistStorage.Entry>();
 		mAdapter = new ArtistAdapter(this, mRecentArtists);
 		mListView.setAdapter(mAdapter);
+		mListView.setRecyclerListener(new RecyclerListener() {
+			@Override
+			public void onMovedToScrapHeap(View view) {
+				//
+				KLog.v(TAG, "onMoveToScrapHeap");
+			}
+		});
+		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// Check connection
+				if (!ConnectionState.isConnected(MainActivity.this)) {
+					KLog.w(TAG, "bad connection");
+					// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
+					showAlert(R.string.loop_main_error_bad_connection, null);
+					return;
+				} else {
+					ListView listView = (ListView) parent;
+					ArtistStorage.Entry artist = (ArtistStorage.Entry) listView.getItemAtPosition(position);
+					String currentArtist = Playlist.getInstance().getQuery();
+					if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artist.name)) {
+						KLog.v(TAG, "Already playing. Go player without seraching.");
+						goToNextActivity();
+					} else {
+						searchQuery(artist.name);
+					}
+				}
+			}
+		});
+		mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View view,
+					int position, long id) {
+				// Show contextual action bar
+				if (mActionMode != null) {
+					return false;
+				}
+				mLongSelectedPosition = position;
+				mLongSelectedItem = view;
+				mActionMode = startActionMode(mActionModeCallback);
+				view.setSelected(true);
+				return true;
+			}
+		});
 
 		mStorage = new ArtistStorage(this);
 
@@ -175,7 +204,6 @@ public class MainActivity extends BaseActivity {
 
 		// If a video is playing, show notification at bottom
 		updatePlayingNotification();
-
 
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
@@ -236,158 +264,6 @@ public class MainActivity extends BaseActivity {
 		RateThisApp.showRateDialogIfNeeded(this);
 	}
 
-	private void searchQuery(String artist) {
-		// validation
-		if (TextUtils.isEmpty(artist)) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.loop_main_invalid_query)
-			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-
-				}
-			})
-			.setCancelable(false)
-			.create().show();
-			return;
-		}
-		// Add history
-		ArtistStorage.Entry entry = findHistory(artist);
-		if (entry != null) {
-			mRecentArtists.remove(entry);
-			entry.date = new Date();
-			mRecentArtists.add(0, entry);
-		} else {
-			entry = new ArtistStorage.Entry();
-			entry.name = artist;
-			entry.imageUrl = null;	// Before search video list, image URL is null.
-			entry.date = new Date();
-			mRecentArtists.add(entry);
-		}
-		mStorage.insertOrUpdate(entry);
-
-		YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
-		searchTask.execute(artist);
-	}
-
-	private ArtistStorage.Entry findHistory(String artist) {
-		for (ArtistStorage.Entry e: mRecentArtists) {
-			if (e.name.equals(artist)) {
-				return e;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Read search history from saved file
-	 */
-	private void readHistory() {
-		mRecentArtists.clear();
-
-		List<ArtistStorage.Entry> entries = mStorage.restore();
-		mRecentArtists.addAll(entries);
-
-		mAdapter.notifyDataSetChanged();
-	}
-
-	private void clearHistory() {
-		// App's search history
-		mStorage.clear();
-		mRecentArtists.clear();
-		mAdapter.notifyDataSetChanged();
-		// OS's search history
-		SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
-				ArtistSuggestionsProvider.AUTHORITY, ArtistSuggestionsProvider.MODE);
-		suggestions.clearHistory();
-	}
-
-	private void clearHistory(int position) {
-		ArtistStorage.Entry e = mRecentArtists.remove(position);
-		mStorage.delete(e);
-		mAdapter.notifyDataSetChanged();
-	}
-
-	private void updatePlayingNotification() {
-		if (Playlist.getInstance().getCurrentVideo() != null) {
-			RelativeLayout base = (RelativeLayout)findViewById(R.id.main_base);
-			View notification = base.findViewById(R.id.notification_base);
-			if (notification == null) {
-				// Add
-				notification = getLayoutInflater().inflate(R.layout.main_playing_notification, null);
-				RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				notification.setLayoutParams(params);
-				notification.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						goToNextActivity();
-					}
-				});
-				base.addView(notification);
-			}
-			// Update
-			TextView title = (TextView)notification.findViewById(R.id.notification_title);
-			title.setText(Playlist.getInstance().getCurrentVideo().getTitle());
-		}
-	}
-
-	/**
-	 * Update history view
-	 */
-	private void updateHistoryUI() {
-		if (mRecentArtists != null && mRecentArtists.size() > 0) {
-			// Has history
-			mListView.setVisibility(View.VISIBLE);
-
-			mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
-					// Check connection
-					if (!ConnectionState.isConnected(MainActivity.this)) {
-						KLog.w(TAG, "bad connection");
-						// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
-						showAlert(R.string.loop_main_error_bad_connection, null);
-						return;
-					} else {
-						ListView listView = (ListView) parent;
-						ArtistStorage.Entry artist = (ArtistStorage.Entry) listView.getItemAtPosition(position);
-						String currentArtist = Playlist.getInstance().getQuery();
-						if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artist.name)) {
-							KLog.v(TAG, "Already playing. Go player without seraching.");
-							goToNextActivity();
-						} else {
-							searchQuery(artist.name);
-						}
-					}
-				}
-			});
-
-			mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
-				@Override
-				public boolean onItemLongClick(AdapterView<?> arg0, View view,
-						int position, long id) {
-					// Show contextual action bar
-					if (mActionMode != null) {
-						return false;
-					}
-					mLongSelectedPosition = position;
-					mLongSelectedItem = view;
-					mActionMode = startActionMode(mActionModeCallback);
-					view.setSelected(true);
-					return true;
-				}
-			});
-		} else {
-			// no histroy
-			// TODO findViewById(R.id.noHistoryLabel).setVisibility(View.VISIBLE);
-			findViewById(R.id.main_search_history).setVisibility(View.INVISIBLE);
-		}
-		mAdapter.notifyDataSetChanged();
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -439,6 +315,130 @@ public class MainActivity extends BaseActivity {
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void searchQuery(String artist) {
+		// validation
+		if (TextUtils.isEmpty(artist)) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(R.string.loop_main_invalid_query)
+			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+
+				}
+			})
+			.setCancelable(false)
+			.create().show();
+			return;
+		}
+		// Add history
+		ArtistStorage.Entry entry = findHistory(artist);
+		if (entry != null) {
+			mRecentArtists.remove(entry);
+			entry.date = new Date();
+			mRecentArtists.add(0, entry);
+		} else {
+			entry = new ArtistStorage.Entry();
+			entry.name = artist;
+			entry.imageUrls = new ArrayList<String>();	// Before search video list, image URL is null.
+			entry.date = new Date();
+			mRecentArtists.add(entry);
+		}
+		mStorage.insertOrUpdate(entry);
+
+		YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
+		searchTask.execute(artist);
+	}
+
+	private ArtistStorage.Entry findHistory(String artist) {
+		for (ArtistStorage.Entry e: mRecentArtists) {
+			if (e.name.equals(artist)) {
+				return e;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Read search history from saved file
+	 */
+	private void readHistory() {
+		mRecentArtists.clear();
+
+		List<ArtistStorage.Entry> entries = mStorage.restore();
+		mRecentArtists.addAll(entries);
+
+		mAdapter.notifyDataSetChanged();
+	}
+
+	private void clearHistory() {
+		// App's search history
+		mStorage.clear();
+		mRecentArtists.clear();
+		mAdapter.notifyDataSetChanged();
+		// OS's search history
+		SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
+				ArtistSuggestionsProvider.AUTHORITY, ArtistSuggestionsProvider.MODE);
+		suggestions.clearHistory();
+	}
+
+	private void clearHistory(int position) {
+		ArtistStorage.Entry e = mRecentArtists.remove(position);
+		mStorage.delete(e);
+		mAdapter.notifyDataSetChanged();
+	}
+	
+	public void updateHistory(String query, List<Video> videos) {
+		ArtistStorage storage = new ArtistStorage(this);
+		ArtistStorage.Entry e = new ArtistStorage.Entry();
+		e.name = query;
+		e.date = new Date();
+		e.imageUrls = new ArrayList<String>();
+		for (Video v: videos) {
+			if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
+				e.imageUrls.add(v.getThumbnailUrl());
+			}
+		}
+		storage.insertOrUpdate(e);
+	}
+
+	private void updatePlayingNotification() {
+		if (Playlist.getInstance().getCurrentVideo() != null) {
+			RelativeLayout base = (RelativeLayout)findViewById(R.id.main_base);
+			View notification = base.findViewById(R.id.notification_base);
+			if (notification == null) {
+				// Add
+				notification = getLayoutInflater().inflate(R.layout.main_playing_notification, null);
+				RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				notification.setLayoutParams(params);
+				notification.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						goToNextActivity();
+					}
+				});
+				base.addView(notification);
+			}
+			// Update
+			TextView title = (TextView)notification.findViewById(R.id.notification_title);
+			title.setText(Playlist.getInstance().getCurrentVideo().getTitle());
+		}
+	}
+
+	/**
+	 * Update history view
+	 */
+	public void updateHistoryUI() {
+		KLog.v(TAG, "updateHistoryUI");
+		if (mRecentArtists != null && mRecentArtists.size() > 0) {
+			mListView.setVisibility(View.VISIBLE);
+		} else {
+			mListView.setVisibility(View.INVISIBLE);
+		}
+		mAdapter.notifyDataSetChanged();
 	}
 
 	private void openGooglePlay() {
@@ -498,7 +498,7 @@ public class MainActivity extends BaseActivity {
 	 * @author Keisuke Kobayashi
 	 *
 	 */
-	private static class ArtistAdapter extends ArrayAdapter<ArtistStorage.Entry> {
+	private class ArtistAdapter extends ArrayAdapter<ArtistStorage.Entry> {
 
 		private Activity mActivity;
 
@@ -530,45 +530,31 @@ public class MainActivity extends BaseActivity {
 			setUpImageView((ListView)parent, view.findViewById(R.id.search_history_overlay), position);
 
 			// Set background images
-			final ImageView imageView = (ImageView)view.findViewById(R.id.search_history_image);
-			if (!TextUtils.isEmpty(artist.imageUrl)) {
-				new AsyncTask<String, Integer, Bitmap>() {
-					@Override
-					protected Bitmap doInBackground(String... params) {
-						KLog.v(TAG, "Fetching image of " + artist.name + " from " + artist.imageUrl);
-						HttpURLConnection connection = null;
-						Bitmap bmp = null;
-						try {
-							URL url = new URL(artist.imageUrl);
-							connection = (HttpURLConnection)url.openConnection();
-
-							connection.setConnectTimeout(30 * 1000);
-							connection.setReadTimeout(30 * 1000);
-							connection.setUseCaches(true);
-
-							bmp = BitmapFactory.decodeStream(connection.getInputStream());
-						} catch (IOException e) {
-							e.printStackTrace();
-						} finally {
-							if (connection != null) {
-								connection.disconnect();
-							}
-						}
-						return bmp;
-					}
-
-					@Override
-					protected void onPostExecute(Bitmap bmp) {
-						if (bmp != null) {
-							imageView.setBackground(new BitmapDrawable(getContext().getResources(), bmp));
-						}
-					}
-				}.execute();
+			LinearLayout container = (LinearLayout)view.findViewById(R.id.search_history_image_container);
+			if (artist.imageUrls == null) {
+				// Add 10 images
+				KLog.v(TAG, "No images are saved. Show white rects.");
+				for (int i=0; i<10; i++) {
+					ImageView iv = new ImageView(getContext());
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
+					iv.setLayoutParams(params);
+					iv.setBackgroundColor(Color.WHITE);
+					container.addView(iv);
+				}
 			} else {
-				// URL is null
-				imageView.setBackgroundResource(R.color.loop_artist_background_no_image);
+				KLog.v(TAG, "Images are saved.");
+				int size = Math.min(10, artist.imageUrls.size());
+				for (int i=0; i<size; i++) {
+					ImageView iv = new ImageView(getContext());
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
+					iv.setLayoutParams(params);
+					iv.setBackgroundColor(Color.WHITE);
+					container.addView(iv);
+					// Load image from URL
+					ImageLoader imageLoader = ImageLoader.getInstance();
+					imageLoader.displayImage(artist.imageUrls.get(i), iv);
+				}
 			}
-
 			return view;
 		}
 

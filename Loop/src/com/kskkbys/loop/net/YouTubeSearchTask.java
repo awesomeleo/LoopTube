@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -16,7 +15,6 @@ import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.Video;
-import com.kskkbys.loop.storage.ArtistStorage;
 import com.kskkbys.loop.ui.MainActivity;
 
 import android.os.AsyncTask;
@@ -46,7 +44,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 	protected String doInBackground(String... query) {
 
 		mQuery = query[0];
-
+		
 		String uri = null;
 		try {
 			uri = "http://gdata.youtube.com/feeds/api/videos?q="
@@ -72,6 +70,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 				response += line;
 			}
 			br.close();
+			isr.close();
 			// Convert JSON to gson
 			Gson gson = new Gson();
 			this.mResult = gson.fromJson(response, YouTubeSearchResult.class);
@@ -106,17 +105,9 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		}
 		
 		// Save image URL in search history db
-		ArtistStorage storage = new ArtistStorage(mParent);
-		ArtistStorage.Entry e = new ArtistStorage.Entry();
-		e.name = mQuery;
-		e.date = new Date();
-		for (Video v: videos) {
-			if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
-				e.imageUrl = v.getThumbnailUrl();
-				storage.insertOrUpdate(e);
-				break;
-			}
-		}
+		mParent.updateHistory(mQuery, videos);
+		// Update history list view
+		mParent.updateHistoryUI();
 	}
 
 	/**
@@ -141,8 +132,14 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 					if (entry.media$group.media$player != null && entry.media$group.media$player.length > 0) {
 						v.setVideoUrl(entry.media$group.media$player[0].url);
 					}
-					if (entry.media$group.media$thumbnail != null && entry.media$group.media$thumbnail.length > 0) {
-						v.setThumbnailUrl(entry.media$group.media$thumbnail[0].url);
+					if (entry.media$group.media$thumbnail != null) {
+						// Use small thumbnail which MUST have field
+						for (YouTubeSearchResult.Feed.Entry.Media$Group.Media$Thumbnail thumbnail: entry.media$group.media$thumbnail) {
+							if (!TextUtils.isEmpty(thumbnail.time)) {
+								v.setThumbnailUrl(thumbnail.url);
+								break;
+							}
+						}
 					}
 					videoList.add(v);
 					KLog.v(TAG, "Video added: " + v.toString());
