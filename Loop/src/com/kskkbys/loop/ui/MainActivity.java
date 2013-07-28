@@ -388,19 +388,27 @@ public class MainActivity extends BaseActivity {
 		mStorage.delete(e);
 		mAdapter.notifyDataSetChanged();
 	}
-	
+
 	public void updateHistory(String query, List<Video> videos) {
-		ArtistStorage storage = new ArtistStorage(this);
-		ArtistStorage.Entry e = new ArtistStorage.Entry();
-		e.name = query;
-		e.date = new Date();
-		e.imageUrls = new ArrayList<String>();
-		for (Video v: videos) {
-			if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
-				e.imageUrls.add(v.getThumbnailUrl());
+		// Update array list
+		ArtistStorage.Entry updatedEntry = null;
+		for (ArtistStorage.Entry entry: mRecentArtists) {
+			if (entry.name.equals(query)) {
+				entry.imageUrls = new ArrayList<String>();
+				for (Video v: videos) {
+					if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
+						entry.imageUrls.add(v.getThumbnailUrl());
+					}
+				}
+				updatedEntry = entry;
+				break;
 			}
 		}
-		storage.insertOrUpdate(e);
+		// Store to SQLite
+		if (updatedEntry != null) {
+			ArtistStorage storage = new ArtistStorage(this);
+			storage.insertOrUpdate(updatedEntry);
+		}
 	}
 
 	private void updatePlayingNotification() {
@@ -515,9 +523,13 @@ public class MainActivity extends BaseActivity {
 		@Override
 		public View getView(final int position, final View convertView, final ViewGroup parent) {
 			View view = convertView;
+			String prevArtist = null;
 			if (view == null) {
 				LayoutInflater inflater = mActivity.getLayoutInflater();
 				view = inflater.inflate(R.layout.search_history_list_item, parent, false);
+			} else {
+				TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
+				prevArtist = titleView.getText().toString();
 			}
 
 			final ArtistStorage.Entry artist = getItem(position);
@@ -531,28 +543,32 @@ public class MainActivity extends BaseActivity {
 
 			// Set background images
 			LinearLayout container = (LinearLayout)view.findViewById(R.id.search_history_image_container);
-			if (artist.imageUrls == null) {
-				// Add 10 images
-				KLog.v(TAG, "No images are saved. Show white rects.");
-				for (int i=0; i<10; i++) {
-					ImageView iv = new ImageView(getContext());
-					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
-					iv.setLayoutParams(params);
-					iv.setBackgroundColor(Color.WHITE);
-					container.addView(iv);
-				}
-			} else {
-				KLog.v(TAG, "Images are saved.");
-				int size = Math.min(10, artist.imageUrls.size());
-				for (int i=0; i<size; i++) {
-					ImageView iv = new ImageView(getContext());
-					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
-					iv.setLayoutParams(params);
-					iv.setBackgroundColor(Color.WHITE);
-					container.addView(iv);
-					// Load image from URL
-					ImageLoader imageLoader = ImageLoader.getInstance();
-					imageLoader.displayImage(artist.imageUrls.get(i), iv);
+			if (prevArtist == null || !prevArtist.equals(artist.name)) {
+				// Reload images
+				container.removeAllViews();
+				if (artist.imageUrls == null) {
+					// Add 10 images
+					KLog.v(TAG, "No images are saved. Show white rects.");
+					for (int i=0; i<10; i++) {
+						ImageView iv = new ImageView(getContext());
+						LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
+						iv.setLayoutParams(params);
+						iv.setBackgroundColor(Color.WHITE);
+						container.addView(iv);
+					}
+				} else {
+					KLog.v(TAG, "Images are saved.");
+					int size = Math.min(10, artist.imageUrls.size());
+					for (int i=0; i<size; i++) {
+						ImageView iv = new ImageView(getContext());
+						LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
+						iv.setLayoutParams(params);
+						iv.setBackgroundColor(Color.WHITE);
+						container.addView(iv);
+						// Load image from URL
+						ImageLoader imageLoader = ImageLoader.getInstance();
+						imageLoader.displayImage(artist.imageUrls.get(i), iv);
+					}
 				}
 			}
 			return view;
