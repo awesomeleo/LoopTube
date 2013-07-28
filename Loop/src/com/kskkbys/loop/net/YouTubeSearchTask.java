@@ -42,7 +42,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	@Override
 	protected String doInBackground(String... query) {
-
+		KLog.v(TAG, "doInBackground");
 		mQuery = query[0];
 		
 		String uri = null;
@@ -86,6 +86,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	@Override
 	protected void onPreExecute() {
+		KLog.v(TAG, "onPreExecute");
 		if (mParent != null) {
 			mParent.showProgress(R.string.loop_main_dialog_searching);
 		}
@@ -93,6 +94,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 
 	@Override
 	protected void onPostExecute(String result) {
+		KLog.v(TAG, "onPostExecute");
 		// Dismiss dialog and start to play
 		mParent.dismissProgress();
 		List<Video> videos = createVideoList(this.mResult);

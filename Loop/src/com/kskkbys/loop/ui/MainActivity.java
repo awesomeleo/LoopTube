@@ -153,6 +153,7 @@ public class MainActivity extends BaseActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				KLog.v(TAG, "onItemClick");
 				// Check connection
 				if (!ConnectionState.isConnected(MainActivity.this)) {
 					KLog.w(TAG, "bad connection");
@@ -318,6 +319,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void searchQuery(String artist) {
+		KLog.v(TAG, "searchQuery");
 		// validation
 		if (TextUtils.isEmpty(artist)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);

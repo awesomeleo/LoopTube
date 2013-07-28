@@ -233,6 +233,9 @@ public class VideoPlayerService extends Service {
 		if (mMediaPlayer != null) {
 			mMediaPlayer.release();
 		}
+		
+		// Terminate notification
+		NotificationManager.cancel(getApplicationContext());
 
 		// If playing, send playing time to flurry
 		if (mIsPlaying) {
