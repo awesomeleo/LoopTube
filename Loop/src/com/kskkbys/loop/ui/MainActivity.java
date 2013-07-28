@@ -8,7 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +33,14 @@ import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
+import com.kskkbys.loop.storage.ArtistStorage;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
 
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.SearchRecentSuggestions;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,16 +52,24 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
@@ -66,19 +80,20 @@ public class MainActivity extends BaseActivity {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
-	private static final String FILENAME_SEARCH_HISTORY = "search_history.txt";
-
 	public static final String FROM_NOTIFICATION = "from_notification";
 
-	private List<String> mRecentArtists;
+	private List<ArtistStorage.Entry> mRecentArtists;
 	private ArtistAdapter mAdapter;
 	private ListView mListView;
 
 	private MenuItem mSearchItem;
 
+	private ArtistStorage mStorage;
+
 	// Contextual Action Bar
 	private ActionMode mActionMode;
 	private int mLongSelectedPosition;
+	private View mLongSelectedItem;
 	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
 		@Override
@@ -89,6 +104,10 @@ public class MainActivity extends BaseActivity {
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
 			mActionMode = null;
+			// Disable selection
+			if (mLongSelectedItem != null) {
+				mLongSelectedItem.setSelected(false);
+			}
 		}
 
 		@Override
@@ -136,9 +155,11 @@ public class MainActivity extends BaseActivity {
 			}
 		});
 		mListView.setEmptyView(emptyView);
-		mRecentArtists = new ArrayList<String>();
+		mRecentArtists = new ArrayList<ArtistStorage.Entry>();
 		mAdapter = new ArtistAdapter(this, mRecentArtists);
 		mListView.setAdapter(mAdapter);
+
+		mStorage = new ArtistStorage(this);
 
 		// Read recent artist saved in the device
 		readHistory();
@@ -150,6 +171,7 @@ public class MainActivity extends BaseActivity {
 		getSupportActionBar().setTitle(R.string.loop_main_title);
 		mActionMode = null;
 		mLongSelectedPosition = -1;
+		mLongSelectedItem = null;
 
 		// If a video is playing, show notification at bottom
 		updatePlayingNotification();
@@ -174,7 +196,7 @@ public class MainActivity extends BaseActivity {
 			SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
 					ArtistSuggestionsProvider.AUTHORITY, ArtistSuggestionsProvider.MODE);
 			suggestions.saveRecentQuery(query, null);
-			
+
 			// Check connection
 			if (!ConnectionState.isConnected(MainActivity.this)) {
 				KLog.w(TAG, "bad connection");
@@ -215,7 +237,8 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void searchQuery(String artist) {
-		if (artist == null || artist.length() == 0) {
+		// validation
+		if (TextUtils.isEmpty(artist)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.loop_main_invalid_query)
 			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
@@ -228,19 +251,32 @@ public class MainActivity extends BaseActivity {
 			.create().show();
 			return;
 		}
-		if (mRecentArtists.contains(artist)) {
-			// already exist => Go to last position
-			mRecentArtists.remove(artist);
-			mRecentArtists.add(artist);
+		// Add history
+		ArtistStorage.Entry entry = findHistory(artist);
+		if (entry != null) {
+			mRecentArtists.remove(entry);
+			entry.date = new Date();
+			mRecentArtists.add(0, entry);
 		} else {
-			// new add
-			mRecentArtists.add(artist);
+			entry = new ArtistStorage.Entry();
+			entry.name = artist;
+			entry.imageUrl = null;	// Before search video list, image URL is null.
+			entry.date = new Date();
+			mRecentArtists.add(entry);
 		}
-
-		saveSearchHistory();
+		mStorage.insertOrUpdate(entry);
 
 		YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
 		searchTask.execute(artist);
+	}
+
+	private ArtistStorage.Entry findHistory(String artist) {
+		for (ArtistStorage.Entry e: mRecentArtists) {
+			if (e.name.equals(artist)) {
+				return e;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -248,29 +284,17 @@ public class MainActivity extends BaseActivity {
 	 */
 	private void readHistory() {
 		mRecentArtists.clear();
-		FileInputStream fis;
-		try {
-			fis = openFileInput(FILENAME_SEARCH_HISTORY);
-			BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-			String line;
-			while ((line = br.readLine()) != null) {
-				mRecentArtists.add(line);
-			}
-			br.close();
-		} catch (FileNotFoundException e) {
-			// Fisrt launching
-			//e.printStackTrace();
-			KLog.w(TAG,"FileNotFound of search history. May be first launch.");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+		List<ArtistStorage.Entry> entries = mStorage.restore();
+		mRecentArtists.addAll(entries);
+
 		mAdapter.notifyDataSetChanged();
 	}
 
 	private void clearHistory() {
 		// App's search history
+		mStorage.clear();
 		mRecentArtists.clear();
-		saveSearchHistory();
 		mAdapter.notifyDataSetChanged();
 		// OS's search history
 		SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
@@ -279,8 +303,8 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void clearHistory(int position) {
-		mRecentArtists.remove(position);
-		saveSearchHistory();
+		ArtistStorage.Entry e = mRecentArtists.remove(position);
+		mStorage.delete(e);
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -316,12 +340,6 @@ public class MainActivity extends BaseActivity {
 		if (mRecentArtists != null && mRecentArtists.size() > 0) {
 			// Has history
 			mListView.setVisibility(View.VISIBLE);
-			//TODO findViewById(R.id.noHistoryLabel).setVisibility(View.INVISIBLE);
-
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-			for (int i = mRecentArtists.size() - 1; i >= 0; i--) {
-				adapter.add(mRecentArtists.get(i));
-			}
 
 			mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 				@Override
@@ -335,13 +353,13 @@ public class MainActivity extends BaseActivity {
 						return;
 					} else {
 						ListView listView = (ListView) parent;
-						String artistName = (String) listView.getItemAtPosition(position);
+						ArtistStorage.Entry artist = (ArtistStorage.Entry) listView.getItemAtPosition(position);
 						String currentArtist = Playlist.getInstance().getQuery();
-						if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artistName)) {
+						if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artist.name)) {
 							KLog.v(TAG, "Already playing. Go player without seraching.");
 							goToNextActivity();
 						} else {
-							searchQuery(artistName);
+							searchQuery(artist.name);
 						}
 					}
 				}
@@ -356,6 +374,7 @@ public class MainActivity extends BaseActivity {
 						return false;
 					}
 					mLongSelectedPosition = position;
+					mLongSelectedItem = view;
 					mActionMode = startActionMode(mActionModeCallback);
 					view.setSelected(true);
 					return true;
@@ -454,24 +473,6 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
-	private void saveSearchHistory() {
-		FileOutputStream fos;
-		try {
-			fos = openFileOutput(FILENAME_SEARCH_HISTORY, Context.MODE_PRIVATE);
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-			for (String artist : mRecentArtists) {
-				bw.write(artist);
-				bw.newLine();
-			}
-			bw.flush();
-			bw.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	/**
 	 * Start video player
 	 * @param result
@@ -497,7 +498,7 @@ public class MainActivity extends BaseActivity {
 	 * @author Keisuke Kobayashi
 	 *
 	 */
-	private static class ArtistAdapter extends ArrayAdapter<String> {
+	private static class ArtistAdapter extends ArrayAdapter<ArtistStorage.Entry> {
 
 		private Activity mActivity;
 
@@ -506,26 +507,95 @@ public class MainActivity extends BaseActivity {
 		 * @param activity
 		 * @param objects
 		 */
-		public ArtistAdapter(Activity activity, List<String> objects) {
+		public ArtistAdapter(Activity activity, List<ArtistStorage.Entry> objects) {
 			super(activity, R.layout.search_history_list_item, R.id.search_history_artist, objects);
 			mActivity = activity;
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, final View convertView, final ViewGroup parent) {
 			View view = convertView;
 			if (view == null) {
 				LayoutInflater inflater = mActivity.getLayoutInflater();
 				view = inflater.inflate(R.layout.search_history_list_item, parent, false);
 			}
 
-			String artist = getItem(position);
+			final ArtistStorage.Entry artist = getItem(position);
 
 			// Set title
 			TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
-			titleView.setText(artist);
+			titleView.setText(artist.name);
+
+			// Set click / long click events
+			setUpImageView((ListView)parent, view.findViewById(R.id.search_history_overlay), position);
+
+			// Set background images
+			final ImageView imageView = (ImageView)view.findViewById(R.id.search_history_image);
+			if (!TextUtils.isEmpty(artist.imageUrl)) {
+				new AsyncTask<String, Integer, Bitmap>() {
+					@Override
+					protected Bitmap doInBackground(String... params) {
+						KLog.v(TAG, "Fetching image of " + artist.name + " from " + artist.imageUrl);
+						HttpURLConnection connection = null;
+						Bitmap bmp = null;
+						try {
+							URL url = new URL(artist.imageUrl);
+							connection = (HttpURLConnection)url.openConnection();
+
+							connection.setConnectTimeout(30 * 1000);
+							connection.setReadTimeout(30 * 1000);
+							connection.setUseCaches(true);
+
+							bmp = BitmapFactory.decodeStream(connection.getInputStream());
+						} catch (IOException e) {
+							e.printStackTrace();
+						} finally {
+							if (connection != null) {
+								connection.disconnect();
+							}
+						}
+						return bmp;
+					}
+
+					@Override
+					protected void onPostExecute(Bitmap bmp) {
+						if (bmp != null) {
+							imageView.setBackground(new BitmapDrawable(getContext().getResources(), bmp));
+						}
+					}
+				}.execute();
+			} else {
+				// URL is null
+				imageView.setBackgroundResource(R.color.loop_artist_background_no_image);
+			}
 
 			return view;
+		}
+
+		/**
+		 * Set click/long click events to invoke events of ListView.
+		 * @param parent
+		 * @param imageView
+		 * @param position
+		 */
+		private void setUpImageView(final ListView parent, final View imageView, final int position) {
+			imageView.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					KLog.v(TAG, "image onclikc");
+					parent.setSelection(position);
+					parent.performItemClick(v, position, v.getId());
+				}
+			});
+			imageView.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					KLog.v(TAG, "image onlongclick");
+					parent.setSelection(position);
+					return false;
+				}
+			});
 		}
 	}
 }

@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -15,10 +16,12 @@ import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.Video;
+import com.kskkbys.loop.storage.ArtistStorage;
 import com.kskkbys.loop.ui.MainActivity;
 
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 
 /**
  * Asynchronous task to search youtube videos
@@ -100,6 +103,19 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 			KLog.v(TAG, "Video list is empty. Network state may be bad.");
 			//SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);
 			mParent.showAlert(R.string.loop_main_error_no_video, null);
+		}
+		
+		// Save image URL in search history db
+		ArtistStorage storage = new ArtistStorage(mParent);
+		ArtistStorage.Entry e = new ArtistStorage.Entry();
+		e.name = mQuery;
+		e.date = new Date();
+		for (Video v: videos) {
+			if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
+				e.imageUrl = v.getThumbnailUrl();
+				storage.insertOrUpdate(e);
+				break;
+			}
 		}
 	}
 

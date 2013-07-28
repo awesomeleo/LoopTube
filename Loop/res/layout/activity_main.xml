@@ -34,9 +34,10 @@
         android:id="@+id/main_search_history"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:divider="@android:color/transparent" >
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp" >
     </ListView>
 
 </RelativeLayout>

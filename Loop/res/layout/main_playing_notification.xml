@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/notification_next"
         android:layout_marginLeft="25dp"
+        android:layout_toLeftOf="@+id/notification_next"
         android:orientation="vertical" >
 
         <TextView
@@ -34,9 +34,9 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_weight="1"
-            android:text="TextView"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
+            android:text="TextView"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@android:color/white" />
     </LinearLayout>
@@ -47,6 +47,10 @@
         android:layout_height="60dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
         android:src="@drawable/navigation_next" />
 
 </RelativeLayout>
