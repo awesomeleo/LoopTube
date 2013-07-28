@@ -1,10 +1,13 @@
 package com.kskkbys.loop.service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -12,12 +15,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
@@ -35,8 +32,8 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.os.AsyncTask;
-import android.os.Binder;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.view.SurfaceHolder;
 
 /**
@@ -45,7 +42,7 @@ import android.view.SurfaceHolder;
 public class VideoPlayerService extends Service {
 
 	private static final String TAG = VideoPlayerService.class.getSimpleName();
-	
+
 	private static enum PlayerState {
 		Init,
 		Prepared,
@@ -233,7 +230,7 @@ public class VideoPlayerService extends Service {
 		if (mMediaPlayer != null) {
 			mMediaPlayer.release();
 		}
-		
+
 		// Terminate notification
 		NotificationManager.cancel(getApplicationContext());
 
@@ -396,89 +393,97 @@ public class VideoPlayerService extends Service {
 
 		@Override
 		protected void onPreExecute() {
-			KLog.v(TAG, "onPreExecute");
+			KLog.v(TAG, "YouTubeVideoLoadTask onPreExecute");
 			Intent intent = new Intent(PlayerEvent.StartToLoad.getAction());
 			sendBroadcast(intent);
 		}
 
 		@Override
 		protected Boolean doInBackground(String... arg0) {
+			KLog.v(TAG, "YouTubeVideoLoadTask doInBackground");
 			int begin, end;
-			String tmpstr = null;
+			String youtubeHtml = null;
+			HttpURLConnection connection = null;
 			try {
-				DefaultHttpClient client = new DefaultHttpClient();
-				HttpParams params = client.getParams();
-				HttpConnectionParams.setConnectionTimeout(params, 5000);
-				HttpConnectionParams.setSoTimeout(params, 5000);
-				HttpGet request = new HttpGet("http://www.youtube.com/watch?v=" + this.mVideoId);
-				request.setHeader("User-Agent", "Mozilla/5.0 (iPad; CPU OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko ) Version/5.1 Mobile/9B176 Safari/7534.48.3");
-				HttpResponse response = client.execute(request);
+				URL url = new URL("http://www.youtube.com/watch?v=" + this.mVideoId);
+				connection = (HttpURLConnection)url.openConnection();
 
-				InputStream stream = response.getEntity().getContent();
+				connection.setConnectTimeout(30* 1000);
+				connection.setReadTimeout(30 * 1000);
+				connection.setRequestProperty("User-Agent", "Mozilla/5.0 (iPad; CPU OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko ) Version/5.1 Mobile/9B176 Safari/7534.48.3");
+				connection.setUseCaches(false);
+
+				InputStream stream = connection.getInputStream();
 				InputStreamReader reader = new InputStreamReader(stream);
-				StringBuffer buffer = new StringBuffer();
-				char[] buf=new char[262144];
-				int chars_read;
-				while ((chars_read = reader.read(buf, 0, 262144)) != -1) {
-					buffer.append(buf, 0, chars_read);
+				BufferedReader br = new BufferedReader(reader);
+				String line;
+				StringBuilder htmlBuilder = new StringBuilder();
+				while ((line = br.readLine()) != null) {
+					KLog.v(TAG, "readLine");
+					htmlBuilder.append(line);
 				}
-				tmpstr=buffer.toString();
+				youtubeHtml = htmlBuilder.toString();
 
-				begin  = tmpstr.indexOf("url_encoded_fmt_stream_map=");
-				end = tmpstr.indexOf("&", begin + 27);
+				begin  = youtubeHtml.indexOf("url_encoded_fmt_stream_map=");
+				end = youtubeHtml.indexOf("&", begin + 27);
 				if (end == -1) {
-					end = tmpstr.indexOf("\"", begin + 27);
+					end = youtubeHtml.indexOf("\"", begin + 27);
 				}
-				tmpstr = URLDecoder.decode(tmpstr.substring(begin + 27, end), "utf-8");
+				youtubeHtml = URLDecoder.decode(youtubeHtml.substring(begin + 27, end), "utf-8");
 
-				reader.close();
-				client.getConnectionManager().shutdown();
+				br.close();
 
 			} catch (MalformedURLException e) {
 				KLog.e(TAG, "YouTubePlayTask error", e);
-				return false;
 			} catch (IOException e) {
 				KLog.e(TAG, "YouTubePlayTask error", e);
-				return false;
+			} finally {
+				if (connection != null) {
+					connection.disconnect();
+				}
+				if (TextUtils.isEmpty(youtubeHtml)) {
+					KLog.e(TAG, "Failed to fetch YouTube HTML source.");
+					return false;
+				}
 			}
 
 			Vector<String> url_encoded_fmt_stream_map = new Vector<String>();
 			begin = 0;
-			end   = tmpstr.indexOf(",");
+			end   = youtubeHtml.indexOf(",");
 
 			while (end != -1) {
-				url_encoded_fmt_stream_map.add(tmpstr.substring(begin, end));
+				url_encoded_fmt_stream_map.add(youtubeHtml.substring(begin, end));
 				begin = end + 1;
-				end   = tmpstr.indexOf(",", begin);
+				end   = youtubeHtml.indexOf(",", begin);
 			}
 
-			url_encoded_fmt_stream_map.add(tmpstr.substring(begin, tmpstr.length()));
+			url_encoded_fmt_stream_map.add(youtubeHtml.substring(begin, youtubeHtml.length()));
 			String result = "";
 			Enumeration<String> url_encoded_fmt_stream_map_enum = url_encoded_fmt_stream_map.elements();
 			while (url_encoded_fmt_stream_map_enum.hasMoreElements()) {
-				tmpstr = (String)url_encoded_fmt_stream_map_enum.nextElement();
-				begin = tmpstr.indexOf("itag=");
+				youtubeHtml = (String)url_encoded_fmt_stream_map_enum.nextElement();
+				begin = youtubeHtml.indexOf("itag=");
 				if (begin != -1) {
-					end = tmpstr.indexOf("&", begin + 5);
+					end = youtubeHtml.indexOf("&", begin + 5);
 
 					if (end == -1) {
-						end = tmpstr.length();
+						end = youtubeHtml.length();
 					}
 
 					try {
-						int fmt = Integer.parseInt(tmpstr.substring(begin + 5, end));
+						int fmt = Integer.parseInt(youtubeHtml.substring(begin + 5, end));
 						KLog.v(TAG, "fmt = " + fmt);
-						KLog.v(TAG, "tmpstr = " + tmpstr);
+						KLog.v(TAG, "tmpstr = " + youtubeHtml);
 
 						if (fmt == 18 /*35*/) {
-							begin = tmpstr.indexOf("url=");
+							begin = youtubeHtml.indexOf("url=");
 							if (begin != -1) {
-								end = tmpstr.indexOf("&", begin + 4);
+								end = youtubeHtml.indexOf("&", begin + 4);
 								if (end == -1) {
-									end = tmpstr.length();
+									end = youtubeHtml.length();
 								}
 								try {
-									result = URLDecoder.decode(tmpstr.substring(begin + 4, end), "utf-8");
+									result = URLDecoder.decode(youtubeHtml.substring(begin + 4, end), "utf-8");
 								} catch (UnsupportedEncodingException e) {
 									e.printStackTrace();
 								}
@@ -506,8 +511,7 @@ public class VideoPlayerService extends Service {
 
 		@Override
 		protected void onPostExecute(Boolean success) {
-			KLog.v(TAG, "onPostExecute");
-			KLog.v(TAG, "PlayTask onPostExecute");
+			KLog.v(TAG, "YouTubeVideoLoadTask onPostExecute");
 
 			Intent endIntent = new Intent(PlayerEvent.EndToLoad.getAction());
 			sendBroadcast(endIntent);
