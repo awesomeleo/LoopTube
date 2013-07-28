@@ -498,8 +498,11 @@ public class VideoPlayerService extends Service {
 
 			// PLAY VIDEO
 			KLog.v(TAG, "video url = " + result);
-			if (result == null || result.length() == 0) {
-				KLog.v(TAG, "Invalid video.");
+			if (TextUtils.isEmpty(result)) {
+				KLog.w(TAG, "Invalid video.");
+				// DEBUG: print HTML
+				KLog.e(TAG, "*** YouTube HTML source ***");
+				KLog.e(TAG, result);
 				// Add this video to black list 
 				BlackList.getInstance().addAppBlackList(mVideoId);
 				return false;

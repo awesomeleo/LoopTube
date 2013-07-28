@@ -545,35 +545,29 @@ public class MainActivity extends BaseActivity {
 
 			// Set background images
 			LinearLayout container = (LinearLayout)view.findViewById(R.id.search_history_image_container);
-			if (prevArtist == null || !prevArtist.equals(artist.name)) {
+			if (prevArtist == null || !prevArtist.equals(artist.name) || container.getChildCount() == 0) {
 				// Reload images
-				container.removeAllViews();
-				if (artist.imageUrls == null) {
-					// Add 10 images
-					KLog.v(TAG, "No images are saved. Show white rects.");
-					for (int i=0; i<10; i++) {
-						ImageView iv = new ImageView(getContext());
-						LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
-						iv.setLayoutParams(params);
-						iv.setBackgroundColor(Color.WHITE);
-						container.addView(iv);
-					}
-				} else {
-					KLog.v(TAG, "Images are saved.");
-					int size = Math.min(10, artist.imageUrls.size());
-					for (int i=0; i<size; i++) {
-						ImageView iv = new ImageView(getContext());
-						LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
-						iv.setLayoutParams(params);
-						iv.setBackgroundColor(Color.WHITE);
-						container.addView(iv);
-						// Load image from URL
-						ImageLoader imageLoader = ImageLoader.getInstance();
-						imageLoader.displayImage(artist.imageUrls.get(i), iv);
-					}
-				}
+				reloadImages(container, artist);
 			}
 			return view;
+		}
+		
+		private void reloadImages(LinearLayout container, ArtistStorage.Entry artist) {
+			container.removeAllViews();
+			if (artist.imageUrls != null) {
+				KLog.v(TAG, "Images are saved.");
+				int size = Math.min(10, artist.imageUrls.size());
+				for (int i=0; i<size; i++) {
+					ImageView iv = new ImageView(getContext());
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
+					iv.setLayoutParams(params);
+					iv.setBackgroundColor(Color.WHITE);
+					container.addView(iv);
+					// Load image from URL
+					ImageLoader imageLoader = ImageLoader.getInstance();
+					imageLoader.displayImage(artist.imageUrls.get(i), iv);
+				}
+			}
 		}
 
 		/**
