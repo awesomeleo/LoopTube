@@ -1,10 +1,8 @@
 package com.kskkbys.loop.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +24,6 @@ import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.storage.ArtistStorage;
 import com.kskkbys.loop.storage.ArtistStorage.Entry;
-import com.kskkbys.loop.ui.widget.HorizontalAutoScrollView;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -46,7 +43,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,7 +52,6 @@ import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -73,6 +68,8 @@ public class MainActivity extends BaseActivity {
 
 	public static final String FROM_NOTIFICATION = "from_notification";
 
+	private static final int IMAGE_COUNT_PER_ROW = 5;
+	
 	// ListView
 	private List<ArtistStorage.Entry> mRecentArtists;
 	private ArtistAdapter mAdapter;
@@ -437,9 +434,14 @@ public class MainActivity extends BaseActivity {
 		for (ArtistStorage.Entry entry: mRecentArtists) {
 			if (entry.name.equals(query)) {
 				entry.imageUrls = new ArrayList<String>();
+				int count = 0;
 				for (Video v: videos) {
 					if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
 						entry.imageUrls.add(v.getThumbnailUrl());
+						count++;
+						if (count >= IMAGE_COUNT_PER_ROW) {
+							break;
+						}
 					}
 				}
 				updatedEntry = entry;
@@ -557,7 +559,7 @@ public class MainActivity extends BaseActivity {
 	 *
 	 */
 	private class ArtistAdapter extends ArrayAdapter<ArtistStorage.Entry> {
-
+		
 		private Activity mActivity;
 
 		/**
@@ -604,7 +606,7 @@ public class MainActivity extends BaseActivity {
 			container.removeAllViews();
 			if (artist.imageUrls != null) {
 				KLog.v(TAG, "Images are saved.");
-				int size = Math.min(10, artist.imageUrls.size());
+				int size = Math.min(IMAGE_COUNT_PER_ROW, artist.imageUrls.size());
 				for (int i=0; i<size; i++) {
 					ImageView iv = new ImageView(getContext());
 					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
