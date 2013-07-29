@@ -377,10 +377,18 @@ public class VideoPlayerService extends Service {
 		}
 	}
 
+
+	private enum LoadResult {
+		Success,
+		InvalidVideoError,
+		IOError,
+		UnknownError
+	}
+
 	/**
 	 * Inner class to play YouTube video with MediaPlayer
 	 */
-	private class YouTubeVideoLoadTask extends AsyncTask<String, Void, Boolean> {
+	private class YouTubeVideoLoadTask extends AsyncTask<String, Void, LoadResult> {
 
 		private String mVideoId;
 
@@ -399,7 +407,7 @@ public class VideoPlayerService extends Service {
 		}
 
 		@Override
-		protected Boolean doInBackground(String... arg0) {
+		protected LoadResult doInBackground(String... arg0) {
 			KLog.v(TAG, "YouTubeVideoLoadTask doInBackground");
 			int begin, end;
 			String youtubeHtml = null;
@@ -419,10 +427,12 @@ public class VideoPlayerService extends Service {
 				String line;
 				StringBuilder htmlBuilder = new StringBuilder();
 				while ((line = br.readLine()) != null) {
-					KLog.v(TAG, "readLine");
+					// KLog.v(TAG, "readLine");
 					htmlBuilder.append(line);
 				}
 				youtubeHtml = htmlBuilder.toString();
+				KLog.v(TAG, "*** HTML source ***");
+				KLog.v(TAG, youtubeHtml + "\n");
 
 				begin  = youtubeHtml.indexOf("url_encoded_fmt_stream_map=");
 				end = youtubeHtml.indexOf("&", begin + 27);
@@ -435,15 +445,17 @@ public class VideoPlayerService extends Service {
 
 			} catch (MalformedURLException e) {
 				KLog.e(TAG, "YouTubePlayTask error", e);
+				e.printStackTrace();
 			} catch (IOException e) {
 				KLog.e(TAG, "YouTubePlayTask error", e);
+				e.printStackTrace();
 			} finally {
 				if (connection != null) {
 					connection.disconnect();
 				}
 				if (TextUtils.isEmpty(youtubeHtml)) {
-					KLog.e(TAG, "Failed to fetch YouTube HTML source.");
-					return false;
+					KLog.e(TAG, "Failed to fetch YouTube HTML source (due to IOException)");
+					return LoadResult.IOError;
 				}
 			}
 
@@ -505,21 +517,21 @@ public class VideoPlayerService extends Service {
 				KLog.e(TAG, result);
 				// Add this video to black list 
 				BlackList.getInstance().addAppBlackList(mVideoId);
-				return false;
+				return LoadResult.InvalidVideoError;
 			}
 			setVideoUrl(result);
 
-			return true;
+			return LoadResult.Success;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean success) {
+		protected void onPostExecute(LoadResult result) {
 			KLog.v(TAG, "YouTubeVideoLoadTask onPostExecute");
 
 			Intent endIntent = new Intent(PlayerEvent.EndToLoad.getAction());
 			sendBroadcast(endIntent);
 
-			if (!success) {
+			if (result == LoadResult.InvalidVideoError) {
 				Intent invalidIntent = new Intent(PlayerEvent.InvalidVideo.getAction());
 				sendBroadcast(invalidIntent);
 			}

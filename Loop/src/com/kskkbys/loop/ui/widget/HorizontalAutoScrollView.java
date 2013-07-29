@@ -45,7 +45,7 @@ public class HorizontalAutoScrollView extends HorizontalScrollView {
 				scrollTo((int)x, 0);
 			}
 			public void onFinish() {
-				KLog.v(TAG, "Finished to scroll. Restart.");
+				// KLog.v(TAG, "Finished to scroll. Restart.");
 				// startAutoScroll();
 			}
 		};
