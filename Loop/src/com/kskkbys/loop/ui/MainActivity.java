@@ -25,12 +25,14 @@ import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.storage.ArtistStorage;
+import com.kskkbys.loop.storage.ArtistStorage.Entry;
 import com.kskkbys.loop.ui.widget.HorizontalAutoScrollView;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.app.Activity;
@@ -378,17 +380,34 @@ public class MainActivity extends BaseActivity {
 	 * Read search history from saved file
 	 */
 	private void readHistory() {
-		mRecentArtists.clear();
-
-		List<ArtistStorage.Entry> entries = mStorage.restore();
-		mRecentArtists.addAll(entries);
-
-		mAdapter.notifyDataSetChanged();
+		new AsyncTask<String, Integer, Boolean>(){
+			@Override
+			protected void onPreExecute() {
+				showProgress(R.string.loop_main_dialog_searching);
+			}
+			@Override
+			protected Boolean doInBackground(String... params) {
+				List<ArtistStorage.Entry> entries = mStorage.restore();
+				mRecentArtists.clear();
+				mRecentArtists.addAll(entries);
+				return true;
+			}
+			@Override
+			protected void onPostExecute(Boolean result) {
+				mAdapter.notifyDataSetChanged();
+				dismissProgress();
+			}
+		}.execute();
 	}
 
 	private void clearHistory() {
 		// App's search history
-		mStorage.clear();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				mStorage.clear();
+			}
+		}).start();
 		mRecentArtists.clear();
 		mAdapter.notifyDataSetChanged();
 		// OS's search history
@@ -399,8 +418,17 @@ public class MainActivity extends BaseActivity {
 
 	private void clearHistory(int position) {
 		ArtistStorage.Entry e = mRecentArtists.remove(position);
-		mStorage.delete(e);
-		mAdapter.notifyDataSetChanged();
+		new AsyncTask<ArtistStorage.Entry, Integer, Boolean>() {
+			@Override
+			protected Boolean doInBackground(Entry... params) {
+				mStorage.delete(params[0]);
+				return true;
+			}
+			@Override
+			protected void onPostExecute(Boolean result) {
+				mAdapter.notifyDataSetChanged();
+			}
+		}.execute(e);
 	}
 
 	public void updateHistory(String query, List<Video> videos) {
