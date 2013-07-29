@@ -418,11 +418,19 @@ public class MainActivity extends BaseActivity {
 				break;
 			}
 		}
-		// Store to SQLite
-		if (updatedEntry != null) {
-			ArtistStorage storage = new ArtistStorage(this);
-			storage.insertOrUpdate(updatedEntry, true);
-		}
+		// Store to SQLite (async)
+		saveArtist(updatedEntry);
+	}
+	
+	private void saveArtist(final ArtistStorage.Entry updatedEntry) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				if (updatedEntry != null) {
+					mStorage.insertOrUpdate(updatedEntry, true);
+				}
+			}
+		}).start();
 	}
 
 	private void updatePlayingNotification() {
