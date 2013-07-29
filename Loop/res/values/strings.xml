@@ -4,6 +4,9 @@
     <string name="loop_app_name">LoopTube</string>
     <string name="loop_hello_world">Hello world!</string>
     
+    <string name="loop_splash_title">LoopTube</string>
+    <string name="loop_splash_description">Simplify your YouTube experience</string>
+    
     <string name="loop_video_player_service_started">VideoPlayerService started</string>
     <string name="loop_video_player_invalid_video">This video can not be played.</string>
     <string name="loop_video_player_unknown_error">Unknown error occurred!</string>

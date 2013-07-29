@@ -6,13 +6,17 @@ import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.TextView;
 
 public class SplashActivity extends BaseActivity {
 
 	private static final String TAG = SplashActivity.class.getSimpleName();
 
+	private static final long SPLASH_INTERVAL = 3000;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -22,13 +26,21 @@ public class SplashActivity extends BaseActivity {
 		if (app.isFirstLaunch()) {
 			FlurryLogger.logEvent(FlurryLogger.SEE_SPLASH);
 			setContentView(R.layout.activity_splash);
+			
+			// Custom font
+			TextView title = (TextView)findViewById(R.id.splash_title);
+			title.setTypeface(Typeface.createFromAsset(getAssets(), "GeosansLight.ttf"));
+			
+			TextView desc = (TextView)findViewById(R.id.splash_description);
+			desc.setTypeface(Typeface.createFromAsset(getAssets(), "GeosansLight-Oblique.ttf"));
+			
 			Handler handler = new Handler();
 			handler.postDelayed(new Runnable() {
 				@Override
 				public void run() {
 					startMainActivity();
 				}
-			}, 1000);
+			}, SPLASH_INTERVAL);
 		} else {
 			startMainActivity();
 		}
