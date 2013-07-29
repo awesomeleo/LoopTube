@@ -44,6 +44,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -570,9 +571,15 @@ public class MainActivity extends BaseActivity {
 				int size = Math.min(10, artist.imageUrls.size());
 				for (int i=0; i<size; i++) {
 					ImageView iv = new ImageView(getContext());
-					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
 					iv.setLayoutParams(params);
-					iv.setBackgroundColor(Color.WHITE);
+					iv.setAdjustViewBounds(true);
+					
+					if (i % 2 == 0) {
+						iv.setBackgroundColor(Color.WHITE);
+					} else {
+						iv.setBackgroundColor(Color.RED);
+					}
 					container.addView(iv);
 					// Load image from URL
 					ImageLoader imageLoader = ImageLoader.getInstance();

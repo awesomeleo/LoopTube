@@ -25,6 +25,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -261,12 +262,14 @@ public class PlayerControlFragment extends SherlockFragment implements OnTouchLi
 			mIsFullScreen = false;
 			// Show full screen button
 			mFullScreenButton.setBackgroundResource(R.drawable.full_screen);
+			Toast.makeText(getActivity(), R.string.loop_video_player_return_from_full_screen, Toast.LENGTH_SHORT).show();
 		} else {
 			// Fix landscape
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			mIsFullScreen = true;
 			// Show return from full screen button
 			mFullScreenButton.setBackgroundResource(R.drawable.return_from_full_screen);
+			Toast.makeText(getActivity(), R.string.loop_video_player_full_screen, Toast.LENGTH_SHORT).show();
 		}
 	}
 

@@ -15,6 +15,8 @@
     <string name="loop_video_player_ignored">この動画はブラックリストに登録されました。今後再生されません。</string>
     <string name="loop_video_player_ignored_already">この動画はすでにブラックリストに登録されています。</string>
     <string name="loop_video_player_volume_setting">ボリューム設定</string>
+    <string name="loop_video_player_return_from_full_screen">フルスクリーンがOFFになりました。</string>
+    <string name="loop_video_player_full_screen">フルスクリーンモードがONになりました。</string>
     
     <string name="loop_main_title">アーティストを検索</string>
     <string name="loop_main_search_artist">今すぐ検索</string>

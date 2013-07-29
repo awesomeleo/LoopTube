@@ -18,7 +18,7 @@
 
         <LinearLayout
             android:id="@+id/search_history_image_container"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal" >
 <!--

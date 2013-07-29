@@ -15,6 +15,8 @@
     <string name="loop_video_player_ignored">This video is now in blacklist and will never be played.</string>
     <string name="loop_video_player_ignored_already">This video is already in blacklist.</string>
     <string name="loop_video_player_volume_setting">Volume Setting</string>
+    <string name="loop_video_player_return_from_full_screen">Full screen mode is turned off.</string>
+    <string name="loop_video_player_full_screen">Full screen mode is turned on.</string>
     
     <string name="loop_main_title">Search by artist</string>
     <string name="loop_main_search_artist">Search now</string>
