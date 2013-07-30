@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.kskkbys.loop.BuildConfig;
+import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
@@ -197,7 +198,8 @@ public class MainActivity extends BaseActivity {
 			}
 		});
 		
-		mStorage = new ArtistStorage(this);
+		LoopApplication app = (LoopApplication)getApplication();
+		mStorage = app.getArtistStorage();
 
 		// Read recent artist saved in the device
 		readHistory();
@@ -376,27 +378,13 @@ public class MainActivity extends BaseActivity {
 	}
 
 	/**
-	 * Read search history from saved file
+	 * Read search history which is already restored before.
 	 */
 	private void readHistory() {
-		new AsyncTask<String, Integer, Boolean>(){
-			@Override
-			protected void onPreExecute() {
-				showProgress(R.string.loop_main_dialog_searching);
-			}
-			@Override
-			protected Boolean doInBackground(String... params) {
-				List<ArtistStorage.Entry> entries = mStorage.restore();
-				mRecentArtists.clear();
-				mRecentArtists.addAll(entries);
-				return true;
-			}
-			@Override
-			protected void onPostExecute(Boolean result) {
-				mAdapter.notifyDataSetChanged();
-				dismissProgress();
-			}
-		}.execute();
+		List<ArtistStorage.Entry> entries = mStorage.getRestoredArtists();
+		mRecentArtists.clear();
+		mRecentArtists.addAll(entries);
+		mAdapter.notifyDataSetChanged();
 	}
 
 	private void clearHistory() {

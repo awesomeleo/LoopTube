@@ -1,15 +1,20 @@
 package com.kskkbys.loop.ui;
 
+import java.util.List;
+
 import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.storage.ArtistStorage;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.sax.StartElementListener;
 import android.widget.TextView;
 
 /**
@@ -21,8 +26,6 @@ import android.widget.TextView;
 public class SplashActivity extends Activity {
 
 	private static final String TAG = SplashActivity.class.getSimpleName();
-
-	private static final long SPLASH_INTERVAL = 3000;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +45,8 @@ public class SplashActivity extends Activity {
 			TextView desc = (TextView)findViewById(R.id.splash_description);
 			desc.setTypeface(Typeface.createFromAsset(getAssets(), "GeosansLight-Oblique.ttf"));
 			
-			Handler handler = new Handler();
-			handler.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					startMainActivity();
-				}
-			}, SPLASH_INTERVAL);
+			// Start to restore history.
+			restoreHistory();
 		} else {
 			startMainActivity();
 		}
@@ -57,5 +55,32 @@ public class SplashActivity extends Activity {
 	private void startMainActivity() {
 		startActivity(new Intent(SplashActivity.this, MainActivity.class));
 		finish();
+	}
+	
+	private void restoreHistory() {
+		LoopApplication app = (LoopApplication)getApplication();
+		ArtistStorage storage = app.getArtistStorage();
+		LoadHistoryTask task = new LoadHistoryTask();
+		task.execute(storage);
+	}
+	
+	/**
+	 * 
+	 * @author Keisuke Kobayashi
+	 *
+	 */
+	private class LoadHistoryTask extends AsyncTask<ArtistStorage, Integer, Boolean> {
+		
+		@Override
+		protected Boolean doInBackground(ArtistStorage... params) {
+			ArtistStorage storage = params[0];
+			storage.restore();
+			return true;
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean result) {
+			startMainActivity();
+		}
 	}
 }

@@ -37,6 +37,8 @@ public class ArtistStorage {
 	private Context mContext;
 	private ArtistOpenHelper mHelper;
 
+	private List<Entry> mEntryList;
+	
 	/**
 	 * Constructor
 	 * @param context
@@ -44,6 +46,7 @@ public class ArtistStorage {
 	public ArtistStorage(Context context) {
 		mContext = context;
 		mHelper = new ArtistOpenHelper(context);
+		mEntryList = null;
 	}
 
 	/**
@@ -110,7 +113,7 @@ public class ArtistStorage {
 		db.delete(TABLE_IMAGE_NAME, null, null);
 	}
 
-	public List<Entry> restore() {
+	public void restore() {
 		SQLiteDatabase db = mHelper.getReadableDatabase();
 		String[] cols = {
 				COL_NAME,
@@ -149,7 +152,14 @@ public class ArtistStorage {
 			imgCursor.close();
 		}
 
-		return list;
+		mEntryList = list;
+	}
+	
+	public List<Entry> getRestoredArtists() {
+		if (mEntryList == null) {
+			throw new IllegalStateException("Entry list is null. Call restore() at first.");
+		}
+		return mEntryList;
 	}
 
 	public static class Entry {

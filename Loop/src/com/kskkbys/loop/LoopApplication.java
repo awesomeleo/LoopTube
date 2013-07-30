@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.kskkbys.loop.model.BlackList;
+import com.kskkbys.loop.storage.ArtistStorage;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -26,6 +27,7 @@ import android.support.v4.content.AsyncTaskLoader;
 public class LoopApplication extends Application {
 
 	private boolean mIsFirstLaunch;
+	private ArtistStorage mArtistStorage;
 
 	@Override
 	public void onCreate() {
@@ -35,7 +37,7 @@ public class LoopApplication extends Application {
 		// Initialize
 		BlackList.getInstance().initialize(getApplicationContext());
 
-		// グローバル設定の生成と初期化を行う
+		// Universal Image Loader
 		File cacheDir = StorageUtils.getCacheDirectory(this);
 		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
 		.cacheInMemory(true)
@@ -58,13 +60,24 @@ public class LoopApplication extends Application {
 		.build();
 		
 		ImageLoader.getInstance().init(config);
+		
+		// Initialize storage instance which will be accessed by several screens.
+		mArtistStorage = new ArtistStorage(this);
 	}
 
+	/**
+	 * Check whether this is first launch in current process or not.
+	 * @return
+	 */
 	public boolean isFirstLaunch() {
 		if (mIsFirstLaunch) {
 			mIsFirstLaunch = false;
 			return true;
 		}
 		return false;
+	}
+	
+	public ArtistStorage getArtistStorage() {
+		return mArtistStorage;
 	}
 }
