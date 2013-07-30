@@ -23,7 +23,6 @@
         <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemLoopTheme</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLoopTheme</item>
         <item name="android:seekBarStyle">@style/SeekBarLoopTheme</item>
-        <item name="android:ratingBarStyle">@style/RatingBarLoopTheme</item>
         <item name="android:ratingBarStyleIndicator">@style/RatingBarBigLoopTheme</item>
         <item name="android:ratingBarStyleSmall">@style/RatingBarSmallLoopTheme</item>
         <item name="android:buttonStyleToggle">@style/ToggleLoopTheme</item>
