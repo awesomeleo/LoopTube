@@ -67,7 +67,7 @@ public class PlayerControlFragment extends Fragment implements OnTouchListener, 
 	private View mVolumeButton;
 	private View mVolumeButtonInDialog;
 	private View mFullScreenButton;
-	private boolean mIsShowingControl;
+	private volatile boolean mIsShowingControl;
 	private SurfaceView mSurfaceView;
 
 	private boolean mIsFullScreen;
