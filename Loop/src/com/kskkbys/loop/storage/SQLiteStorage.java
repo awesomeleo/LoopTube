@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.model.Video;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,28 +18,34 @@ import android.database.sqlite.SQLiteOpenHelper;
  * @author Keisuke Kobayashi
  *
  */
-public class ArtistStorage {
+public class SQLiteStorage {
 
-	private static final String TAG = ArtistStorage.class.getSimpleName();
+	private static final String TAG = SQLiteStorage.class.getSimpleName();
 
 	private static final String TABLE_ARTIST_NAME = "artists";
 	private static final String COL_ID= "_id";
-	private static final String COL_NAME = "name";
-	private static final String COL_DATE = "date";
+	private static final String COL_ART_NAME = "name";
+	private static final String COL_ART_DATE = "date";
 
 	private static final String TABLE_IMAGE_NAME = "images";
-	private static final String COL_ARTIST_NAME= "artist_name";
-	private static final String COL_IMAGE_URL = "image_url";
+	private static final String COL_IMG_ARTIST_NAME= "artist_name";
+	private static final String COL_IMG_IMAGE_URL = "image_url";
+	
+	private static final String TABLE_FAVORITE_NAME = "favorites";
+	private static final String COL_FAV_VIDEO_ID = "video_id";
+	private static final String COL_FAV_TITLE = "video_title";
+	private static final String COL_FAV_IMAGE_URL = "image_url";
+	private static final String COL_FAV_ARTIST = "artist";
 
 	private DatabaseOpenHelper mHelper;
 
-	private List<Entry> mEntryList;
+	private List<Artist> mEntryList;
 	
 	/**
 	 * Constructor
 	 * @param context
 	 */
-	public ArtistStorage(Context context) {
+	public SQLiteStorage(Context context) {
 		mHelper = new DatabaseOpenHelper(context);
 		mEntryList = null;
 	}
@@ -49,7 +56,7 @@ public class ArtistStorage {
 	 * If you don't need wait to complete, please set async flag true.
 	 * @param entry
 	 */
-	public void insertOrUpdate(final Entry entry, final boolean isAsync) {
+	public void insertOrUpdateArtist(final Artist entry, final boolean isAsync) {
 		KLog.v(TAG, "start insertOrUpdate");
 		if (isAsync) {
 			new Thread(new Runnable() {
@@ -65,21 +72,21 @@ public class ArtistStorage {
 		KLog.v(TAG, "end insertOrUpdate");
 	}
 	
-	private void insertOpUpdateInner(Entry entry) {
+	private void insertOpUpdateInner(Artist entry) {
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 
 		db.beginTransaction();
 		try {
 			// Insert artist
 			ContentValues values = new ContentValues();
-			values.put(COL_NAME, entry.name);
-			values.put(COL_DATE, entry.date.getTime());
+			values.put(COL_ART_NAME, entry.name);
+			values.put(COL_ART_DATE, entry.date.getTime());
 			db.insertWithOnConflict(TABLE_ARTIST_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 			// Insert images
 			for (int i=0; i<entry.imageUrls.size(); i++) {
 				ContentValues imageValues = new ContentValues();
-				imageValues.put(COL_ARTIST_NAME, entry.name);
-				imageValues.put(COL_IMAGE_URL, entry.imageUrls.get(i));
+				imageValues.put(COL_IMG_ARTIST_NAME, entry.name);
+				imageValues.put(COL_IMG_IMAGE_URL, entry.imageUrls.get(i));
 				db.insert(TABLE_IMAGE_NAME, null, imageValues);
 			}
 			db.setTransactionSuccessful();
@@ -92,7 +99,7 @@ public class ArtistStorage {
 	 * Delete artist and its thumbnails
 	 * @param entry
 	 */
-	public void delete(Entry entry) {
+	public void deleteArtist(Artist entry) {
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 		db.delete(TABLE_ARTIST_NAME, "name=?", new String[]{entry.name});
 		db.delete(TABLE_IMAGE_NAME, "artist_name=?", new String[]{entry.name});
@@ -101,26 +108,26 @@ public class ArtistStorage {
 	/**
 	 * Clear all entries.
 	 */
-	public void clear() {
+	public void clearArtists() {
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 		db.delete(TABLE_ARTIST_NAME, null, null);
 		db.delete(TABLE_IMAGE_NAME, null, null);
 	}
 
-	public void restore() {
+	public void restoreArtists() {
 		SQLiteDatabase db = mHelper.getReadableDatabase();
 		String[] cols = {
-				COL_NAME,
-				COL_DATE
+				COL_ART_NAME,
+				COL_ART_DATE
 		};
 		// Get artist list
 		Cursor cursor = db.query(TABLE_ARTIST_NAME, cols, null, null, null, null, "date DESC");
-		int nameIndex = cursor.getColumnIndex(COL_NAME);
-		int dateIndex = cursor.getColumnIndex(COL_DATE);
-		List<Entry> list = new ArrayList<ArtistStorage.Entry>();
+		int nameIndex = cursor.getColumnIndex(COL_ART_NAME);
+		int dateIndex = cursor.getColumnIndex(COL_ART_DATE);
+		List<Artist> list = new ArrayList<SQLiteStorage.Artist>();
 		if (cursor.moveToFirst()) {
 			while (!cursor.isAfterLast()) {
-				Entry e = new Entry();
+				Artist e = new Artist();
 				e.name = cursor.getString(nameIndex);
 				e.date = new Date(cursor.getLong(dateIndex));
 				e.imageUrls = new ArrayList<String>();
@@ -131,12 +138,12 @@ public class ArtistStorage {
 		cursor.close();
 
 		// Get thumbnails for each artist
-		for (Entry e: list) {
+		for (Artist e: list) {
 			String[] imgCols = {
-					COL_IMAGE_URL
+					COL_IMG_IMAGE_URL
 			};
 			Cursor imgCursor = db.query(TABLE_IMAGE_NAME, imgCols, "artist_name=?", new String[]{e.name}, null, null, "_id ASC");
-			int urlIndex = imgCursor.getColumnIndex(COL_IMAGE_URL);
+			int urlIndex = imgCursor.getColumnIndex(COL_IMG_IMAGE_URL);
 			if (imgCursor.moveToFirst()) {
 				while (!imgCursor.isAfterLast()) {
 					e.imageUrls.add(imgCursor.getString(urlIndex));
@@ -149,18 +156,54 @@ public class ArtistStorage {
 		mEntryList = list;
 	}
 	
-	public List<Entry> getRestoredArtists() {
+	public List<Artist> getRestoredArtists() {
 		if (mEntryList == null) {
 			throw new IllegalStateException("Entry list is null. Call restore() at first.");
 		}
 		return mEntryList;
 	}
+	
+	public boolean insertFavorite(Video video, String artist) {
+		KLog.v(TAG, "insertFavorite");
+		SQLiteDatabase db = mHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(COL_FAV_VIDEO_ID, video.getId());
+		values.put(COL_FAV_IMAGE_URL, video.getThumbnailUrl());
+		values.put(COL_FAV_TITLE, video.getTitle());
+		values.put(COL_FAV_ARTIST, artist);
+		if (db.insert(TABLE_FAVORITE_NAME, null, values) == -1) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public boolean deleteFavorite(Video video) {
+		KLog.v(TAG, "deleteFavorite");
+		SQLiteDatabase db = mHelper.getWritableDatabase();
+		String where = COL_FAV_VIDEO_ID + "=?";
+		if (db.delete(TABLE_FAVORITE_NAME, where, new String[]{video.getId()}) > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean clearFavorites() {
+		KLog.v(TAG, "clearFavorite");
+		SQLiteDatabase db = mHelper.getWritableDatabase();
+		if (db.delete(TABLE_FAVORITE_NAME, "1", null) > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-	public static class Entry {
+	public static class Artist {
 		public String name;
 		public List<String> imageUrls;
 		public Date date;
-		public Entry() {
+		public Artist() {
 			name = null;
 			imageUrls = new ArrayList<String>();
 			date = null;
@@ -183,19 +226,9 @@ public class ArtistStorage {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			String CREATE_ARTIST_TABLE = "create table " + TABLE_ARTIST_NAME + " ("
-					+ COL_ID + " integer primary key autoincrement, "
-					+ COL_NAME + " text not null unique, "
-					+ COL_DATE + " integer not null"
-					+ ");";
-			db.execSQL(CREATE_ARTIST_TABLE);
-
-			String CREATE_IMAGE_TABLE = "create table " + TABLE_IMAGE_NAME + " ("
-					+ COL_ID + " integer primary key autoincrement, "
-					+ COL_ARTIST_NAME + " text not null, "
-					+ COL_IMAGE_URL + " text not null"
-					+ ");";
-			db.execSQL(CREATE_IMAGE_TABLE);
+			createArtistTable(db);
+			createImageTable(db);
+			createFavoriteTable(db);
 		}
 
 		@Override
@@ -205,8 +238,38 @@ public class ArtistStorage {
 
 			String DROP_IMAGE_TABLE = "drop table " + TABLE_IMAGE_NAME + ";";
 			db.execSQL(DROP_IMAGE_TABLE);
-
-			onConfigure(db);
+			
+			String DROP_FAVORITE_TABLE = "drop table " + TABLE_FAVORITE_NAME + ";";
+			db.execSQL(DROP_FAVORITE_TABLE);
+		}
+		
+		private void createArtistTable(SQLiteDatabase db) {
+			String CREATE_ARTIST_TABLE = "create table " + TABLE_ARTIST_NAME + " ("
+					+ COL_ID + " integer primary key autoincrement, "
+					+ COL_ART_NAME + " text not null unique, "
+					+ COL_ART_DATE + " integer not null"
+					+ ");";
+			db.execSQL(CREATE_ARTIST_TABLE);
+		}
+		
+		private void createImageTable(SQLiteDatabase db) {
+			String CREATE_IMAGE_TABLE = "create table " + TABLE_IMAGE_NAME + " ("
+					+ COL_ID + " integer primary key autoincrement, "
+					+ COL_IMG_ARTIST_NAME + " text not null, "
+					+ COL_IMG_IMAGE_URL + " text not null"
+					+ ");";
+			db.execSQL(CREATE_IMAGE_TABLE);
+		}
+		
+		private void createFavoriteTable(SQLiteDatabase db) {
+			String CREATE_FAV_TABLE = "create table " + TABLE_FAVORITE_NAME + " ("
+					+ COL_ID + " integer primary key autoincrement, "
+					+ COL_FAV_VIDEO_ID + " text not null unique, "
+					+ COL_FAV_TITLE + " text not null,"
+					+ COL_FAV_IMAGE_URL + " text not null, "
+					+ COL_FAV_ARTIST + " text not null"
+					+ ");";
+			db.execSQL(CREATE_FAV_TABLE);
 		}
 
 	}

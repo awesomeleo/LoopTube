@@ -21,6 +21,7 @@
     <string name="loop_video_player_return_from_full_screen">Full screen mode is turned off.</string>
     <string name="loop_video_player_full_screen">Full screen mode is turned on.</string>
     <string name="loop_video_player_favorite">Added this video to favorite list</string>
+    <string name="loop_video_player_favorite_error">This video has already been added to favorite list.</string>
     
     <string name="loop_main_title">Search by artist</string>
     <string name="loop_main_search_artist">Search now</string>

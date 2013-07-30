@@ -1,5 +1,6 @@
 package com.kskkbys.loop.ui;
 
+import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.fragments.PlayerControlFragment;
 import com.kskkbys.loop.fragments.PlayerListFragment;
@@ -10,6 +11,7 @@ import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
+import com.kskkbys.loop.storage.SQLiteStorage;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -18,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -228,7 +231,24 @@ public class VideoPlayerActivity extends BaseActivity {
 	 * Add current video to favorite list
 	 */
 	private void addFavorite() {
-		Toast.makeText(this, R.string.loop_video_player_favorite, Toast.LENGTH_SHORT).show();
+		new AsyncTask<String, Integer, Boolean>() {
+			@Override
+			protected Boolean doInBackground(String... params) {
+				LoopApplication app = (LoopApplication)getApplication();
+				SQLiteStorage storage = app.getSQLiteStorage();
+				Video video = Playlist.getInstance().getCurrentVideo();
+				String artist = Playlist.getInstance().getQuery();
+				return storage.insertFavorite(video, artist);
+			}
+			@Override
+			protected void onPostExecute(Boolean result) {
+				if (result) {
+					Toast.makeText(VideoPlayerActivity.this, R.string.loop_video_player_favorite, Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(VideoPlayerActivity.this, R.string.loop_video_player_favorite_error, Toast.LENGTH_SHORT).show();
+				}
+			}
+		}.execute();
 	}
 	
 	private void handlePrepared() {

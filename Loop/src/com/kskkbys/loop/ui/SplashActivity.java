@@ -7,7 +7,7 @@ import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
-import com.kskkbys.loop.storage.ArtistStorage;
+import com.kskkbys.loop.storage.SQLiteStorage;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -61,7 +61,7 @@ public class SplashActivity extends Activity {
 
 	private void restoreHistory() {
 		LoopApplication app = (LoopApplication)getApplication();
-		ArtistStorage storage = app.getArtistStorage();
+		SQLiteStorage storage = app.getSQLiteStorage();
 		LoadHistoryTask task = new LoadHistoryTask();
 		task.execute(storage);
 	}
@@ -71,7 +71,7 @@ public class SplashActivity extends Activity {
 	 * @author Keisuke Kobayashi
 	 *
 	 */
-	private class LoadHistoryTask extends AsyncTask<ArtistStorage, Integer, Boolean> {
+	private class LoadHistoryTask extends AsyncTask<SQLiteStorage, Integer, Boolean> {
 
 		private long mStartTime;
 
@@ -81,9 +81,9 @@ public class SplashActivity extends Activity {
 		}
 
 		@Override
-		protected Boolean doInBackground(ArtistStorage... params) {
-			ArtistStorage storage = params[0];
-			storage.restore();
+		protected Boolean doInBackground(SQLiteStorage... params) {
+			SQLiteStorage storage = params[0];
+			storage.restoreArtists();
 			return true;
 		}
 

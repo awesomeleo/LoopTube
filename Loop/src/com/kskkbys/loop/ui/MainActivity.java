@@ -18,8 +18,8 @@ import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
-import com.kskkbys.loop.storage.ArtistStorage;
-import com.kskkbys.loop.storage.ArtistStorage.Entry;
+import com.kskkbys.loop.storage.SQLiteStorage;
+import com.kskkbys.loop.storage.SQLiteStorage.Artist;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -74,14 +74,14 @@ public class MainActivity extends BaseActivity {
 	private static final int IMAGE_COUNT_PER_ROW = 5;
 	
 	// ListView
-	private List<ArtistStorage.Entry> mRecentArtists;
+	private List<SQLiteStorage.Artist> mRecentArtists;
 	private ArtistAdapter mAdapter;
 	private ListView mListView;
 
 	// Menu
 	private MenuItem mSearchItem;
 
-	private ArtistStorage mStorage;
+	private SQLiteStorage mStorage;
 
 	// Contextual Action Bar
 	private ActionMode mActionMode;
@@ -148,7 +148,7 @@ public class MainActivity extends BaseActivity {
 			}
 		});
 		mListView.setEmptyView(emptyView);
-		mRecentArtists = new ArrayList<ArtistStorage.Entry>();
+		mRecentArtists = new ArrayList<SQLiteStorage.Artist>();
 		mAdapter = new ArtistAdapter(this, mRecentArtists);
 		mListView.setAdapter(mAdapter);
 		mListView.setRecyclerListener(new RecyclerListener() {
@@ -171,7 +171,7 @@ public class MainActivity extends BaseActivity {
 					return;
 				} else {
 					ListView listView = (ListView) parent;
-					ArtistStorage.Entry artist = (ArtistStorage.Entry) listView.getItemAtPosition(position);
+					SQLiteStorage.Artist artist = (SQLiteStorage.Artist) listView.getItemAtPosition(position);
 					String currentArtist = Playlist.getInstance().getQuery();
 					if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artist.name)) {
 						KLog.v(TAG, "Already playing. Go player without seraching.");
@@ -199,7 +199,7 @@ public class MainActivity extends BaseActivity {
 		});
 		
 		LoopApplication app = (LoopApplication)getApplication();
-		mStorage = app.getArtistStorage();
+		mStorage = app.getSQLiteStorage();
 
 		// Read recent artist saved in the device
 		readHistory();
@@ -350,13 +350,13 @@ public class MainActivity extends BaseActivity {
 			return;
 		}
 		// Add history
-		ArtistStorage.Entry entry = findHistory(artist);
+		SQLiteStorage.Artist entry = findHistory(artist);
 		if (entry != null) {
 			mRecentArtists.remove(entry);
 			entry.date = new Date();
 			mRecentArtists.add(0, entry);
 		} else {
-			entry = new ArtistStorage.Entry();
+			entry = new SQLiteStorage.Artist();
 			entry.name = artist;
 			entry.imageUrls = new ArrayList<String>();	// Before search video list, image URL is null.
 			entry.date = new Date();
@@ -368,8 +368,8 @@ public class MainActivity extends BaseActivity {
 		searchTask.execute(artist);
 	}
 
-	private ArtistStorage.Entry findHistory(String artist) {
-		for (ArtistStorage.Entry e: mRecentArtists) {
+	private SQLiteStorage.Artist findHistory(String artist) {
+		for (SQLiteStorage.Artist e: mRecentArtists) {
 			if (e.name.equals(artist)) {
 				return e;
 			}
@@ -381,7 +381,7 @@ public class MainActivity extends BaseActivity {
 	 * Read search history which is already restored before.
 	 */
 	private void readHistory() {
-		List<ArtistStorage.Entry> entries = mStorage.getRestoredArtists();
+		List<SQLiteStorage.Artist> entries = mStorage.getRestoredArtists();
 		mRecentArtists.clear();
 		mRecentArtists.addAll(entries);
 		mAdapter.notifyDataSetChanged();
@@ -392,7 +392,7 @@ public class MainActivity extends BaseActivity {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				mStorage.clear();
+				mStorage.clearArtists();
 			}
 		}).start();
 		mRecentArtists.clear();
@@ -404,11 +404,11 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void clearHistory(int position) {
-		ArtistStorage.Entry e = mRecentArtists.remove(position);
-		new AsyncTask<ArtistStorage.Entry, Integer, Boolean>() {
+		SQLiteStorage.Artist e = mRecentArtists.remove(position);
+		new AsyncTask<SQLiteStorage.Artist, Integer, Boolean>() {
 			@Override
-			protected Boolean doInBackground(Entry... params) {
-				mStorage.delete(params[0]);
+			protected Boolean doInBackground(Artist... params) {
+				mStorage.deleteArtist(params[0]);
 				return true;
 			}
 			@Override
@@ -420,8 +420,8 @@ public class MainActivity extends BaseActivity {
 
 	public void updateHistory(String query, List<Video> videos) {
 		// Update array list
-		ArtistStorage.Entry updatedEntry = null;
-		for (ArtistStorage.Entry entry: mRecentArtists) {
+		SQLiteStorage.Artist updatedEntry = null;
+		for (SQLiteStorage.Artist entry: mRecentArtists) {
 			if (entry.name.equals(query)) {
 				entry.imageUrls = new ArrayList<String>();
 				int count = 0;
@@ -442,12 +442,12 @@ public class MainActivity extends BaseActivity {
 		saveArtist(updatedEntry);
 	}
 	
-	private void saveArtist(final ArtistStorage.Entry updatedEntry) {
+	private void saveArtist(final SQLiteStorage.Artist updatedEntry) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				if (updatedEntry != null) {
-					mStorage.insertOrUpdate(updatedEntry, true);
+					mStorage.insertOrUpdateArtist(updatedEntry, true);
 				}
 			}
 		}).start();
@@ -548,7 +548,7 @@ public class MainActivity extends BaseActivity {
 	 * @author Keisuke Kobayashi
 	 *
 	 */
-	private class ArtistAdapter extends ArrayAdapter<ArtistStorage.Entry> {
+	private class ArtistAdapter extends ArrayAdapter<SQLiteStorage.Artist> {
 		
 		private Activity mActivity;
 
@@ -557,7 +557,7 @@ public class MainActivity extends BaseActivity {
 		 * @param activity
 		 * @param objects
 		 */
-		public ArtistAdapter(Activity activity, List<ArtistStorage.Entry> objects) {
+		public ArtistAdapter(Activity activity, List<SQLiteStorage.Artist> objects) {
 			super(activity, R.layout.search_history_list_item, R.id.search_history_artist, objects);
 			mActivity = activity;
 		}
@@ -574,7 +574,7 @@ public class MainActivity extends BaseActivity {
 				prevArtist = titleView.getText().toString();
 			}
 
-			final ArtistStorage.Entry artist = getItem(position);
+			final SQLiteStorage.Artist artist = getItem(position);
 
 			// Set title
 			TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
@@ -592,7 +592,7 @@ public class MainActivity extends BaseActivity {
 			return view;
 		}
 		
-		private void reloadImages(LinearLayout container, ArtistStorage.Entry artist) {
+		private void reloadImages(LinearLayout container, SQLiteStorage.Artist artist) {
 			container.removeAllViews();
 			if (artist.imageUrls != null) {
 				KLog.v(TAG, "Images are saved.");
