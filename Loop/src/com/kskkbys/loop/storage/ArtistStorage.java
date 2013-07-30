@@ -10,7 +10,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
@@ -22,9 +21,6 @@ public class ArtistStorage {
 
 	private static final String TAG = ArtistStorage.class.getSimpleName();
 
-	private static final String DB_NAME = "artists.db";
-	private static final int DB_VERSION = 1;
-
 	private static final String TABLE_ARTIST_NAME = "artists";
 	private static final String COL_ID= "_id";
 	private static final String COL_NAME = "name";
@@ -34,8 +30,7 @@ public class ArtistStorage {
 	private static final String COL_ARTIST_NAME= "artist_name";
 	private static final String COL_IMAGE_URL = "image_url";
 
-	private Context mContext;
-	private ArtistOpenHelper mHelper;
+	private DatabaseOpenHelper mHelper;
 
 	private List<Entry> mEntryList;
 	
@@ -44,8 +39,7 @@ public class ArtistStorage {
 	 * @param context
 	 */
 	public ArtistStorage(Context context) {
-		mContext = context;
-		mHelper = new ArtistOpenHelper(context);
+		mHelper = new DatabaseOpenHelper(context);
 		mEntryList = null;
 	}
 
@@ -173,9 +167,17 @@ public class ArtistStorage {
 		}
 	}
 
-	private static class ArtistOpenHelper extends SQLiteOpenHelper {
+	/**
+	 * Database helper class for LoopTube.
+	 * @author Keisuke Kobayashi
+	 *
+	 */
+	private static class DatabaseOpenHelper extends SQLiteOpenHelper {
 
-		public ArtistOpenHelper(Context context) {
+		private static final String DB_NAME = "looptube.db";
+		private static final int DB_VERSION = 1;
+		
+		public DatabaseOpenHelper(Context context) {
 			super(context, DB_NAME, null, DB_VERSION);
 		}
 

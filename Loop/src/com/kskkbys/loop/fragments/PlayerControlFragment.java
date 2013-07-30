@@ -58,6 +58,8 @@ public class PlayerControlFragment extends Fragment implements OnTouchListener, 
 	private Date mLastTouchDate;
 	private Timer mTouchEventTimer;
 
+	private View mTopControl;
+	private View mBottomControl;
 	private View mPauseButton;
 	private View mPrevButton;
 	private View mNextButton;
@@ -96,6 +98,8 @@ public class PlayerControlFragment extends Fragment implements OnTouchListener, 
 
 		// Controller
 		View view = getView();
+		mTopControl = view.findViewById(R.id.player_control_top);
+		mBottomControl = view.findViewById(R.id.player_control_bottom);
 		mPrevButton = view.findViewById(R.id.prevButton);
 		mPrevButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -372,18 +376,10 @@ public class PlayerControlFragment extends Fragment implements OnTouchListener, 
 				
 				@Override
 				public void onAnimationEnd(Animation animation) {
-					mVolumeButton.setVisibility(View.INVISIBLE);
-					mPauseButton.setVisibility(View.INVISIBLE);
-					mPrevButton.setVisibility(View.INVISIBLE);
-					mNextButton.setVisibility(View.INVISIBLE);
-					mFullScreenButton.setVisibility(View.INVISIBLE);
+					mBottomControl.setVisibility(View.INVISIBLE);
 				}
 			});
-			mVolumeButton.startAnimation(downAnimation);
-			mPauseButton.startAnimation(downAnimation);
-			mPrevButton.startAnimation(downAnimation);
-			mNextButton.startAnimation(downAnimation);
-			mFullScreenButton.startAnimation(downAnimation);
+			mBottomControl.startAnimation(downAnimation);
 			
 			
 			// UP Animation
@@ -399,27 +395,14 @@ public class PlayerControlFragment extends Fragment implements OnTouchListener, 
 				
 				@Override
 				public void onAnimationEnd(Animation animation) {
-					mLoopButton.setVisibility(View.INVISIBLE);
-					mSeekBar.setVisibility(View.INVISIBLE);
-					mDurationView.setVisibility(View.INVISIBLE);
+					mTopControl.setVisibility(View.INVISIBLE);
 				}
 			});
-			mLoopButton.startAnimation(upAnimation);
-			mSeekBar.startAnimation(upAnimation);
-			mDurationView.startAnimation(upAnimation);
+			mTopControl.startAnimation(upAnimation);
 			
 		} else {
-			// upper
-			mLoopButton.setVisibility(View.VISIBLE);
-			mSeekBar.setVisibility(View.VISIBLE);
-			mDurationView.setVisibility(View.VISIBLE);
-			
-			// lower
-			mVolumeButton.setVisibility(View.VISIBLE);
-			mPauseButton.setVisibility(View.VISIBLE);
-			mPrevButton.setVisibility(View.VISIBLE);
-			mNextButton.setVisibility(View.VISIBLE);
-			mFullScreenButton.setVisibility(View.VISIBLE);
+			mTopControl.setVisibility(View.VISIBLE);
+			mBottomControl.setVisibility(View.VISIBLE);
 		}
 	}
 
