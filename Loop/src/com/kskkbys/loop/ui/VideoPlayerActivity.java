@@ -138,6 +138,9 @@ public class VideoPlayerActivity extends BaseActivity {
 		case R.id.menu_share:
 			startShareIntent();
 			return true;
+		case R.id.menu_favorite:
+			addFavorite();
+			return true;
 		case R.id.menu_ignore_current:
 			ignoreCurrentVideo();
 			return true;
@@ -221,6 +224,13 @@ public class VideoPlayerActivity extends BaseActivity {
 		}
 	}
 
+	/**
+	 * Add current video to favorite list
+	 */
+	private void addFavorite() {
+		Toast.makeText(this, R.string.loop_video_player_favorite, Toast.LENGTH_SHORT).show();
+	}
+	
 	private void handlePrepared() {
 		KLog.v(TAG, "onPrepared");
 		updateVideoInfo();

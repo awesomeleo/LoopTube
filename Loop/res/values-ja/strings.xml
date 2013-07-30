@@ -20,6 +20,7 @@
     <string name="loop_video_player_volume_setting">ボリューム設定</string>
     <string name="loop_video_player_return_from_full_screen">フルスクリーンがOFFになりました。</string>
     <string name="loop_video_player_full_screen">フルスクリーンモードがONになりました。</string>
+    <string name="loop_video_player_favorite">お気に入りに登録しました。</string>
     
     <string name="loop_main_title">アーティストを検索</string>
     <string name="loop_main_search_artist">今すぐ検索</string>
@@ -50,6 +51,7 @@
     <string name="loop_menu_item_clear_blacklist">ブラックリストを消去する</string>
     <string name="loop_menu_item_version">このアプリについて</string>
     <string name="loop_menu_item_delete">削除</string>
+    <string name="loop_menu_item_favorite">お気に入りに登録する</string>
     
     <string name="loop_menu_item_start_repeat">この動画をリピートする</string>
     <string name="loop_menu_item_stop_repeat">リピートを解除する</string>
