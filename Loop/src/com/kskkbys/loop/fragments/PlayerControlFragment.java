@@ -11,6 +11,7 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -28,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.audio.MuteManager;
 import com.kskkbys.loop.logger.KLog;
@@ -44,7 +44,7 @@ import com.kskkbys.loop.ui.VideoPlayerActivity;
  * @author keisuke.kobayashi
  *
  */
-public class PlayerControlFragment extends SherlockFragment implements OnTouchListener, SurfaceHolder.Callback {
+public class PlayerControlFragment extends Fragment implements OnTouchListener, SurfaceHolder.Callback {
 
 	private static final String TAG = PlayerControlFragment.class.getSimpleName();
 

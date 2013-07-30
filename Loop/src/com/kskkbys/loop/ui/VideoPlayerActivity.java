@@ -1,11 +1,5 @@
 package com.kskkbys.loop.ui;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.fragments.PlayerControlFragment;
 import com.kskkbys.loop.fragments.PlayerListFragment;
@@ -26,7 +20,12 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.view.ActionMode;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -123,7 +122,7 @@ public class VideoPlayerActivity extends BaseActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getSupportMenuInflater().inflate(R.menu.activity_player, menu);
+		getMenuInflater().inflate(R.menu.activity_player, menu);
 		return true;
 	}
 
@@ -149,10 +148,10 @@ public class VideoPlayerActivity extends BaseActivity {
 
 	public void startContextualActionBar(int position) {
 		final int longClickedPos = position;
-		startActionMode(new ActionMode.Callback() {
+		startSupportActionMode(new ActionMode.Callback() {
 			@Override
 			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-				MenuInflater inflater = getSupportMenuInflater();
+				MenuInflater inflater = getMenuInflater();
 				inflater.inflate(R.menu.activity_player_cab, menu);
 				return true;
 			}

@@ -6,11 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.kskkbys.loop.BuildConfig;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.FlurryLogger;
@@ -43,8 +38,15 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.view.MenuCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -102,7 +104,7 @@ public class MainActivity extends BaseActivity {
 
 		@Override
 		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-			MenuInflater inflater = getSupportMenuInflater();
+			MenuInflater inflater = getMenuInflater();
 			inflater.inflate(R.menu.activity_main_cab, menu);
 			return true;
 		}
@@ -189,7 +191,7 @@ public class MainActivity extends BaseActivity {
 				}
 				mLongSelectedPosition = position;
 				mLongSelectedItem = view;
-				mActionMode = startActionMode(mActionModeCallback);
+				mActionMode = startSupportActionMode(mActionModeCallback);
 				view.setSelected(true);
 				return true;
 			}
@@ -279,11 +281,11 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getSupportMenuInflater().inflate(R.menu.activity_main, menu);
-
+		getMenuInflater().inflate(R.menu.activity_main, menu);
+		
 		// Set action view
 		mSearchItem = menu.findItem(R.id.menu_search);
-		final SearchView sv = (SearchView) mSearchItem.getActionView();
+		final SearchView sv = (SearchView) MenuItemCompat.getActionView(mSearchItem);
 		// Get the SearchView and set the searchable configuration
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 		// Assumes current activity is the searchable activity

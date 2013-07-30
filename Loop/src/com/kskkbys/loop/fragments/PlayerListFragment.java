@@ -2,6 +2,7 @@ package com.kskkbys.loop.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,6 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
@@ -28,7 +28,7 @@ import com.kskkbys.loop.ui.VideoPlayerActivity;
  * @author keisuke.kobayashi
  *
  */
-public class PlayerListFragment extends SherlockFragment {
+public class PlayerListFragment extends Fragment {
 
 	private static final String TAG = PlayerListFragment.class.getSimpleName();
 

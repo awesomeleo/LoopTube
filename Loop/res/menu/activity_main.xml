@@ -1,26 +1,27 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:yourapp="http://schemas.android.com/apk/res-auto" >
 
     <item
         android:id="@+id/menu_search"
         android:icon="@android:drawable/ic_menu_search"
         android:orderInCategory="100"
-        android:showAsAction="always|collapseActionView"
-        android:actionViewClass="com.actionbarsherlock.widget.SearchView"
+        yourapp:showAsAction="always|collapseActionView"
+        yourapp:actionViewClass="android.support.v7.widget.SearchView"
         android:title="@string/loop_menu_item_search"/>
     <item
         android:id="@+id/menu_clear_history"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        yourapp:showAsAction="never"
         android:title="@string/loop_menu_item_clear_history"/>
     <item
         android:id="@+id/menu_clear_blacklist"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        yourapp:showAsAction="never"
         android:title="@string/loop_menu_item_clear_blacklist"/>
     <item
         android:id="@+id/menu_version"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        yourapp:showAsAction="never"
         android:title="@string/loop_menu_item_version"/>
 
 </menu>

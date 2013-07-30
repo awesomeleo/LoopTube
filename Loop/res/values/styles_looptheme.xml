@@ -82,6 +82,25 @@
       <item name="android:paddingRight">16dip</item>
   </style>
 
+  <style name="RatingBarLoopTheme" parent="android:Widget.RatingBar">
+      <item name="android:progressDrawable">@drawable/ratingbar_full_holo_dark</item>
+      <item name="android:indeterminateDrawable">@drawable/ratingbar_full_holo_dark</item>
+  </style>
+
+  <style name="RatingBarBigLoopTheme">
+      <item name="android:progressDrawable">@drawable/ratingbar_holo_dark</item>
+      <item name="android:indeterminateDrawable">@drawable/ratingbar_holo_dark</item>
+      <item name="android:minHeight">35dip</item>
+      <item name="android:maxHeight">35dip</item>
+  </style>
+
+  <style name="RatingBarSmallLoopTheme">
+      <item name="android:progressDrawable">@drawable/ratingbar_small_holo_dark</item>
+      <item name="android:indeterminateDrawable">@drawable/ratingbar_small_holo_dark</item>
+      <item name="android:minHeight">16dip</item>
+      <item name="android:maxHeight">16dip</item>
+  </style>
+
   <style name="ToggleLoopTheme" parent="android:Widget.Button.Toggle">
       <item name="android:background">@drawable/btn_toggle_holo_dark</item>
       <item name="android:minHeight">48dip</item>

@@ -4,8 +4,8 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBarActivity;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.kskkbys.loop.dialog.AlertDialogFragment;
 import com.kskkbys.loop.dialog.ProgressDialogFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
@@ -15,7 +15,7 @@ import com.kskkbys.loop.logger.KLog;
  * Base activity of all activities which extends SherlockActivity to support ActionBar.
  * Flurry API calling and DialogFragment handling.
  */
-public class BaseActivity extends SherlockFragmentActivity {
+public class BaseActivity extends ActionBarActivity {
 
 	private static final String TAG = BaseActivity.class.getSimpleName();
 	

@@ -21,8 +21,7 @@
         <activity
             android:name="com.kskkbys.loop.ui.SplashActivity"
             android:configChanges="screenSize|orientation"
-            android:label="@string/loop_app_name"
-            android:theme="@style/Theme.Sherlock.NoActionBar" >
+            android:label="@string/loop_app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

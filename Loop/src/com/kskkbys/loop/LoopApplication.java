@@ -2,6 +2,7 @@ package com.kskkbys.loop;
 
 
 import java.io.File;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import com.kskkbys.loop.model.BlackList;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
@@ -15,6 +16,7 @@ import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * Application class.
@@ -42,7 +44,7 @@ public class LoopApplication extends Application {
 		.build();
 		
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-		.taskExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+		.taskExecutor(AsyncTask.THREAD_POOL_EXECUTOR)	//TODO
 		.threadPoolSize(3)
 		.threadPriority(Thread.NORM_PRIORITY - 1)
 		.memoryCache(new LruMemoryCache(2 * 1024 * 1024))
