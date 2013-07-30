@@ -18,9 +18,6 @@
         <item name="android:tabWidgetStyle">@style/TabWidgetLoopTheme</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLoopTheme</item>
         <item name="android:seekBarStyle">@style/SeekBarLoopTheme</item>
-        <item name="android:ratingBarStyle">@style/RatingBarLoopTheme</item>
-        <item name="android:ratingBarStyleIndicator">@style/RatingBarBigLoopTheme</item>
-        <item name="android:ratingBarStyleSmall">@style/RatingBarSmallLoopTheme</item>
         <item name="android:buttonStyleToggle">@style/ToggleLoopTheme</item>
         <item name="android:listChoiceBackgroundIndicator">@drawable/list_selector_holo_dark</item>
         <item name="android:activatedBackgroundIndicator">@drawable/activated_background_holo_dark</item>

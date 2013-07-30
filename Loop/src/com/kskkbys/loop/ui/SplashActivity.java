@@ -5,13 +5,20 @@ import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
 
-public class SplashActivity extends BaseActivity {
+/**
+ * Splash screen.
+ * This screen should not show action bar.
+ * @author Keisuke Kobayashi
+ *
+ */
+public class SplashActivity extends Activity {
 
 	private static final String TAG = SplashActivity.class.getSimpleName();
 
@@ -21,6 +28,7 @@ public class SplashActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		KLog.v(TAG, "onCreate");
+		
 		// If first launch, show splash
 		LoopApplication app = (LoopApplication)getApplication();
 		if (app.isFirstLaunch()) {

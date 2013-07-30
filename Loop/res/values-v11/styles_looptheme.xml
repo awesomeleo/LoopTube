@@ -62,16 +62,6 @@
       <item name="android:thumb">@drawable/scrubber_control_selector_holo_dark</item>
   </style>
 
-  <style name="RatingBarBigLoopTheme" parent="android:Widget.Holo.RatingBar.Indicator">
-      <item name="android:progressDrawable">@drawable/ratingbar_holo_dark</item>
-      <item name="android:indeterminateDrawable">@drawable/ratingbar_holo_dark</item>
-  </style>
-
-  <style name="RatingBarSmallLoopTheme" parent="android:Widget.Holo.RatingBar.Small">
-      <item name="android:progressDrawable">@drawable/ratingbar_small_holo_dark</item>
-      <item name="android:indeterminateDrawable">@drawable/ratingbar_small_holo_dark</item>
-  </style>
-
   <style name="ToggleLoopTheme" parent="android:Widget.Holo.Button.Toggle">
       <item name="android:background">@drawable/btn_toggle_holo_dark</item>
   </style>
