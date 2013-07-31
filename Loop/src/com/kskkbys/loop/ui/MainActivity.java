@@ -378,7 +378,7 @@ public class MainActivity extends BaseActivity {
 		mHistoryFragment.updateHistoryUI();
 	}
 
-	public static class TabListener implements ActionBar.TabListener {
+	public class TabListener implements ActionBar.TabListener {
 		private final Fragment mFragment;
 
 		/** Constructor used each time a new tab is created.
@@ -394,24 +394,10 @@ public class MainActivity extends BaseActivity {
 
 		public void onTabSelected(Tab tab, FragmentTransaction ft) {
 			ft.replace(android.R.id.content, mFragment);
-			// Check if the fragment is already initialized
-			/*
-			if (mFragment == null) {
-				// If not, instantiate and add it to the activity
-				mFragment = Fragment.instantiate(mActivity, mClass.getName());
-				ft.add(android.R.id.content, mFragment, mTag);
-			} else {
-				// If it exists, simply attach it in order to show it
-				ft.attach(mFragment);
-			}*/
 		}
 
 		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-			/*
-			if (mFragment != null) {
-				// Detach the fragment, because another one is being attached
-				ft.detach(mFragment);
-			}*/
+			//
 		}
 
 		public void onTabReselected(Tab tab, FragmentTransaction ft) {
