@@ -1,13 +1,11 @@
 package com.kskkbys.loop.ui;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.kskkbys.loop.BuildConfig;
-import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.fragments.MainFavoriteFragment;
 import com.kskkbys.loop.fragments.MainHistoryFragment;
@@ -21,18 +19,13 @@ import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.storage.SQLiteStorage;
-import com.kskkbys.loop.storage.SQLiteStorage.Artist;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,48 +34,35 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar.TabListener;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.internal.widget.ActivityChooserModel.HistoricalRecord;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView.RecyclerListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * Search screen.
  *
  */
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements TabListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	public static final String FROM_NOTIFICATION = "from_notification";
 
-	// Fragments
-	private MainHistoryFragment mHistoryFragment;
-	private MainFavoriteFragment mFavoriteFragment;
+	// Pager
+	SectionsPagerAdapter mSectionsPagerAdapter;
+	ViewPager mViewPager;
 
 	// Menu
 	private MenuItem mSearchItem;
@@ -100,7 +80,11 @@ public class MainActivity extends BaseActivity {
 		public void onDestroyActionMode(ActionMode mode) {
 			mActionMode = null;
 			// Disable selection
-			mHistoryFragment.deselect();
+			int pos = mViewPager.getCurrentItem();
+			if (pos == 0) {
+				MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(pos);
+				fragment.deselect();
+			}
 		}
 
 		@Override
@@ -114,7 +98,11 @@ public class MainActivity extends BaseActivity {
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 			switch (item.getItemId()) {
 			case R.id.menu_delete:
-				mHistoryFragment.clearLongSelectedHistory();
+				int pos = mViewPager.getCurrentItem();
+				if (pos == 0) {
+					MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(pos);
+					fragment.clearLongSelectedHistory();
+				}
 				mode.finish(); // Action picked, so close the CAB
 				return true;
 			default:
@@ -126,6 +114,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
 
 		KLog.v(TAG, "onCreate");
 		FlurryLogger.logEvent(FlurryLogger.SEE_SEARCH);
@@ -135,18 +124,27 @@ public class MainActivity extends BaseActivity {
 		// even when all activities are close.
 		startService(new Intent(MainActivity.this, VideoPlayerService.class));
 
-		// Initialize fragments
-		mHistoryFragment = (MainHistoryFragment)MainHistoryFragment.instantiate(this, MainHistoryFragment.class.getName());
-		mFavoriteFragment = (MainFavoriteFragment)MainFavoriteFragment.instantiate(this, MainFavoriteFragment.class.getName());
-
 		// Initialize action bar
-		ActionBar actionBar = getSupportActionBar();
+		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle(R.string.loop_main_title);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		TabListener tabListener1 = new TabListener(mHistoryFragment);
-		TabListener tabListener2 = new TabListener(mFavoriteFragment);
-		actionBar.addTab(actionBar.newTab().setText("History").setTabListener(tabListener1));
-		actionBar.addTab(actionBar.newTab().setText("Favorite").setTabListener(tabListener2));
+
+		// Pager
+		mSectionsPagerAdapter = new SectionsPagerAdapter(
+				getSupportFragmentManager());
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setAdapter(mSectionsPagerAdapter);
+		mViewPager
+		.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				actionBar.setSelectedNavigationItem(position);
+			}
+		});
+
+		// Tabs
+		actionBar.addTab(actionBar.newTab().setText("History").setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText("Favorite").setTabListener(this));
 
 		// CAB
 		mActionMode = null;
@@ -232,8 +230,12 @@ public class MainActivity extends BaseActivity {
 			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					mHistoryFragment.clearAllHistory();
-					mHistoryFragment.updateHistoryUI();
+					int position = mViewPager.getCurrentItem();
+					if (position == 0) {
+						MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
+						fragment.clearAllHistory();
+						fragment.updateHistoryUI();
+					}
 				}
 			})
 			.setNegativeButton(R.string.loop_cancel, null);
@@ -298,7 +300,11 @@ public class MainActivity extends BaseActivity {
 			return;
 		}
 		// Add history
-		mHistoryFragment.addArtist(artist);
+		int position = mViewPager.getCurrentItem();
+		if (position == 0) {
+			MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
+			fragment.addArtist(artist);
+		}
 		// Start to search
 		YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
 		searchTask.execute(artist);
@@ -372,36 +378,72 @@ public class MainActivity extends BaseActivity {
 	}
 
 	public void updateHistory(String query, List<Video> videos) {
-		// Save image URL in search history db
-		mHistoryFragment.updateHistory(query, videos);
-		// Update history list view
-		mHistoryFragment.updateHistoryUI();
+		int position = mViewPager.getCurrentItem();
+		if (position == 0) {
+			MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
+			// Save image URL in search history db
+			fragment.updateHistory(query, videos);
+			// Update history list view
+			fragment.updateHistoryUI();
+		}
 	}
 
-	public class TabListener implements ActionBar.TabListener {
-		private final Fragment mFragment;
+	/**
+	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+	 * one of the sections/tabs/pages.
+	 */
+	public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-		/** Constructor used each time a new tab is created.
-		 * @param activity  The host Activity, used to instantiate the fragment
-		 * @param tag  The identifier tag for the fragment
-		 * @param clz  The fragment's Class, used to instantiate the fragment
+		/**
+		 * Constructor.
+		 * @param fm
 		 */
-		public TabListener(Fragment fragment) {
-			mFragment = fragment;
+		public SectionsPagerAdapter(FragmentManager fm) {
+			super(fm);
 		}
 
-		/* The following are each of the ActionBar.TabListener callbacks */
-
-		public void onTabSelected(Tab tab, FragmentTransaction ft) {
-			ft.replace(android.R.id.content, mFragment);
+		@Override
+		public Fragment getItem(int position) {
+			Fragment fragment = null;
+			switch (position) {
+			case 0:
+				fragment = new MainHistoryFragment();
+				break;
+			case 1:
+				fragment = new MainFavoriteFragment();
+				break;
+			}
+			return fragment;
 		}
 
-		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-			//
+		@Override
+		public int getCount() {
+			return 2;
 		}
 
-		public void onTabReselected(Tab tab, FragmentTransaction ft) {
-			// User selected the already selected tab. Usually do nothing.
+		@Override
+		public CharSequence getPageTitle(int position) {
+			Locale l = Locale.getDefault();
+			switch (position) {
+			case 0:
+				return getString(R.string.loop_main_tab_history).toUpperCase(l);
+			case 1:
+				return getString(R.string.loop_main_tab_favorite).toUpperCase(l);
+			}
+			return null;
 		}
+	}
+
+	@Override
+	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		mViewPager.setCurrentItem(tab.getPosition());
+	}
+
+	@Override
+	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
 	}
 }
