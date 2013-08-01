@@ -11,6 +11,7 @@ import com.kskkbys.loop.fragments.MainFavoriteFragment;
 import com.kskkbys.loop.fragments.MainHistoryFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
@@ -266,7 +267,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 	 * If already playing the artist, it goes to video player directly.
 	 * @param artist
 	 */
-	public void searchOrGoToPlayer(SQLiteStorage.Artist artist) {
+	public void searchOrGoToPlayer(Artist artist) {
 		if (!ConnectionState.isConnected(this)) {
 			KLog.w(TAG, "bad connection");
 			// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
@@ -297,17 +298,17 @@ public class MainActivity extends BaseActivity implements TabListener {
 			})
 			.setCancelable(false)
 			.create().show();
-			return;
+		} else {
+			// Add history
+			int position = mViewPager.getCurrentItem();
+			if (position == 0) {
+				MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
+				fragment.addArtist(artist);
+			}
+			// Start to search
+			YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
+			searchTask.execute(artist);
 		}
-		// Add history
-		int position = mViewPager.getCurrentItem();
-		if (position == 0) {
-			MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
-			fragment.addArtist(artist);
-		}
-		// Start to search
-		YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
-		searchTask.execute(artist);
 	}
 
 

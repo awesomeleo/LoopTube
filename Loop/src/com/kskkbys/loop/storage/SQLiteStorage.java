@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.Video;
 
 import android.content.ContentValues;
@@ -124,7 +125,7 @@ public class SQLiteStorage {
 		Cursor cursor = db.query(TABLE_ARTIST_NAME, cols, null, null, null, null, "date DESC");
 		int nameIndex = cursor.getColumnIndex(COL_ART_NAME);
 		int dateIndex = cursor.getColumnIndex(COL_ART_DATE);
-		List<Artist> list = new ArrayList<SQLiteStorage.Artist>();
+		List<Artist> list = new ArrayList<Artist>();
 		if (cursor.moveToFirst()) {
 			while (!cursor.isAfterLast()) {
 				Artist e = new Artist();
@@ -196,17 +197,6 @@ public class SQLiteStorage {
 			return true;
 		} else {
 			return false;
-		}
-	}
-
-	public static class Artist {
-		public String name;
-		public List<String> imageUrls;
-		public Date date;
-		public Artist() {
-			name = null;
-			imageUrls = new ArrayList<String>();
-			date = null;
 		}
 	}
 

@@ -7,13 +7,12 @@ import java.util.List;
 import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.storage.SQLiteStorage;
-import com.kskkbys.loop.storage.SQLiteStorage.Artist;
 import com.kskkbys.loop.ui.MainActivity;
-import com.kskkbys.loop.util.ConnectionState;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
@@ -51,11 +50,22 @@ public class MainHistoryFragment extends Fragment {
 
 	// ListView
 	private static final int IMAGE_COUNT_PER_ROW = 5;
-	private List<SQLiteStorage.Artist> mRecentArtists;
 	private ArtistAdapter mAdapter;
 	private ListView mListView;
 	private int mLongSelectedPosition;
 	private View mLongSelectedItem;
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		KLog.v(TAG, "onAttach");
+	}
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		KLog.v(TAG,"onCreate");
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,13 +84,8 @@ public class MainHistoryFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		KLog.v(TAG, "onActivityCreated");
 		super.onActivityCreated(savedInstanceState);
-		
-		
-		final MainActivity activity = (MainActivity)getActivity();
 
-		// Storage
-		LoopApplication app = (LoopApplication)activity.getApplication();
-		mStorage = app.getSQLiteStorage();
+		final MainActivity activity = (MainActivity)getActivity();
 
 		// Set up listview and empty view
 		View view = getView();
@@ -93,7 +98,6 @@ public class MainHistoryFragment extends Fragment {
 			}
 		});
 		mListView.setEmptyView(emptyView);
-		mRecentArtists = new ArrayList<SQLiteStorage.Artist>();
 		mListView.setRecyclerListener(new RecyclerListener() {
 			@Override
 			public void onMovedToScrapHeap(View view) {
@@ -108,7 +112,7 @@ public class MainHistoryFragment extends Fragment {
 				KLog.v(TAG, "onItemClick");
 				//Selected artist and current artist
 				ListView listView = (ListView) parent;
-				SQLiteStorage.Artist artist = (SQLiteStorage.Artist) listView.getItemAtPosition(position);
+				Artist artist = (Artist) listView.getItemAtPosition(position);
 
 				// Search or go to video player
 				activity.searchOrGoToPlayer(artist);
@@ -129,13 +133,18 @@ public class MainHistoryFragment extends Fragment {
 				return true;
 			}
 		});
-		
 		// Set adapter when activity is created
-		mAdapter = new ArtistAdapter(getActivity(), mRecentArtists);
+		mAdapter = new ArtistAdapter(getActivity(), new ArrayList<Artist>());
 		mListView.setAdapter(mAdapter);
+
+		// Storage
+		LoopApplication app = (LoopApplication)activity.getApplication();
+		mStorage = app.getSQLiteStorage();
+
 		// Read data
 		readHistory();
 		updateHistoryUI();
+		
 		// If a video is playing, show notification at bottom
 		updatePlayingNotification();
 	}
@@ -147,7 +156,7 @@ public class MainHistoryFragment extends Fragment {
 		updateHistoryUI();
 		updatePlayingNotification();
 	}
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -159,11 +168,6 @@ public class MainHistoryFragment extends Fragment {
 	 */
 	public void updateHistoryUI() {
 		KLog.v(TAG, "updateHistoryUI");
-		if (mRecentArtists != null && mRecentArtists.size() > 0) {
-			mListView.setVisibility(View.VISIBLE);
-		} else {
-			mListView.setVisibility(View.INVISIBLE);
-		}
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -174,8 +178,9 @@ public class MainHistoryFragment extends Fragment {
 	 */
 	public void updateHistory(String query, List<Video> videos) {
 		// Update array list
-		SQLiteStorage.Artist updatedEntry = null;
-		for (SQLiteStorage.Artist entry: mRecentArtists) {
+		Artist updatedEntry = null;
+		for (int i=0; i<mAdapter.getCount(); i++) {
+			Artist entry = mAdapter.getItem(i);
 			if (entry.name.equals(query)) {
 				entry.imageUrls = new ArrayList<String>();
 				int count = 0;
@@ -201,17 +206,18 @@ public class MainHistoryFragment extends Fragment {
 	 * @param artist
 	 */
 	public void addArtist(String artist) {
-		SQLiteStorage.Artist entry = findArtistFromHistory(artist);
+		KLog.v(TAG, "addArtist");
+		Artist entry = findArtistFromHistory(artist);
 		if (entry != null) {
-			mRecentArtists.remove(entry);
+			mAdapter.remove(entry);
 			entry.date = new Date();
-			mRecentArtists.add(0, entry);
+			mAdapter.add(entry);
 		} else {
-			entry = new SQLiteStorage.Artist();
+			entry = new Artist();
 			entry.name = artist;
 			entry.imageUrls = new ArrayList<String>();	// Before search video list, image URL is null.
 			entry.date = new Date();
-			mRecentArtists.add(entry);
+			mAdapter.add(entry);
 		}
 	}
 
@@ -223,7 +229,7 @@ public class MainHistoryFragment extends Fragment {
 				mStorage.clearArtists();
 			}
 		}).start();
-		mRecentArtists.clear();
+		mAdapter.clear();
 		mAdapter.notifyDataSetChanged();
 		// OS's search history
 		SearchRecentSuggestions suggestions = new SearchRecentSuggestions(getActivity(),
@@ -235,14 +241,17 @@ public class MainHistoryFragment extends Fragment {
 	 * Read search history which is already restored before.
 	 */
 	private void readHistory() {
-		List<SQLiteStorage.Artist> entries = mStorage.getRestoredArtists();
-		mRecentArtists.clear();
-		mRecentArtists.addAll(entries);
+		KLog.v(TAG, "readHistory");
+		List<Artist> entries = mStorage.getRestoredArtists();
+		mAdapter.clear();
+		mAdapter.addAll(entries);
 		mAdapter.notifyDataSetChanged();
 	}
 
-	private SQLiteStorage.Artist findArtistFromHistory(String artist) {
-		for (SQLiteStorage.Artist e: mRecentArtists) {
+	private Artist findArtistFromHistory(String artist) {
+		KLog.v(TAG, "findArtistFromHistory");
+		for (int i=0; i<mAdapter.getCount(); i++) {
+			Artist e = mAdapter.getItem(i);
 			if (e.name.equals(artist)) {
 				return e;
 			}
@@ -250,7 +259,7 @@ public class MainHistoryFragment extends Fragment {
 		return null;
 	}
 
-	private void saveArtist(final SQLiteStorage.Artist updatedEntry) {
+	private void saveArtist(final Artist updatedEntry) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -266,8 +275,9 @@ public class MainHistoryFragment extends Fragment {
 	 * @param position
 	 */
 	public void clearLongSelectedHistory() {
-		SQLiteStorage.Artist e = mRecentArtists.remove(mLongSelectedPosition);
-		new AsyncTask<SQLiteStorage.Artist, Integer, Boolean>() {
+		Artist e = mAdapter.getItem(mLongSelectedPosition);
+		mAdapter.remove(e);
+		new AsyncTask<Artist, Integer, Boolean>() {
 			@Override
 			protected Boolean doInBackground(Artist... params) {
 				mStorage.deleteArtist(params[0]);
@@ -284,6 +294,7 @@ public class MainHistoryFragment extends Fragment {
 	 * Release selection.
 	 */
 	public void deselect() {
+		KLog.v(TAG, "deselect");
 		if (mLongSelectedItem != null) {
 			mLongSelectedItem.setSelected(false);
 		}
@@ -320,7 +331,7 @@ public class MainHistoryFragment extends Fragment {
 	 * @author Keisuke Kobayashi
 	 *
 	 */
-	private class ArtistAdapter extends ArrayAdapter<SQLiteStorage.Artist> {
+	private class ArtistAdapter extends ArrayAdapter<Artist> {
 
 		private Activity mActivity;
 
@@ -329,7 +340,7 @@ public class MainHistoryFragment extends Fragment {
 		 * @param activity
 		 * @param objects
 		 */
-		public ArtistAdapter(Activity activity, List<SQLiteStorage.Artist> objects) {
+		public ArtistAdapter(Activity activity, List<Artist> objects) {
 			super(activity, R.layout.search_history_list_item, R.id.search_history_artist, objects);
 			mActivity = activity;
 		}
@@ -346,7 +357,7 @@ public class MainHistoryFragment extends Fragment {
 				prevArtist = titleView.getText().toString();
 			}
 
-			final SQLiteStorage.Artist artist = getItem(position);
+			final Artist artist = getItem(position);
 
 			// Set title
 			TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
@@ -364,7 +375,7 @@ public class MainHistoryFragment extends Fragment {
 			return view;
 		}
 
-		private void reloadImages(LinearLayout container, SQLiteStorage.Artist artist) {
+		private void reloadImages(LinearLayout container, Artist artist) {
 			container.removeAllViews();
 			if (artist.imageUrls != null) {
 				KLog.v(TAG, "Images are saved.");
