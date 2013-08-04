@@ -14,6 +14,7 @@ import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.Playlist;
+import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
@@ -232,8 +233,8 @@ public class MainActivity extends BaseActivity implements TabListener {
 				public void onClick(DialogInterface dialog, int which) {
 					int position = mViewPager.getCurrentItem();
 					if (position == 0) {
+						SearchHistory.getInstance(MainActivity.this).clearAllHistory();
 						MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
-						fragment.clearAllHistory();
 						fragment.updateHistoryUI();
 					}
 				}
@@ -296,8 +297,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 			// Add history
 			int position = mViewPager.getCurrentItem();
 			if (position == 0) {
-				MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
-				fragment.addArtist(artist);
+				SearchHistory.getInstance(this).addArtist(artist);
 			}
 			// Start to search
 			YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
@@ -378,10 +378,9 @@ public class MainActivity extends BaseActivity implements TabListener {
 	public void updateHistory(String query, List<Video> videos) {
 		int position = mViewPager.getCurrentItem();
 		if (position == 0) {
-			MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
-			// Save image URL in search history db
-			fragment.updateHistory(query, videos);
+			SearchHistory.getInstance(this).updateHistory(query, videos);
 			// Update history list view
+			MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
 			fragment.updateHistoryUI();
 		}
 	}

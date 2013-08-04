@@ -1,15 +1,13 @@
 package com.kskkbys.loop.fragments;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.Playlist;
-import com.kskkbys.loop.model.Video;
-import com.kskkbys.loop.search.ArtistSuggestionsProvider;
+import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.storage.SQLiteStorage;
 import com.kskkbys.loop.ui.MainActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -18,9 +16,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +41,7 @@ public class MainHistoryFragment extends Fragment {
 	private static final String TAG = MainHistoryFragment.class.getSimpleName();
 
 	// ListView
-	private static final int IMAGE_COUNT_PER_ROW = 5;
+	public static final int IMAGE_COUNT_PER_ROW = 5;
 	private ArtistAdapter mAdapter;
 	private ListView mListView;
 	private int mLongSelectedPosition;
@@ -130,12 +126,10 @@ public class MainHistoryFragment extends Fragment {
 			}
 		});
 		// Set adapter when activity is created
-		mAdapter = new ArtistAdapter(getActivity(), new ArrayList<Artist>());
+		SearchHistory history = SearchHistory.getInstance(getActivity());
+		history.readHistory();	// initialize
+		mAdapter = new ArtistAdapter(getActivity(), history.getArtists());
 		mListView.setAdapter(mAdapter);
-
-		// Read data
-		readHistory();
-		updateHistoryUI();
 		
 		// If a video is playing, show notification at bottom
 		updatePlayingNotification();
@@ -164,126 +158,12 @@ public class MainHistoryFragment extends Fragment {
 	}
 
 	/**
-	 * This method is called when YouTube API is completed.
-	 * @param query
-	 * @param videos
-	 */
-	public void updateHistory(String query, List<Video> videos) {
-		// Update array list
-		Artist updatedEntry = null;
-		for (int i=0; i<mAdapter.getCount(); i++) {
-			Artist entry = mAdapter.getItem(i);
-			if (entry.name.equals(query)) {
-				entry.imageUrls = new ArrayList<String>();
-				int count = 0;
-				for (Video v: videos) {
-					if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
-						entry.imageUrls.add(v.getThumbnailUrl());
-						count++;
-						if (count >= IMAGE_COUNT_PER_ROW) {
-							break;
-						}
-					}
-				}
-				updatedEntry = entry;
-				break;
-			}
-		}
-		// Store to SQLite (async)
-		saveArtist(updatedEntry);
-	}
-
-	/**
-	 * Add artist
-	 * @param artist
-	 */
-	public void addArtist(String artist) {
-		KLog.v(TAG, "addArtist");
-		Artist entry = findArtistFromHistory(artist);
-		if (entry != null) {
-			mAdapter.remove(entry);
-			entry.date = new Date();
-			mAdapter.add(entry);
-		} else {
-			entry = new Artist();
-			entry.name = artist;
-			entry.imageUrls = new ArrayList<String>();	// Before search video list, image URL is null.
-			entry.date = new Date();
-			mAdapter.add(entry);
-		}
-	}
-
-	public void clearAllHistory() {
-		// App's search history
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				SQLiteStorage storage = SQLiteStorage.getInstance(getActivity());
-				storage.clearArtists();
-			}
-		}).start();
-		mAdapter.clear();
-		mAdapter.notifyDataSetChanged();
-		// OS's search history
-		SearchRecentSuggestions suggestions = new SearchRecentSuggestions(getActivity(),
-				ArtistSuggestionsProvider.AUTHORITY, ArtistSuggestionsProvider.MODE);
-		suggestions.clearHistory();
-	}
-
-	/**
-	 * Read search history which is already restored before.
-	 */
-	private void readHistory() {
-		KLog.v(TAG, "readHistory");
-		SQLiteStorage storage = SQLiteStorage.getInstance(getActivity());
-		List<Artist> entries = storage.getRestoredArtists();
-		mAdapter.clear();
-		mAdapter.addAll(entries);
-		mAdapter.notifyDataSetChanged();
-	}
-
-	private Artist findArtistFromHistory(String artist) {
-		KLog.v(TAG, "findArtistFromHistory");
-		for (int i=0; i<mAdapter.getCount(); i++) {
-			Artist e = mAdapter.getItem(i);
-			if (e.name.equals(artist)) {
-				return e;
-			}
-		}
-		return null;
-	}
-
-	private void saveArtist(final Artist updatedEntry) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				if (updatedEntry != null) {
-					SQLiteStorage storage = SQLiteStorage.getInstance(getActivity());
-					storage.insertOrUpdateArtist(updatedEntry, true);
-				}
-			}
-		}).start();
-	}
-
-	/**
 	 * Delete the selected artist from history.
 	 * @param position
 	 */
 	public void clearLongSelectedHistory() {
-		Artist e = mAdapter.getItem(mLongSelectedPosition);
-		mAdapter.remove(e);
-		new AsyncTask<Artist, Integer, Boolean>() {
-			@Override
-			protected Boolean doInBackground(Artist... params) {
-				SQLiteStorage storage = SQLiteStorage.getInstance(getActivity());
-				storage.deleteArtist(params[0]);
-				return true;
-			}
-			@Override
-			protected void onPostExecute(Boolean result) {
-				mAdapter.notifyDataSetChanged();
-			}
-		}.execute(e);
+		Artist artist = mAdapter.getItem(mLongSelectedPosition);
+		SearchHistory.getInstance(getActivity()).removeArtist(artist);
 	}
 
 	/**
@@ -296,6 +176,7 @@ public class MainHistoryFragment extends Fragment {
 		}
 	}
 
+	// TODO Playing notification will be another fragment.
 	private void updatePlayingNotification() {
 		if (Playlist.getInstance().getCurrentVideo() != null) {
 			RelativeLayout base = (RelativeLayout)getView().findViewById(R.id.main_base);

@@ -105,8 +105,6 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 			//SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);
 			mParent.showAlert(R.string.loop_main_error_no_video, null);
 		}
-		//
-		mParent.updateHistory(mQuery, videos);
 	}
 
 	/**
