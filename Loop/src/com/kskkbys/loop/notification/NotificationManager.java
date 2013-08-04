@@ -43,7 +43,7 @@ public class NotificationManager {
 			.setContentText(text)
 			.setWhen(System.currentTimeMillis())
 			.setOngoing(true)
-			.getNotification();
+			.build();
 		
 		// Send the notification.
 		nm.notify(NOTIFICATION_ID, notification);

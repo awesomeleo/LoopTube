@@ -1,6 +1,5 @@
 package com.kskkbys.loop.ui;
 
-import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.fragments.PlayerControlFragment;
 import com.kskkbys.loop.fragments.PlayerListFragment;
@@ -234,8 +233,7 @@ public class VideoPlayerActivity extends BaseActivity {
 		new AsyncTask<String, Integer, Boolean>() {
 			@Override
 			protected Boolean doInBackground(String... params) {
-				LoopApplication app = (LoopApplication)getApplication();
-				SQLiteStorage storage = app.getSQLiteStorage();
+				SQLiteStorage storage = SQLiteStorage.getInstance(VideoPlayerActivity.this);
 				Video video = Playlist.getInstance().getCurrentVideo();
 				String artist = Playlist.getInstance().getQuery();
 				return storage.insertFavorite(video, artist);

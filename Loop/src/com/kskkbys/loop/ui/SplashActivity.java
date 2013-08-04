@@ -60,8 +60,7 @@ public class SplashActivity extends Activity {
 	}
 
 	private void restoreHistory() {
-		LoopApplication app = (LoopApplication)getApplication();
-		SQLiteStorage storage = app.getSQLiteStorage();
+		SQLiteStorage storage = SQLiteStorage.getInstance(getApplicationContext());
 		LoadHistoryTask task = new LoadHistoryTask();
 		task.execute(storage);
 	}

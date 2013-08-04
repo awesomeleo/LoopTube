@@ -19,7 +19,6 @@ import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
-import com.kskkbys.loop.storage.SQLiteStorage;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
 
@@ -290,12 +289,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 		if (TextUtils.isEmpty(artist)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.loop_main_invalid_query)
-			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-
-				}
-			})
+			.setPositiveButton(R.string.loop_ok, null)
 			.setCancelable(false)
 			.create().show();
 		} else {
@@ -356,6 +350,9 @@ public class MainActivity extends BaseActivity implements TabListener {
 		goToNextActivity();
 	}
 
+	/**
+	 * This method is called when button in empty view is clicked.
+	 */
 	public void expandSearchView() {
 		mSearchItem.expandActionView();
 	}

@@ -42,13 +42,22 @@ public class SQLiteStorage {
 
 	private List<Artist> mEntryList;
 	
+	private static SQLiteStorage sInstance = null;
+	
 	/**
 	 * Constructor
 	 * @param context
 	 */
-	public SQLiteStorage(Context context) {
+	private SQLiteStorage(Context context) {
 		mHelper = new DatabaseOpenHelper(context);
 		mEntryList = null;
+	}
+	
+	public static synchronized SQLiteStorage getInstance(Context context) {
+		if (sInstance == null) {
+			sInstance = new SQLiteStorage(context);
+		}
+		return sInstance;
 	}
 
 	/**

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
@@ -45,9 +44,6 @@ public class MainHistoryFragment extends Fragment {
 
 	private static final String TAG = MainHistoryFragment.class.getSimpleName();
 
-	// Storage util
-	private SQLiteStorage mStorage;
-
 	// ListView
 	private static final int IMAGE_COUNT_PER_ROW = 5;
 	private ArtistAdapter mAdapter;
@@ -85,8 +81,6 @@ public class MainHistoryFragment extends Fragment {
 		KLog.v(TAG, "onActivityCreated");
 		super.onActivityCreated(savedInstanceState);
 
-		final MainActivity activity = (MainActivity)getActivity();
-
 		// Set up listview and empty view
 		View view = getView();
 		mListView = (ListView)view.findViewById(R.id.main_search_history);
@@ -94,6 +88,7 @@ public class MainHistoryFragment extends Fragment {
 		emptyView.findViewById(R.id.main_search_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				MainActivity activity = (MainActivity)getActivity();
 				activity.expandSearchView();
 			}
 		});
@@ -115,6 +110,7 @@ public class MainHistoryFragment extends Fragment {
 				Artist artist = (Artist) listView.getItemAtPosition(position);
 
 				// Search or go to video player
+				MainActivity activity = (MainActivity)getActivity();
 				activity.searchOrGoToPlayer(artist);
 
 			}
@@ -136,10 +132,6 @@ public class MainHistoryFragment extends Fragment {
 		// Set adapter when activity is created
 		mAdapter = new ArtistAdapter(getActivity(), new ArrayList<Artist>());
 		mListView.setAdapter(mAdapter);
-
-		// Storage
-		LoopApplication app = (LoopApplication)activity.getApplication();
-		mStorage = app.getSQLiteStorage();
 
 		// Read data
 		readHistory();
@@ -226,7 +218,8 @@ public class MainHistoryFragment extends Fragment {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				mStorage.clearArtists();
+				SQLiteStorage storage = SQLiteStorage.getInstance(getActivity());
+				storage.clearArtists();
 			}
 		}).start();
 		mAdapter.clear();
@@ -242,7 +235,8 @@ public class MainHistoryFragment extends Fragment {
 	 */
 	private void readHistory() {
 		KLog.v(TAG, "readHistory");
-		List<Artist> entries = mStorage.getRestoredArtists();
+		SQLiteStorage storage = SQLiteStorage.getInstance(getActivity());
+		List<Artist> entries = storage.getRestoredArtists();
 		mAdapter.clear();
 		mAdapter.addAll(entries);
 		mAdapter.notifyDataSetChanged();
@@ -264,7 +258,8 @@ public class MainHistoryFragment extends Fragment {
 			@Override
 			public void run() {
 				if (updatedEntry != null) {
-					mStorage.insertOrUpdateArtist(updatedEntry, true);
+					SQLiteStorage storage = SQLiteStorage.getInstance(getActivity());
+					storage.insertOrUpdateArtist(updatedEntry, true);
 				}
 			}
 		}).start();
@@ -280,7 +275,8 @@ public class MainHistoryFragment extends Fragment {
 		new AsyncTask<Artist, Integer, Boolean>() {
 			@Override
 			protected Boolean doInBackground(Artist... params) {
-				mStorage.deleteArtist(params[0]);
+				SQLiteStorage storage = SQLiteStorage.getInstance(getActivity());
+				storage.deleteArtist(params[0]);
 				return true;
 			}
 			@Override

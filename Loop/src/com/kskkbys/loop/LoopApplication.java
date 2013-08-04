@@ -2,10 +2,8 @@ package com.kskkbys.loop;
 
 
 import java.io.File;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import com.kskkbys.loop.model.BlackList;
-import com.kskkbys.loop.storage.SQLiteStorage;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -17,7 +15,6 @@ import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import android.app.Application;
 import android.os.AsyncTask;
-import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * Application class.
@@ -27,7 +24,6 @@ import android.support.v4.content.AsyncTaskLoader;
 public class LoopApplication extends Application {
 
 	private boolean mIsFirstLaunch;
-	private SQLiteStorage mArtistStorage;
 
 	@Override
 	public void onCreate() {
@@ -60,9 +56,6 @@ public class LoopApplication extends Application {
 		.build();
 		
 		ImageLoader.getInstance().init(config);
-		
-		// Initialize storage instance which will be accessed by several screens.
-		mArtistStorage = new SQLiteStorage(this);
 	}
 
 	/**
@@ -75,9 +68,5 @@ public class LoopApplication extends Application {
 			return true;
 		}
 		return false;
-	}
-	
-	public SQLiteStorage getSQLiteStorage() {
-		return mArtistStorage;
 	}
 }
