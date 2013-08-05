@@ -40,7 +40,7 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 		Intent intent = new Intent(context.getApplicationContext(), WidgetService.class);
 		context.startService(intent);
 		// Update view
-		updateRemoteViews(context);
+		updateRemoteViews(context, true);
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 		KLog.v(TAG, "onDeleted");
 	}
 
-	private static void updateRemoteViews(Context context) {
+	private static void updateRemoteViews(Context context, boolean isPlaying) {
 		AppWidgetManager awm = AppWidgetManager.getInstance(context);
 		RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
 		// title
@@ -64,10 +64,19 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 		PendingIntent nextPendingIntent = PendingIntent.getService(context, REQUEST_CODE_NEXT, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		remoteViews.setOnClickPendingIntent(R.id.widget_next, nextPendingIntent);
 		// pause
-		Intent pauseIntent = new Intent(context, VideoPlayerService.class);
-		pauseIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PAUSE);
-		PendingIntent pausePendingIntent = PendingIntent.getService(context, REQUEST_CODE_PAUSE, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		remoteViews.setOnClickPendingIntent(R.id.widget_pause, pausePendingIntent);
+		if (isPlaying) {
+			remoteViews.setImageViewResource(R.id.widget_pause, R.drawable.pause);
+			Intent pauseIntent = new Intent(context, VideoPlayerService.class);
+			pauseIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PAUSE);
+			PendingIntent pausePendingIntent = PendingIntent.getService(context, REQUEST_CODE_PAUSE, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			remoteViews.setOnClickPendingIntent(R.id.widget_pause, pausePendingIntent);
+		} else {
+			remoteViews.setImageViewResource(R.id.widget_pause, R.drawable.play);
+			Intent playIntent = new Intent(context, VideoPlayerService.class);
+			playIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PLAY);
+			PendingIntent playPendingIntent = PendingIntent.getService(context, REQUEST_CODE_PAUSE, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			remoteViews.setOnClickPendingIntent(R.id.widget_pause, playPendingIntent);
+		}
 		// prev
 		Intent prevIntent = new Intent(context, VideoPlayerService.class);
 		prevIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PREV);
@@ -87,7 +96,6 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 
 		@Override
 		public IBinder onBind(Intent intent) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -97,6 +105,7 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 			// Register broadcast
 			IntentFilter filter = new IntentFilter();
 			filter.addAction(PlayerEvent.Prepared.getAction());
+			filter.addAction(PlayerEvent.StateUpdate.getAction());
 			registerReceiver(sReceiver, filter);
 			return START_STICKY;
 		}
@@ -107,11 +116,15 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 	 * Broadcast receiver to handle events from VideoPlayerService.
 	 */
 	private static BroadcastReceiver sReceiver = new BroadcastReceiver() {
-
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			KLog.v(TAG, "onReceive");
-			updateRemoteViews(context);
+			if (intent.getAction().equals(PlayerEvent.Prepared.getAction())) {
+				updateRemoteViews(context, true);
+			} else if (intent.getAction().equals(PlayerEvent.StateUpdate.getAction())) {
+				boolean isPlaying = intent.getBooleanExtra("is_playing", false);
+				updateRemoteViews(context, isPlaying);
+			}
 		}
 	};
 }

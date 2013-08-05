@@ -162,7 +162,7 @@ public class VideoPlayerService extends Service {
 			public void run() {
 				// Only broadcast on playing.
 				if (mMediaPlayer != null && mState == PlayerState.Playing) {
-					Intent intent = new Intent(PlayerEvent.Update.getAction());
+					Intent intent = new Intent(PlayerEvent.PositionUpdate.getAction());
 					intent.putExtra("msec", mMediaPlayer.getCurrentPosition());
 					intent.putExtra("is_playing", mMediaPlayer.isPlaying());
 					intent.setPackage(getPackageName());
@@ -282,6 +282,10 @@ public class VideoPlayerService extends Service {
 			mMediaPlayer.start();
 			// show notification
 			showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
+			// Broadcast
+			Intent stateIntent = new Intent(PlayerEvent.StateUpdate.getAction());
+			stateIntent.putExtra("is_playing", true);
+			sendBroadcast(stateIntent);
 			// logger
 			if (!mIsPlaying) {
 				mIsPlaying = true;
@@ -298,6 +302,10 @@ public class VideoPlayerService extends Service {
 		if (mState == PlayerState.Playing) {
 			mMediaPlayer.pause();
 			NotificationManager.cancel(this);
+			// Broadcast
+			Intent stateIntent = new Intent(PlayerEvent.StateUpdate.getAction());
+			stateIntent.putExtra("is_playing", false);
+			sendBroadcast(stateIntent);
 			if (mIsPlaying) {
 				mIsPlaying = false;
 				FlurryLogger.endTimedEvent(FlurryLogger.PLAY_VIDEO);
@@ -581,9 +589,13 @@ public class VideoPlayerService extends Service {
 		 */
 		EndToLoad,
 		/**
-		 * General update of player state
+		 * Update of position (milliseconds)
 		 */
-		Update;
+		PositionUpdate,
+		/**
+		 * Playing or pausing
+		 */
+		StateUpdate;
 
 		/**
 		 * Get action for intent.

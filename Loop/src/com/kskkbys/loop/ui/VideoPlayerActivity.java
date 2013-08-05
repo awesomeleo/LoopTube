@@ -61,7 +61,7 @@ public class VideoPlayerActivity extends BaseActivity {
 				handleSeekComplete(msec);
 			} else if (action.equals(PlayerEvent.Prepared.getAction())) {
 				handlePrepared();
-			} else if (action.equals(PlayerEvent.Update.getAction())) {
+			} else if (action.equals(PlayerEvent.PositionUpdate.getAction())) {
 				int msec = intent.getExtras().getInt("msec");
 				boolean isPlaying = intent.getExtras().getBoolean("is_playing");
 				handleUpdate(msec, isPlaying);
