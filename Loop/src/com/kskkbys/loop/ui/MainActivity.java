@@ -161,8 +161,8 @@ public class MainActivity extends BaseActivity implements TabListener {
 		});
 
 		// Tabs
-		actionBar.addTab(actionBar.newTab().setText("History").setTabListener(this));
-		actionBar.addTab(actionBar.newTab().setText("Favorite").setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText(R.string.loop_main_tab_history).setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText(R.string.loop_main_tab_favorite).setTabListener(this));
 
 		// CAB
 		mActionMode = null;
