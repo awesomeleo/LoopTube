@@ -31,12 +31,14 @@ import android.widget.TextView;
  *
  */
 public class MainFavoriteFragment extends Fragment {
-	
+
 	private static final String TAG = MainFavoriteFragment.class.getSimpleName();
 
 	private VideoAdapter mAdapter;
 	private ListView mListView;
-	
+
+	private int mSelection = -1;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -45,12 +47,12 @@ public class MainFavoriteFragment extends Fragment {
 		mListView = (ListView)view.findViewById(R.id.favorite_listview);
 		return view;
 	}
-	
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		KLog.v(TAG, "onActivityCreated");
 		super.onActivityCreated(savedInstanceState);
-		
+
 		// Initialize list view.
 		FavoriteList favlist = FavoriteList.getInstance(getActivity());
 		List<Video> videos = favlist.getVideos();
@@ -69,20 +71,57 @@ public class MainFavoriteFragment extends Fragment {
 		});
 		mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
+			public boolean onItemLongClick(AdapterView<?> adapter, View view,
+					int position, long id) {
 				KLog.v(TAG, "onItemLongClick");
-				return false;
+				mSelection = position;
+				mListView.setItemChecked(position, true);
+				MainActivity activity = (MainActivity)getActivity();
+				activity.startActionModeByLongClick();
+				return true;
 			}
 		});
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
-		mAdapter.notifyDataSetChanged();
+		updateUI();
 	}
-	
+
+	/**
+	 * Clear the long-selected video from fav list.
+	 */
+	public void clearLongSelectedVideo() {
+		KLog.v(TAG, "clearLongSelectedVideo");
+		if (mSelection >= 0) {
+			Video video = mAdapter.getItem(mSelection);
+			FavoriteList.getInstance(getActivity()).deleteFavorite(video);
+		} else {
+			KLog.w(TAG, "Invalid selection index: " + mSelection);
+		}
+		deselect();
+	}
+
+	/**
+	 * Clear selection
+	 */
+	public void deselect() {
+		KLog.v(TAG, "deselect");
+		mSelection = -1;
+		mListView.clearChoices();
+		updateUI();
+	}
+
+	/**
+	 * Called when data is changed by activity.
+	 */
+	private void updateUI() {
+		if (mAdapter != null) {
+			mAdapter.notifyDataSetChanged();
+		}
+	}
+
 	/**
 	 * Adapter class for video list.
 	 * @author Keisuke Kobayashi
@@ -91,12 +130,12 @@ public class MainFavoriteFragment extends Fragment {
 	private static class VideoAdapter extends ArrayAdapter<Video> {
 
 		private LayoutInflater mInflater;
-		
+
 		public VideoAdapter(Activity activity, List<Video> objects) {
 			super(activity, R.layout.fragment_main_favorite, R.id.favorite_title, objects);
 			mInflater = activity.getLayoutInflater();
 		}
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			KLog.v(TAG, "getView: " + position);
@@ -113,9 +152,9 @@ public class MainFavoriteFragment extends Fragment {
 			ImageView imageView = (ImageView)view.findViewById(R.id.favorite_thumbnail);
 			ImageLoader imageLoader = ImageLoader.getInstance();
 			imageLoader.displayImage(getItem(position).getThumbnailUrl(), imageView);
-			
+
 			return view;
 		}
-		
+
 	}
 }

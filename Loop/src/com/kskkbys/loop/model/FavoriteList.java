@@ -55,5 +55,13 @@ public class FavoriteList {
 		return storage.insertFavorite(video, artist);
 	}
 	
-	
+	/**
+	 * Delete the video from favorite list.
+	 * @param video
+	 * @return
+	 */
+	public boolean deleteFavorite(Video video) {
+		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+		return storage.deleteFavorite(video);
+	}
 }

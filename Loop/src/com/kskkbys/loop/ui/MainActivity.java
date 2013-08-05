@@ -11,6 +11,7 @@ import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.BlackList;
+import com.kskkbys.loop.model.FavoriteList;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.model.Video;
@@ -64,6 +65,10 @@ public class MainActivity extends BaseActivity implements TabListener {
 	// Pager
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	ViewPager mViewPager;
+	
+	// Fragments
+	MainHistoryFragment mHistoryFragment = new MainHistoryFragment();
+	MainFavoriteFragment mFavoriteFragment = new MainFavoriteFragment();
 
 	// Menu
 	private MenuItem mSearchItem;
@@ -79,32 +84,44 @@ public class MainActivity extends BaseActivity implements TabListener {
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
+			KLog.v(TAG, "onDestroyActionMode");
 			mActionMode = null;
 			// Disable selection
 			int pos = mViewPager.getCurrentItem();
 			if (pos == 0) {
 				MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(pos);
 				fragment.deselect();
+			} else {
+				// MainFavoriteFragment fragment = (MainFavoriteFragment)mSectionsPagerAdapter.getItem(pos);
+				// fragment.deselect();
 			}
 		}
 
 		@Override
 		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			KLog.v(TAG, "onCreateActionMode");
 			MenuInflater inflater = getMenuInflater();
-			inflater.inflate(R.menu.activity_main_cab, menu);
+			if (mViewPager.getCurrentItem() == 0) {
+				inflater.inflate(R.menu.activity_main_history_cab, menu);
+			} else {
+				inflater.inflate(R.menu.activity_main_favorite_cab, menu);
+			}
 			return true;
 		}
 
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			KLog.v(TAG, "onActionItemClicked");
 			switch (item.getItemId()) {
-			case R.id.menu_delete:
-				int pos = mViewPager.getCurrentItem();
-				if (pos == 0) {
-					MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(pos);
-					fragment.clearLongSelectedHistory();
-				}
+			case R.id.menu_delete_history:
+				MainHistoryFragment fragment0 = (MainHistoryFragment)mSectionsPagerAdapter.getItem(0);
+				fragment0.clearLongSelectedHistory();
 				mode.finish(); // Action picked, so close the CAB
+				return true;
+			case R.id.menu_delete_favorite:
+				MainFavoriteFragment fragment1 = (MainFavoriteFragment)mSectionsPagerAdapter.getItem(1);
+				fragment1.clearLongSelectedVideo();
+				mode.finish();
 				return true;
 			default:
 				return false;
@@ -369,6 +386,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 	}
 
 	public boolean startActionModeByLongClick() {
+		KLog.v(TAG, "startActionModeByLongClick");
 		// Show contextual action bar
 		if (mActionMode != null) {
 			return false;
@@ -403,16 +421,13 @@ public class MainActivity extends BaseActivity implements TabListener {
 
 		@Override
 		public Fragment getItem(int position) {
-			Fragment fragment = null;
 			switch (position) {
 			case 0:
-				fragment = new MainHistoryFragment();
-				break;
+				return mHistoryFragment;
 			case 1:
-				fragment = new MainFavoriteFragment();
-				break;
+				return mFavoriteFragment;
 			}
-			return fragment;
+			return null;
 		}
 
 		@Override

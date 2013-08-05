@@ -201,6 +201,9 @@ public class SQLiteStorage {
 	
 	public boolean deleteFavorite(Video video) {
 		KLog.v(TAG, "deleteFavorite");
+		// On memory
+		mFavoriteList.remove(video);
+		// DB
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 		String where = COL_FAV_VIDEO_ID + "=?";
 		if (db.delete(TABLE_FAVORITE_NAME, where, new String[]{video.getId()}) > 0) {
