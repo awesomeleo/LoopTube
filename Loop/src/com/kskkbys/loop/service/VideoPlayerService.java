@@ -251,14 +251,6 @@ public class VideoPlayerService extends Service {
 		KLog.v(TAG, "VideoPlayerService stopped.");
 	}
 
-	/**
-	 * Show a notification in status bar
-	 * @param videoTitle
-	 */
-	private void showNotification(String videoTitle) {
-		NotificationManager.show(this, videoTitle);
-	}
-
 	private void prev() {
 		KLog.v(TAG, "prev");
 		Playlist.getInstance().prev();
@@ -281,7 +273,7 @@ public class VideoPlayerService extends Service {
 			mState = PlayerState.Playing;
 			mMediaPlayer.start();
 			// show notification
-			showNotification(Playlist.getInstance().getCurrentVideo().getTitle());
+			NotificationManager.show(this, Playlist.getInstance().getCurrentVideo().getTitle(), true);
 			// Broadcast
 			Intent stateIntent = new Intent(PlayerEvent.StateUpdate.getAction());
 			stateIntent.putExtra("is_playing", true);
@@ -301,7 +293,8 @@ public class VideoPlayerService extends Service {
 		KLog.v(TAG, "pause");
 		if (mState == PlayerState.Playing) {
 			mMediaPlayer.pause();
-			NotificationManager.cancel(this);
+			// show notification
+			NotificationManager.show(this, Playlist.getInstance().getCurrentVideo().getTitle(), false);
 			// Broadcast
 			Intent stateIntent = new Intent(PlayerEvent.StateUpdate.getAction());
 			stateIntent.putExtra("is_playing", false);

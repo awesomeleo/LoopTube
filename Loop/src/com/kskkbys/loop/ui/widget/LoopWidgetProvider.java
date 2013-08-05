@@ -4,10 +4,9 @@ import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
-import com.kskkbys.loop.service.VideoPlayerService;
+import com.kskkbys.loop.notification.PendingIntentFactory;
 import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
 
-import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -27,10 +26,6 @@ import android.widget.RemoteViews;
 public class LoopWidgetProvider extends AppWidgetProvider {
 
 	private static final String TAG = LoopWidgetProvider.class.getSimpleName();
-
-	private static final int REQUEST_CODE_PREV = 1;
-	private static final int REQUEST_CODE_PAUSE = 2;
-	private static final int REQUEST_CODE_NEXT = 3;
 
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
@@ -62,30 +57,19 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 		} else {
 			remoteViews.setTextViewText(R.id.widget_title, context.getText(R.string.loop_widget_loading));
 		}
+		remoteViews.setOnClickPendingIntent(R.id.widget_title, PendingIntentFactory.getLaunchIntent(context));
 		// next
-		Intent nextIntent = new Intent(context, VideoPlayerService.class);
-		nextIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_NEXT);
-		PendingIntent nextPendingIntent = PendingIntent.getService(context, REQUEST_CODE_NEXT, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		remoteViews.setOnClickPendingIntent(R.id.widget_next, nextPendingIntent);
+		remoteViews.setOnClickPendingIntent(R.id.widget_next, PendingIntentFactory.getNextIntent(context));
 		// pause
 		if (isPlaying) {
 			remoteViews.setImageViewResource(R.id.widget_pause, R.drawable.pause);
-			Intent pauseIntent = new Intent(context, VideoPlayerService.class);
-			pauseIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PAUSE);
-			PendingIntent pausePendingIntent = PendingIntent.getService(context, REQUEST_CODE_PAUSE, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-			remoteViews.setOnClickPendingIntent(R.id.widget_pause, pausePendingIntent);
+			remoteViews.setOnClickPendingIntent(R.id.widget_pause, PendingIntentFactory.getPauseIntent(context));
 		} else {
 			remoteViews.setImageViewResource(R.id.widget_pause, R.drawable.play);
-			Intent playIntent = new Intent(context, VideoPlayerService.class);
-			playIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PLAY);
-			PendingIntent playPendingIntent = PendingIntent.getService(context, REQUEST_CODE_PAUSE, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-			remoteViews.setOnClickPendingIntent(R.id.widget_pause, playPendingIntent);
+			remoteViews.setOnClickPendingIntent(R.id.widget_pause, PendingIntentFactory.getPlayIntent(context));
 		}
 		// prev
-		Intent prevIntent = new Intent(context, VideoPlayerService.class);
-		prevIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PREV);
-		PendingIntent prevPendingIntent = PendingIntent.getService(context, REQUEST_CODE_PREV, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		remoteViews.setOnClickPendingIntent(R.id.widget_prev, prevPendingIntent);
+		remoteViews.setOnClickPendingIntent(R.id.widget_prev, PendingIntentFactory.getPrevIntent(context));
 
 		ComponentName componentName = new ComponentName(context, LoopWidgetProvider.class);
 		awm.updateAppWidget(componentName, remoteViews);

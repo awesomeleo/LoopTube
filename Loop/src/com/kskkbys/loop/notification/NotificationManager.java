@@ -1,14 +1,11 @@
 package com.kskkbys.loop.notification;
 
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
 import com.kskkbys.loop.R;
-import com.kskkbys.loop.ui.MainActivity;
 
 public class NotificationManager {
 
@@ -20,35 +17,43 @@ public class NotificationManager {
 	 * Show Now Playing notification
 	 * @param context
 	 * @param videoTitle
+	 * @param isPlaying
 	 */
-	public static void show(Context context, String videoTitle) {
+	public static void show(Context context, String videoTitle, boolean isPlaying) {
 
 		android.app.NotificationManager nm = (android.app.NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 		// In this sample, we'll use the same text for the ticker and the expanded notification
 		CharSequence text = "Now Playing: " + videoTitle;
 
-		// The PendingIntent to launch our activity if the user selects this notification
-		Intent intent = new Intent(context, MainActivity.class);
-		intent.putExtra(MainActivity.FROM_NOTIFICATION, true);
-		PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-				intent, 0);
-		
-		Notification notification = new NotificationCompat.Builder(context)
-			.setContentIntent(contentIntent)
-			.setSmallIcon(R.drawable.ic_stat_name)
-			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
-			.setTicker(text)
-			.setContentTitle(context.getText(R.string.loop_app_name))
-			.setContentText(text)
-			.setWhen(System.currentTimeMillis())
-			.setOngoing(true)
-			.getNotification();
-		
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+		.setContentIntent(PendingIntentFactory.getLaunchIntent(context))
+		.setSmallIcon(R.drawable.ic_stat_name)
+		.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
+		.setTicker(text)
+		.setContentTitle(context.getText(R.string.loop_app_name))
+		.setContentText(text)
+		.setWhen(System.currentTimeMillis())
+		.setOngoing(true);
+
+		if (isPlaying) {
+			builder
+			.addAction(R.drawable.rewind, "Prev", PendingIntentFactory.getPrevIntent(context))
+			.addAction(R.drawable.pause, "Pause", PendingIntentFactory.getPauseIntent(context))
+			.addAction(R.drawable.forward, "Next", PendingIntentFactory.getNextIntent(context));
+		} else {
+			builder
+			.addAction(R.drawable.rewind, "Prev", PendingIntentFactory.getPrevIntent(context))
+			.addAction(R.drawable.play, "Play", PendingIntentFactory.getPlayIntent(context))
+			.addAction(R.drawable.forward, "Next", PendingIntentFactory.getNextIntent(context));
+		}
+
+		Notification notification = builder.build();
+
 		// Send the notification.
 		nm.notify(NOTIFICATION_ID, notification);
 	}
-	
+
 	/**
 	 * Cancel the notification
 	 * @param context
