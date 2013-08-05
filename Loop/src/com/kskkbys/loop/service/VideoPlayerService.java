@@ -27,6 +27,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
@@ -145,6 +146,12 @@ public class VideoPlayerService extends Service {
 				intent.putExtra("is_playing", mp.isPlaying());
 				intent.setPackage(getPackageName());
 				sendBroadcast(intent);
+			}
+		});
+		mMediaPlayer.setOnBufferingUpdateListener(new OnBufferingUpdateListener() {
+			@Override
+			public void onBufferingUpdate(MediaPlayer mp, int percent) {
+				// do nothing
 			}
 		});
 
