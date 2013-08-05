@@ -9,7 +9,6 @@ import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
-import com.kskkbys.loop.storage.SQLiteStorage;
 import com.kskkbys.loop.ui.fragments.PlayerControlFragment;
 import com.kskkbys.loop.ui.fragments.PlayerListFragment;
 
@@ -144,9 +143,6 @@ public class VideoPlayerActivity extends BaseActivity {
 		case R.id.menu_favorite:
 			addFavorite();
 			return true;
-		case R.id.menu_ignore_current:
-			ignoreCurrentVideo();
-			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -186,29 +182,15 @@ public class VideoPlayerActivity extends BaseActivity {
 		});
 	}
 
-	/**
-	 * Add the current video to black list
-	 */
-	private void ignoreCurrentVideo() {
-		KLog.v(TAG, "ignoreCurrentVideo");
-		Video video = Playlist.getInstance().getCurrentVideo();
-		if (video != null) {
-			String videoId = video.getId();
-			BlackList.getInstance().addUserBlackList(videoId);
-			//
-			Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
-			// Go next video
-			PlayerCommand.next(VideoPlayerActivity.this);
-		}
-	}
-
 	private void ignoreVideo(int position) {
 		KLog.v(TAG, "ignoreVideo");
 		Video video = Playlist.getInstance().getVideoAtIndex(position);
 		if (video != null) {
 			String videoId = video.getId();
 			BlackList.getInstance().addUserBlackList(videoId);
-			//
+			// update list view
+			mListFragment.updateVideoInfo();
+			// Show toast
 			Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
 		}
 	}

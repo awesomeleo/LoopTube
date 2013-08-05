@@ -13,11 +13,5 @@
         android:orderInCategory="100"
         yourapp:showAsAction="always"
         android:title="@string/loop_menu_item_favorite"/>
-    <item
-        android:id="@+id/menu_ignore_current"
-        android:icon="@android:drawable/ic_menu_delete"
-        android:orderInCategory="100"
-        yourapp:showAsAction="ifRoom"
-        android:title="@string/loop_menu_item_ignore"/>
 
 </menu>
