@@ -39,6 +39,7 @@
     <string name="loop_main_now_playing">現在再生中の動画</string>
     
     <string name="loop_widget_not_playing">現在再世中の動画はありません。</string>
+    <string name="loop_widget_loading">読み込み中&#8230;</string>
     
     <string name="loop_ok">OK</string>
     <string name="loop_cancel">キャンセル</string>

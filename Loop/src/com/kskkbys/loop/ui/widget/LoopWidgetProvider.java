@@ -40,7 +40,7 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 		Intent intent = new Intent(context.getApplicationContext(), WidgetService.class);
 		context.startService(intent);
 		// Update view
-		updateRemoteViews(context, true);
+		updateRemoteViews(context, true, false);
 	}
 
 	@Override
@@ -48,15 +48,19 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 		KLog.v(TAG, "onDeleted");
 	}
 
-	private static void updateRemoteViews(Context context, boolean isPlaying) {
+	private static void updateRemoteViews(Context context, boolean isPlaying, boolean isLoading) {
 		AppWidgetManager awm = AppWidgetManager.getInstance(context);
 		RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
 		// title
-		Video video = Playlist.getInstance().getCurrentVideo();
-		if (video != null) {
-			remoteViews.setTextViewText(R.id.widget_title, video.getTitle());
+		if (!isLoading) {
+			Video video = Playlist.getInstance().getCurrentVideo();
+			if (video != null) {
+				remoteViews.setTextViewText(R.id.widget_title, video.getTitle());
+			} else {
+				remoteViews.setTextViewText(R.id.widget_title, context.getText(R.string.loop_widget_not_playing));
+			}
 		} else {
-			remoteViews.setTextViewText(R.id.widget_title, context.getText(R.string.loop_widget_not_playing));
+			remoteViews.setTextViewText(R.id.widget_title, context.getText(R.string.loop_widget_loading));
 		}
 		// next
 		Intent nextIntent = new Intent(context, VideoPlayerService.class);
@@ -104,6 +108,7 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 			KLog.v(TAG, "onStartCommand");
 			// Register broadcast
 			IntentFilter filter = new IntentFilter();
+			filter.addAction(PlayerEvent.StartToLoad.getAction());
 			filter.addAction(PlayerEvent.Prepared.getAction());
 			filter.addAction(PlayerEvent.StateUpdate.getAction());
 			registerReceiver(sReceiver, filter);
@@ -120,10 +125,12 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 		public void onReceive(Context context, Intent intent) {
 			KLog.v(TAG, "onReceive");
 			if (intent.getAction().equals(PlayerEvent.Prepared.getAction())) {
-				updateRemoteViews(context, true);
+				updateRemoteViews(context, true, false);
 			} else if (intent.getAction().equals(PlayerEvent.StateUpdate.getAction())) {
 				boolean isPlaying = intent.getBooleanExtra("is_playing", false);
-				updateRemoteViews(context, isPlaying);
+				updateRemoteViews(context, isPlaying, false);
+			} else if (intent.getAction().equals(PlayerEvent.StartToLoad.getAction())) {
+				updateRemoteViews(context, false, true);
 			}
 		}
 	};
