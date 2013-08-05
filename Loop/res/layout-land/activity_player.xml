@@ -9,7 +9,7 @@
 
     <fragment
         android:id="@+id/fragment_control"
-        android:name="com.kskkbys.loop.fragments.PlayerControlFragment"
+        android:name="com.kskkbys.loop.ui.fragments.PlayerControlFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

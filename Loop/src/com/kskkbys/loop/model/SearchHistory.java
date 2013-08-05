@@ -9,10 +9,10 @@ import android.os.AsyncTask;
 import android.provider.SearchRecentSuggestions;
 import android.text.TextUtils;
 
-import com.kskkbys.loop.fragments.MainHistoryFragment;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.storage.SQLiteStorage;
+import com.kskkbys.loop.ui.fragments.MainHistoryFragment;
 
 /**
  * This class manages a lits of artist objects.

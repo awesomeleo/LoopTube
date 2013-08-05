@@ -99,7 +99,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		mParent.dismissProgress();
 		List<Video> videos = createVideoList(this.mResult);
 		if (videos != null && videos.size() > 0) {
-			this.mParent.startVideoPlayer(mQuery, videos);
+			this.mParent.startVideoPlayer(mQuery, videos, 0);
 		} else {
 			KLog.v(TAG, "Video list is empty. Network state may be bad.");
 			//SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);

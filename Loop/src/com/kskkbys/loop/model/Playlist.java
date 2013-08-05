@@ -64,13 +64,15 @@ public class Playlist {
 	
 	/**
 	 * Set video list. The playing index is set to 0.
+	 * @param query
 	 * @param videos
+	 * @param position
 	 */
-	public void setVideoList(String query, List<Video> videos) {
+	public void setVideoList(String query, List<Video> videos, int position) {
 		this.mQuery = query;
 		this.mVideoList = videos;
 		if (mVideoList != null && mVideoList.size() > 0) {
-			this.mPlayingIndex = 0;
+			this.mPlayingIndex = position;
 		} else {
 			this.mPlayingIndex = -1;
 		}

@@ -1,4 +1,4 @@
-package com.kskkbys.loop.fragments;
+package com.kskkbys.loop.ui.fragments;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.kskkbys.loop.fragments;
+package com.kskkbys.loop.ui.fragments;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.FavoriteList;
 import com.kskkbys.loop.model.Video;
+import com.kskkbys.loop.ui.MainActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
@@ -13,7 +14,12 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -51,6 +57,24 @@ public class MainFavoriteFragment extends Fragment {
 		KLog.v(TAG, "videos " + videos.size());
 		mAdapter = new VideoAdapter(getActivity(), videos);
 		mListView.setAdapter(mAdapter);
+		mListView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View view, int position,
+					long id) {
+				KLog.v(TAG, "onItemClick");
+				List<Video> videos = FavoriteList.getInstance(getActivity()).getVideos();
+				MainActivity activity = (MainActivity)getActivity();
+				activity.startVideoPlayer(null, videos, position);
+			}
+		});
+		mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+					int arg2, long arg3) {
+				KLog.v(TAG, "onItemLongClick");
+				return false;
+			}
+		});
 	}
 	
 	@Override

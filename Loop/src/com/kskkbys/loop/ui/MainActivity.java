@@ -7,8 +7,6 @@ import java.util.Map;
 
 import com.kskkbys.loop.BuildConfig;
 import com.kskkbys.loop.R;
-import com.kskkbys.loop.fragments.MainFavoriteFragment;
-import com.kskkbys.loop.fragments.MainHistoryFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
@@ -20,6 +18,8 @@ import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
+import com.kskkbys.loop.ui.fragments.MainFavoriteFragment;
+import com.kskkbys.loop.ui.fragments.MainHistoryFragment;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
 
@@ -341,10 +341,12 @@ public class MainActivity extends BaseActivity implements TabListener {
 
 	/**
 	 * Start video player
-	 * @param result
+	 * @param query		Search query. When playing favorites, it will be null.
+	 * @param result	List of videos.
+	 * @param position	Index to start to play.
 	 */
-	public void startVideoPlayer(String query, List<Video> result) {
-		Playlist.getInstance().setVideoList(query, result);
+	public void startVideoPlayer(String query, List<Video> result, int position) {
+		Playlist.getInstance().setVideoList(query, result, position);
 		PlayerCommand.play(this, true);
 		// Go next activity
 		goToNextActivity();

@@ -1,8 +1,6 @@
 package com.kskkbys.loop.ui;
 
 import com.kskkbys.loop.R;
-import com.kskkbys.loop.fragments.PlayerControlFragment;
-import com.kskkbys.loop.fragments.PlayerListFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
@@ -12,6 +10,8 @@ import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
 import com.kskkbys.loop.storage.SQLiteStorage;
+import com.kskkbys.loop.ui.fragments.PlayerControlFragment;
+import com.kskkbys.loop.ui.fragments.PlayerListFragment;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
