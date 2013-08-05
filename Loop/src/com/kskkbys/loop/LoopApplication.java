@@ -1,8 +1,12 @@
 package com.kskkbys.loop;
 
-
 import java.io.File;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.storage.ArtistStorage;
@@ -16,8 +20,6 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import android.app.Application;
-import android.os.AsyncTask;
-import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * Application class.
@@ -28,6 +30,20 @@ public class LoopApplication extends Application {
 
 	private boolean mIsFirstLaunch;
 	private ArtistStorage mArtistStorage;
+
+	// Copied from AsyncTask
+	private static final int CORE_POOL_SIZE = 5;
+	private static final int MAXIMUM_POOL_SIZE = 128;
+	private static final int KEEP_ALIVE = 1;
+	private static final ThreadFactory sThreadFactory = new ThreadFactory() {
+		private final AtomicInteger mCount = new AtomicInteger(1);
+
+		public Thread newThread(Runnable r) {
+			return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
+		}
+	};
+	private static final BlockingQueue<Runnable> sPoolWorkQueue =
+			new LinkedBlockingQueue<Runnable>(10);
 
 	@Override
 	public void onCreate() {
@@ -44,23 +60,24 @@ public class LoopApplication extends Application {
 		.cacheOnDisc(true)
 		.displayer(new FadeInBitmapDisplayer(500))
 		.build();
-		
+
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-		.taskExecutor(AsyncTask.THREAD_POOL_EXECUTOR)	//TODO
-		.threadPoolSize(3)
-		.threadPriority(Thread.NORM_PRIORITY - 1)
-		.memoryCache(new LruMemoryCache(2 * 1024 * 1024))
-		.memoryCacheSize(2 * 1024 * 1024)
-		.memoryCacheSizePercentage(13) // default
-		.discCache(new UnlimitedDiscCache(cacheDir)) // default
-		.discCacheSize(50 * 1024 * 1024)
-		.discCacheFileCount(100)
-		.discCacheFileNameGenerator(new HashCodeFileNameGenerator()) // default
-		.defaultDisplayImageOptions(defaultOptions)
-		.build();
-		
+		.taskExecutor(new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
+				TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory))
+				.threadPoolSize(3)
+				.threadPriority(Thread.NORM_PRIORITY - 1)
+				.memoryCache(new LruMemoryCache(2 * 1024 * 1024))
+				.memoryCacheSize(2 * 1024 * 1024)
+				.memoryCacheSizePercentage(13) // default
+				.discCache(new UnlimitedDiscCache(cacheDir)) // default
+				.discCacheSize(50 * 1024 * 1024)
+				.discCacheFileCount(100)
+				.discCacheFileNameGenerator(new HashCodeFileNameGenerator()) // default
+				.defaultDisplayImageOptions(defaultOptions)
+				.build();
+
 		ImageLoader.getInstance().init(config);
-		
+
 		// Initialize storage instance which will be accessed by several screens.
 		mArtistStorage = new ArtistStorage(this);
 	}
@@ -76,7 +93,7 @@ public class LoopApplication extends Application {
 		}
 		return false;
 	}
-	
+
 	public ArtistStorage getArtistStorage() {
 		return mArtistStorage;
 	}
