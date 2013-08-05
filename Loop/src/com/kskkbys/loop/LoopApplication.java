@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.kskkbys.loop.model.BlackList;
-import com.kskkbys.loop.storage.ArtistStorage;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -20,6 +19,7 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import android.app.Application;
+import android.os.AsyncTask;
 
 /**
  * Application class.
@@ -29,7 +29,6 @@ import android.app.Application;
 public class LoopApplication extends Application {
 
 	private boolean mIsFirstLaunch;
-	private ArtistStorage mArtistStorage;
 
 	// Copied from AsyncTask
 	private static final int CORE_POOL_SIZE = 5;
@@ -77,9 +76,6 @@ public class LoopApplication extends Application {
 				.build();
 
 		ImageLoader.getInstance().init(config);
-
-		// Initialize storage instance which will be accessed by several screens.
-		mArtistStorage = new ArtistStorage(this);
 	}
 
 	/**
@@ -92,9 +88,5 @@ public class LoopApplication extends Application {
 			return true;
 		}
 		return false;
-	}
-
-	public ArtistStorage getArtistStorage() {
-		return mArtistStorage;
 	}
 }

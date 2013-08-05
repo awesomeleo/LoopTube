@@ -20,6 +20,8 @@
     <string name="loop_video_player_volume_setting">Volume Setting</string>
     <string name="loop_video_player_return_from_full_screen">Full screen mode is turned off.</string>
     <string name="loop_video_player_full_screen">Full screen mode is turned on.</string>
+    <string name="loop_video_player_favorite">Added this video to favorite list</string>
+    <string name="loop_video_player_favorite_error">This video has already been added to favorite list.</string>
     
     <string name="loop_main_title">Search by artist</string>
     <string name="loop_main_search_artist">Search now</string>
@@ -37,6 +39,8 @@
     <string name="loop_main_open_google_play">Open Google Play</string>
     <string name="loop_main_confirm_clear_one_history">This artist will be cleared. Are you sure?</string>
     <string name="loop_main_now_playing">Now Playing</string>
+    <string name="loop_main_tab_history">History</string>
+    <string name="loop_main_tab_favorite">Favorite</string>
     
     <string name="loop_widget_not_playing">There is no playing video.</string>
     <string name="loop_widget_loading">Now loading&#8230;</string>
@@ -53,6 +57,7 @@
     <string name="loop_menu_item_clear_blacklist">Clear blacklist</string>
     <string name="loop_menu_item_version">About LoopTube</string>
     <string name="loop_menu_item_delete">Share this video</string>
+    <string name="loop_menu_item_favorite">Add favorite list</string>
     
     <string name="loop_menu_item_start_repeat">Repeat this video</string>
     <string name="loop_menu_item_stop_repeat">Stop repeat</string>

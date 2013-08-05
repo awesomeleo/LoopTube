@@ -6,10 +6,12 @@ import com.kskkbys.loop.fragments.PlayerListFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
+import com.kskkbys.loop.model.FavoriteList;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
+import com.kskkbys.loop.storage.SQLiteStorage;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -18,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -138,6 +141,9 @@ public class VideoPlayerActivity extends BaseActivity {
 		case R.id.menu_share:
 			startShareIntent();
 			return true;
+		case R.id.menu_favorite:
+			addFavorite();
+			return true;
 		case R.id.menu_ignore_current:
 			ignoreCurrentVideo();
 			return true;
@@ -221,6 +227,28 @@ public class VideoPlayerActivity extends BaseActivity {
 		}
 	}
 
+	/**
+	 * Add current video to favorite list
+	 */
+	private void addFavorite() {
+		new AsyncTask<String, Integer, Boolean>() {
+			@Override
+			protected Boolean doInBackground(String... params) {
+				Video video = Playlist.getInstance().getCurrentVideo();
+				String artist = Playlist.getInstance().getQuery();
+				return FavoriteList.getInstance(VideoPlayerActivity.this).addFavorite(video, artist);
+			}
+			@Override
+			protected void onPostExecute(Boolean result) {
+				if (result) {
+					Toast.makeText(VideoPlayerActivity.this, R.string.loop_video_player_favorite, Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(VideoPlayerActivity.this, R.string.loop_video_player_favorite_error, Toast.LENGTH_SHORT).show();
+				}
+			}
+		}.execute();
+	}
+	
 	private void handlePrepared() {
 		KLog.v(TAG, "onPrepared");
 		updateVideoInfo();

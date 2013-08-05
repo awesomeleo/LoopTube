@@ -105,11 +105,6 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 			//SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);
 			mParent.showAlert(R.string.loop_main_error_no_video, null);
 		}
-		
-		// Save image URL in search history db
-		mParent.updateHistory(mQuery, videos);
-		// Update history list view
-		mParent.updateHistoryUI();
 	}
 
 	/**
@@ -122,27 +117,37 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		if (result != null && result.feed != null && result.feed.entry != null) {
 			for (YouTubeSearchResult.Feed.Entry entry : result.feed.entry) {
 				try {
-					//Create video
-					Video v = new Video(
-							getVideoId(entry.id.$t),
-							entry.title.$t,
-							Integer.parseInt(entry.media$group.yt$duration.seconds) * 1000);
-					//entry.media$group.media$content[0].duration * 1000);
+					String videoId = getVideoId(entry.id.$t);
+					String title = entry.title.$t;
+					int duration = Integer.parseInt(entry.media$group.yt$duration.seconds) * 1000;
+					String description = null;
+					String videoUrl = null;
+					String thumbnailUrl = null;
 					if (entry.media$group.media$description != null) {
-						v.setDescription(entry.media$group.media$description.$t);
+						description = entry.media$group.media$description.$t;
 					}
 					if (entry.media$group.media$player != null && entry.media$group.media$player.length > 0) {
-						v.setVideoUrl(entry.media$group.media$player[0].url);
+						videoUrl = entry.media$group.media$player[0].url;
 					}
 					if (entry.media$group.media$thumbnail != null) {
 						// Use small thumbnail which MUST have field
 						for (YouTubeSearchResult.Feed.Entry.Media$Group.Media$Thumbnail thumbnail: entry.media$group.media$thumbnail) {
 							if (!TextUtils.isEmpty(thumbnail.time)) {
-								v.setThumbnailUrl(thumbnail.url);
+								thumbnailUrl = thumbnail.url;
 								break;
 							}
 						}
 					}
+					
+					//Create video
+					Video v = new Video(
+							videoId,
+							title,
+							duration,
+							description,
+							videoUrl,
+							thumbnailUrl);
+					
 					videoList.add(v);
 					KLog.v(TAG, "Video added: " + v.toString());
 					// Check brack words

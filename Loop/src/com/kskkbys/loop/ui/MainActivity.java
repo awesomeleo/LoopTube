@@ -1,34 +1,31 @@
 package com.kskkbys.loop.ui;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.kskkbys.loop.BuildConfig;
-import com.kskkbys.loop.LoopApplication;
 import com.kskkbys.loop.R;
+import com.kskkbys.loop.fragments.MainFavoriteFragment;
+import com.kskkbys.loop.fragments.MainHistoryFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.Playlist;
+import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
-import com.kskkbys.loop.storage.ArtistStorage;
-import com.kskkbys.loop.storage.ArtistStorage.Entry;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -38,55 +35,41 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
-import android.graphics.Color;
-import android.support.v4.view.MenuCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.TabListener;
+import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView.RecyclerListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * Search screen.
  *
  */
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements TabListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	public static final String FROM_NOTIFICATION = "from_notification";
 
-	private static final int IMAGE_COUNT_PER_ROW = 5;
-	
-	// ListView
-	private List<ArtistStorage.Entry> mRecentArtists;
-	private ArtistAdapter mAdapter;
-	private ListView mListView;
+	// Pager
+	SectionsPagerAdapter mSectionsPagerAdapter;
+	ViewPager mViewPager;
 
 	// Menu
 	private MenuItem mSearchItem;
 
-	private ArtistStorage mStorage;
-
 	// Contextual Action Bar
 	private ActionMode mActionMode;
-	private int mLongSelectedPosition;
-	private View mLongSelectedItem;
 	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
 		@Override
@@ -98,8 +81,10 @@ public class MainActivity extends BaseActivity {
 		public void onDestroyActionMode(ActionMode mode) {
 			mActionMode = null;
 			// Disable selection
-			if (mLongSelectedItem != null) {
-				mLongSelectedItem.setSelected(false);
+			int pos = mViewPager.getCurrentItem();
+			if (pos == 0) {
+				MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(pos);
+				fragment.deselect();
 			}
 		}
 
@@ -114,8 +99,11 @@ public class MainActivity extends BaseActivity {
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 			switch (item.getItemId()) {
 			case R.id.menu_delete:
-				clearHistory(mLongSelectedPosition);
-				mAdapter.notifyDataSetChanged();
+				int pos = mViewPager.getCurrentItem();
+				if (pos == 0) {
+					MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(pos);
+					fragment.clearLongSelectedHistory();
+				}
 				mode.finish(); // Action picked, so close the CAB
 				return true;
 			default:
@@ -127,7 +115,6 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_main);
 
 		KLog.v(TAG, "onCreate");
@@ -138,83 +125,30 @@ public class MainActivity extends BaseActivity {
 		// even when all activities are close.
 		startService(new Intent(MainActivity.this, VideoPlayerService.class));
 
-		// Set up listview and empty view
-		mListView = (ListView)findViewById(R.id.main_search_history);
-		View emptyView = findViewById(R.id.main_empty);
-		emptyView.findViewById(R.id.main_search_button).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mSearchItem.expandActionView();
-			}
-		});
-		mListView.setEmptyView(emptyView);
-		mRecentArtists = new ArrayList<ArtistStorage.Entry>();
-		mAdapter = new ArtistAdapter(this, mRecentArtists);
-		mListView.setAdapter(mAdapter);
-		mListView.setRecyclerListener(new RecyclerListener() {
-			@Override
-			public void onMovedToScrapHeap(View view) {
-				//
-				KLog.v(TAG, "onMoveToScrapHeap");
-			}
-		});
-		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				KLog.v(TAG, "onItemClick");
-				// Check connection
-				if (!ConnectionState.isConnected(MainActivity.this)) {
-					KLog.w(TAG, "bad connection");
-					// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
-					showAlert(R.string.loop_main_error_bad_connection, null);
-					return;
-				} else {
-					ListView listView = (ListView) parent;
-					ArtistStorage.Entry artist = (ArtistStorage.Entry) listView.getItemAtPosition(position);
-					String currentArtist = Playlist.getInstance().getQuery();
-					if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artist.name)) {
-						KLog.v(TAG, "Already playing. Go player without seraching.");
-						goToNextActivity();
-					} else {
-						searchQuery(artist.name);
-					}
-				}
-			}
-		});
-		mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View view,
-					int position, long id) {
-				// Show contextual action bar
-				if (mActionMode != null) {
-					return false;
-				}
-				mLongSelectedPosition = position;
-				mLongSelectedItem = view;
-				mActionMode = startSupportActionMode(mActionModeCallback);
-				view.setSelected(true);
-				return true;
-			}
-		});
-		
-		LoopApplication app = (LoopApplication)getApplication();
-		mStorage = app.getArtistStorage();
-
-		// Read recent artist saved in the device
-		readHistory();
-
-		// Update recent artists view
-		updateHistoryUI();
-
 		// Initialize action bar
-		getSupportActionBar().setTitle(R.string.loop_main_title);
-		mActionMode = null;
-		mLongSelectedPosition = -1;
-		mLongSelectedItem = null;
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setTitle(R.string.loop_main_title);
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-		// If a video is playing, show notification at bottom
-		updatePlayingNotification();
+		// Pager
+		mSectionsPagerAdapter = new SectionsPagerAdapter(
+				getSupportFragmentManager());
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setAdapter(mSectionsPagerAdapter);
+		mViewPager
+		.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				actionBar.setSelectedNavigationItem(position);
+			}
+		});
+
+		// Tabs
+		actionBar.addTab(actionBar.newTab().setText("History").setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText("Favorite").setTabListener(this));
+
+		// CAB
+		mActionMode = null;
 
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
@@ -260,15 +194,6 @@ public class MainActivity extends BaseActivity {
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		// update history
-		updateHistoryUI();
-		// update notification
-		updatePlayingNotification();
-	}
-	
-	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 	}
@@ -284,7 +209,7 @@ public class MainActivity extends BaseActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_main, menu);
-		
+
 		// Set action view
 		mSearchItem = menu.findItem(R.id.menu_search);
 		final SearchView sv = (SearchView) MenuItemCompat.getActionView(mSearchItem);
@@ -306,8 +231,12 @@ public class MainActivity extends BaseActivity {
 			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					clearHistory();
-					updateHistoryUI();
+					int position = mViewPager.getCurrentItem();
+					if (position == 0) {
+						SearchHistory.getInstance(MainActivity.this).clearAllHistory();
+						MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
+						fragment.updateHistoryUI();
+					}
 				}
 			})
 			.setNegativeButton(R.string.loop_cancel, null);
@@ -333,163 +262,50 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
+	/**
+	 * Search the artist with YouTube API.
+	 * If already playing the artist, it goes to video player directly.
+	 * @param artist
+	 */
+	public void searchOrGoToPlayer(Artist artist) {
+		if (!ConnectionState.isConnected(this)) {
+			KLog.w(TAG, "bad connection");
+			// SimpleErrorDialog.show(MainActivity.this, R.string.loop_main_error_bad_connection);
+			showAlert(R.string.loop_main_error_bad_connection, null);
+			return;
+		} else {
+			String currentArtist = Playlist.getInstance().getQuery();
+			if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artist.name)) {
+				KLog.v(TAG, "Already playing. Go player without seraching.");
+				goToNextActivity();
+			} else {
+				searchQuery(artist.name);
+			}
+		}
+	}
+
 	private void searchQuery(String artist) {
 		KLog.v(TAG, "searchQuery");
 		// validation
 		if (TextUtils.isEmpty(artist)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.loop_main_invalid_query)
-			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-
-				}
-			})
+			.setPositiveButton(R.string.loop_ok, null)
 			.setCancelable(false)
 			.create().show();
-			return;
-		}
-		// Add history
-		ArtistStorage.Entry entry = findHistory(artist);
-		if (entry != null) {
-			mRecentArtists.remove(entry);
-			entry.date = new Date();
-			mRecentArtists.add(0, entry);
 		} else {
-			entry = new ArtistStorage.Entry();
-			entry.name = artist;
-			entry.imageUrls = new ArrayList<String>();	// Before search video list, image URL is null.
-			entry.date = new Date();
-			mRecentArtists.add(entry);
-		}
-		// mStorage.insertOrUpdate(entry);
-
-		YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
-		searchTask.execute(artist);
-	}
-
-	private ArtistStorage.Entry findHistory(String artist) {
-		for (ArtistStorage.Entry e: mRecentArtists) {
-			if (e.name.equals(artist)) {
-				return e;
+			// Add history
+			int position = mViewPager.getCurrentItem();
+			if (position == 0) {
+				SearchHistory.getInstance(this).addArtist(artist);
 			}
-		}
-		return null;
-	}
-
-	/**
-	 * Read search history which is already restored before.
-	 */
-	private void readHistory() {
-		List<ArtistStorage.Entry> entries = mStorage.getRestoredArtists();
-		mRecentArtists.clear();
-		mRecentArtists.addAll(entries);
-		mAdapter.notifyDataSetChanged();
-	}
-
-	private void clearHistory() {
-		// App's search history
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				mStorage.clear();
-			}
-		}).start();
-		mRecentArtists.clear();
-		mAdapter.notifyDataSetChanged();
-		// OS's search history
-		SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
-				ArtistSuggestionsProvider.AUTHORITY, ArtistSuggestionsProvider.MODE);
-		suggestions.clearHistory();
-	}
-
-	private void clearHistory(int position) {
-		ArtistStorage.Entry e = mRecentArtists.remove(position);
-		new AsyncTask<ArtistStorage.Entry, Integer, Boolean>() {
-			@Override
-			protected Boolean doInBackground(Entry... params) {
-				mStorage.delete(params[0]);
-				return true;
-			}
-			@Override
-			protected void onPostExecute(Boolean result) {
-				mAdapter.notifyDataSetChanged();
-			}
-		}.execute(e);
-	}
-
-	public void updateHistory(String query, List<Video> videos) {
-		// Update array list
-		ArtistStorage.Entry updatedEntry = null;
-		for (ArtistStorage.Entry entry: mRecentArtists) {
-			if (entry.name.equals(query)) {
-				entry.imageUrls = new ArrayList<String>();
-				int count = 0;
-				for (Video v: videos) {
-					if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
-						entry.imageUrls.add(v.getThumbnailUrl());
-						count++;
-						if (count >= IMAGE_COUNT_PER_ROW) {
-							break;
-						}
-					}
-				}
-				updatedEntry = entry;
-				break;
-			}
-		}
-		// Store to SQLite (async)
-		saveArtist(updatedEntry);
-	}
-	
-	private void saveArtist(final ArtistStorage.Entry updatedEntry) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				if (updatedEntry != null) {
-					mStorage.insertOrUpdate(updatedEntry, true);
-				}
-			}
-		}).start();
-	}
-
-	private void updatePlayingNotification() {
-		if (Playlist.getInstance().getCurrentVideo() != null) {
-			RelativeLayout base = (RelativeLayout)findViewById(R.id.main_base);
-			View notification = base.findViewById(R.id.notification_base);
-			if (notification == null) {
-				// Add
-				notification = getLayoutInflater().inflate(R.layout.main_playing_notification, null);
-				RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				notification.setLayoutParams(params);
-				notification.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						goToNextActivity();
-					}
-				});
-				base.addView(notification);
-			}
-			// Update
-			TextView title = (TextView)notification.findViewById(R.id.notification_title);
-			title.setText(Playlist.getInstance().getCurrentVideo().getTitle());
+			// Start to search
+			YouTubeSearchTask searchTask = new YouTubeSearchTask(MainActivity.this);
+			searchTask.execute(artist);
 		}
 	}
 
-	/**
-	 * Update history view
-	 */
-	public void updateHistoryUI() {
-		KLog.v(TAG, "updateHistoryUI");
-		if (mRecentArtists != null && mRecentArtists.size() > 0) {
-			mListView.setVisibility(View.VISIBLE);
-		} else {
-			mListView.setVisibility(View.INVISIBLE);
-		}
-		mAdapter.notifyDataSetChanged();
-	}
+
 
 	private void openGooglePlay() {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -535,111 +351,96 @@ public class MainActivity extends BaseActivity {
 	}
 
 	/**
+	 * This method is called when button in empty view is clicked.
+	 */
+	public void expandSearchView() {
+		mSearchItem.expandActionView();
+	}
+
+	/**
 	 * Go next activity
 	 */
-	private void goToNextActivity() {
+	public void goToNextActivity() {
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(intent);
 	}
 
+	public boolean startActionModeByLongClick() {
+		// Show contextual action bar
+		if (mActionMode != null) {
+			return false;
+		}
+		mActionMode = startSupportActionMode(mActionModeCallback);
+		return true;
+	}
+
+	public void updateHistory(String query, List<Video> videos) {
+		int position = mViewPager.getCurrentItem();
+		if (position == 0) {
+			SearchHistory.getInstance(this).updateHistory(query, videos);
+			// Update history list view
+			MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
+			fragment.updateHistoryUI();
+		}
+	}
+
 	/**
-	 * Adapter class of artist
-	 * @author Keisuke Kobayashi
-	 *
+	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+	 * one of the sections/tabs/pages.
 	 */
-	private class ArtistAdapter extends ArrayAdapter<ArtistStorage.Entry> {
-		
-		private Activity mActivity;
+	public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
 		/**
 		 * Constructor.
-		 * @param activity
-		 * @param objects
+		 * @param fm
 		 */
-		public ArtistAdapter(Activity activity, List<ArtistStorage.Entry> objects) {
-			super(activity, R.layout.search_history_list_item, R.id.search_history_artist, objects);
-			mActivity = activity;
+		public SectionsPagerAdapter(FragmentManager fm) {
+			super(fm);
 		}
 
 		@Override
-		public View getView(final int position, final View convertView, final ViewGroup parent) {
-			View view = convertView;
-			String prevArtist = null;
-			if (view == null) {
-				LayoutInflater inflater = mActivity.getLayoutInflater();
-				view = inflater.inflate(R.layout.search_history_list_item, parent, false);
-			} else {
-				TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
-				prevArtist = titleView.getText().toString();
+		public Fragment getItem(int position) {
+			Fragment fragment = null;
+			switch (position) {
+			case 0:
+				fragment = new MainHistoryFragment();
+				break;
+			case 1:
+				fragment = new MainFavoriteFragment();
+				break;
 			}
-
-			final ArtistStorage.Entry artist = getItem(position);
-
-			// Set title
-			TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
-			titleView.setText(artist.name);
-
-			// Set click / long click events
-			setUpImageView((ListView)parent, view.findViewById(R.id.search_history_overlay), position);
-			
-			// Set background images
-			LinearLayout container = (LinearLayout)view.findViewById(R.id.search_history_image_container);
-			if (prevArtist == null || !prevArtist.equals(artist.name) || container.getChildCount() == 0) {
-				// Reload images
-				reloadImages(container, artist);
-			}
-			return view;
-		}
-		
-		private void reloadImages(LinearLayout container, ArtistStorage.Entry artist) {
-			container.removeAllViews();
-			if (artist.imageUrls != null) {
-				KLog.v(TAG, "Images are saved.");
-				int size = Math.min(IMAGE_COUNT_PER_ROW, artist.imageUrls.size());
-				for (int i=0; i<size; i++) {
-					ImageView iv = new ImageView(getContext());
-					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-					iv.setLayoutParams(params);
-					iv.setAdjustViewBounds(true);
-					
-					if (i % 2 == 0) {
-						iv.setBackgroundColor(Color.WHITE);
-					} else {
-						iv.setBackgroundColor(Color.RED);
-					}
-					container.addView(iv);
-					// Load image from URL
-					ImageLoader imageLoader = ImageLoader.getInstance();
-					imageLoader.displayImage(artist.imageUrls.get(i), iv);
-				}
-			}
+			return fragment;
 		}
 
-		/**
-		 * Set click/long click events to invoke events of ListView.
-		 * @param parent
-		 * @param imageView
-		 * @param position
-		 */
-		private void setUpImageView(final ListView parent, final View imageView, final int position) {
-			imageView.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					KLog.v(TAG, "image onclikc");
-					parent.setSelection(position);
-					parent.performItemClick(v, position, v.getId());
-				}
-			});
-			imageView.setOnLongClickListener(new View.OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					KLog.v(TAG, "image onlongclick");
-					parent.setSelection(position);
-					return false;
-				}
-			});
+		@Override
+		public int getCount() {
+			return 2;
 		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			Locale l = Locale.getDefault();
+			switch (position) {
+			case 0:
+				return getString(R.string.loop_main_tab_history).toUpperCase(l);
+			case 1:
+				return getString(R.string.loop_main_tab_favorite).toUpperCase(l);
+			}
+			return null;
+		}
+	}
+
+	@Override
+	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		mViewPager.setCurrentItem(tab.getPosition());
+	}
+
+	@Override
+	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
 	}
 }

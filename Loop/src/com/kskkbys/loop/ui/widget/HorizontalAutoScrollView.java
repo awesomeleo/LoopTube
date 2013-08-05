@@ -1,7 +1,5 @@
 package com.kskkbys.loop.ui.widget;
 
-import com.kskkbys.loop.logger.KLog;
-
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;

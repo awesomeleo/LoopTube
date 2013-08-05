@@ -16,16 +16,18 @@
             android:layout_height="wrap_content" />
 
         <LinearLayout
+            android:id="@+id/player_control_top"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            
+            android:layout_height="wrap_content"
+            android:background="@color/loop_player_control_background" >
+
             <ImageView
                 android:id="@+id/loopButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_weight="1"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="5dp"
+                android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="@drawable/synchronize_off" />
 
@@ -40,77 +42,82 @@
                 android:id="@+id/durationText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="10dp"
-                android:singleLine="true"
                 android:scrollHorizontally="true"
-                android:layout_gravity="center_vertical"
+                android:singleLine="true"
                 android:text="@string/loop_video_player_default_duration" />
         </LinearLayout>
-        
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_gravity="bottom|left">
-            
-            <ImageView
-                android:id="@+id/volumeButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginLeft="5dp"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:background="@drawable/volume_plus2" />
-            
-        </LinearLayout>
-        
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_gravity="bottom|right">
-            
-            <ImageView
-                android:id="@+id/fullScreenButton"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:adjustViewBounds="true"
-                android:background="@drawable/full_screen" />
-            
-        </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_gravity="bottom|center">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/player_control_bottom"
+            android:layout_gravity="bottom"
+            android:background="@color/loop_player_control_background" >
 
-            <ImageView
-                android:id="@+id/prevButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:background="@drawable/rewind" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|left" >
 
-            <ImageView
-                android:id="@+id/pauseButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:adjustViewBounds="true"
-                android:contentDescription="pause"
-                android:background="@drawable/pause" />
+                <ImageView
+                    android:id="@+id/volumeButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/volume_plus2" />
+            </LinearLayout>
 
-            <ImageView
-                android:id="@+id/nextButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:background="@drawable/forward" />
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right" >
 
+                <ImageView
+                    android:id="@+id/fullScreenButton"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/full_screen" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center" >
+
+                <ImageView
+                    android:id="@+id/prevButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/rewind" />
+
+                <ImageView
+                    android:id="@+id/pauseButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/pause"
+                    android:contentDescription="pause" />
+
+                <ImageView
+                    android:id="@+id/nextButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/forward" />
+            </LinearLayout>
+        </FrameLayout>
     </FrameLayout>
 
 </LinearLayout>

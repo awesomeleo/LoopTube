@@ -11,14 +11,23 @@ public class Video {
 	private String mVideoUrl;
 	private String mThumbnailUrl;
 
-	public Video(String id, String title, int duration) {
+	/**
+	 * Constructor.
+	 * @param id
+	 * @param title
+	 * @param duration
+	 * @param description
+	 * @param videoUrl
+	 * @param thumbnailUrl
+	 */
+	public Video(String id, String title, int duration, String description, String videoUrl, String thumbnailUrl) {
 		this.mId = id;
 		this.mTitle = title;
 		this.mDuration = duration;
 		
-		this.mDescription = null;
-		this.mVideoUrl = null;
-		this.mThumbnailUrl = null;
+		this.mDescription = description;
+		this.mVideoUrl = videoUrl;
+		this.mThumbnailUrl = thumbnailUrl;
 	}
 	
 	public String getId() {
@@ -37,24 +46,12 @@ public class Video {
 		return mDescription;
 	}
 	
-	public void setDescription(String description) {
-		mDescription = description;
-	}
-	
 	public String getVideoUrl() {
 		return mVideoUrl;
 	}
 	
-	public void setVideoUrl(String videoUrl) {
-		mVideoUrl = videoUrl;
-	}
-	
 	public String getThumbnailUrl() {
 		return mThumbnailUrl;
-	}
-	
-	public void setThumbnailUrl(String thumbnailUrl) {
-		mThumbnailUrl = thumbnailUrl;
 	}
 	
 	@Override
