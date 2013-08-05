@@ -1,11 +1,13 @@
 package com.kskkbys.loop.ui.widget;
 
-import java.util.Date;
-
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.model.Playlist;
+import com.kskkbys.loop.model.Video;
+import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -26,20 +28,54 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 
 	private static final String TAG = LoopWidgetProvider.class.getSimpleName();
 
-
+	private static final int REQUEST_CODE_PREV = 1;
+	private static final int REQUEST_CODE_PAUSE = 2;
+	private static final int REQUEST_CODE_NEXT = 3;
 
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
 		KLog.v(TAG, "onUpdate");
-
+		// Start service to receive broadcast
 		Intent intent = new Intent(context.getApplicationContext(), WidgetService.class);
 		context.startService(intent);
+		// Update view
+		updateRemoteViews(context);
 	}
 
 	@Override
 	public void onDeleted(Context context, int[] appWidgetIds) {
 		KLog.v(TAG, "onDeleted");
+	}
+
+	private static void updateRemoteViews(Context context) {
+		AppWidgetManager awm = AppWidgetManager.getInstance(context);
+		RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
+		// title
+		Video video = Playlist.getInstance().getCurrentVideo();
+		if (video != null) {
+			remoteViews.setTextViewText(R.id.widget_title, video.getTitle());
+		} else {
+			remoteViews.setTextViewText(R.id.widget_title, context.getText(R.string.loop_widget_not_playing));
+		}
+		// next
+		Intent nextIntent = new Intent(context, VideoPlayerService.class);
+		nextIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_NEXT);
+		PendingIntent nextPendingIntent = PendingIntent.getService(context, REQUEST_CODE_NEXT, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		remoteViews.setOnClickPendingIntent(R.id.widget_next, nextPendingIntent);
+		// pause
+		Intent pauseIntent = new Intent(context, VideoPlayerService.class);
+		pauseIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PAUSE);
+		PendingIntent pausePendingIntent = PendingIntent.getService(context, REQUEST_CODE_PAUSE, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		remoteViews.setOnClickPendingIntent(R.id.widget_pause, pausePendingIntent);
+		// prev
+		Intent prevIntent = new Intent(context, VideoPlayerService.class);
+		prevIntent.putExtra(VideoPlayerService.COMMAND, VideoPlayerService.COMMAND_PREV);
+		PendingIntent prevPendingIntent = PendingIntent.getService(context, REQUEST_CODE_PREV, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		remoteViews.setOnClickPendingIntent(R.id.widget_prev, prevPendingIntent);
+
+		ComponentName componentName = new ComponentName(context, LoopWidgetProvider.class);
+		awm.updateAppWidget(componentName, remoteViews);
 	}
 
 	/**
@@ -75,13 +111,7 @@ public class LoopWidgetProvider extends AppWidgetProvider {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			KLog.v(TAG, "onReceive");
-
-			AppWidgetManager awm = AppWidgetManager.getInstance(context);
-			RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
-			String text = "Title: " + new Date().toString();
-			remoteViews.setTextViewText(R.id.widget_title, text);
-			ComponentName componentName = new ComponentName(context, LoopWidgetProvider.class);
-			awm.updateAppWidget(componentName, remoteViews);
+			updateRemoteViews(context);
 		}
 	};
 }

@@ -19,4 +19,5 @@
 
 <resources>
     <color name="loop_artist_background_no_image">#666666</color>
+    <color name="loop_widget_background">#363437</color>
 </resources>

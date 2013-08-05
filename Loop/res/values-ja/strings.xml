@@ -38,6 +38,8 @@
     <string name="loop_main_confirm_clear_one_history">このアーティストを履歴から消去しますか？</string>
     <string name="loop_main_now_playing">現在再生中の動画</string>
     
+    <string name="loop_widget_not_playing">現在再世中の動画はありません。</string>
+    
     <string name="loop_ok">OK</string>
     <string name="loop_cancel">キャンセル</string>
     <string name="loop_dummy">dummy</string>
