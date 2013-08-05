@@ -1,6 +1,5 @@
 package com.kskkbys.loop.fragments;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.kskkbys.loop.R;
@@ -8,13 +7,11 @@ import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.SearchHistory;
-import com.kskkbys.loop.storage.SQLiteStorage;
 import com.kskkbys.loop.ui.MainActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -218,7 +215,7 @@ public class MainHistoryFragment extends Fragment {
 		 * @param objects
 		 */
 		public ArtistAdapter(Activity activity, List<Artist> objects) {
-			super(activity, R.layout.search_history_list_item, R.id.search_history_artist, objects);
+			super(activity, R.layout.row_search_history_list, R.id.search_history_artist, objects);
 			mActivity = activity;
 		}
 
@@ -228,7 +225,7 @@ public class MainHistoryFragment extends Fragment {
 			String prevArtist = null;
 			if (view == null) {
 				LayoutInflater inflater = mActivity.getLayoutInflater();
-				view = inflater.inflate(R.layout.search_history_list_item, parent, false);
+				view = inflater.inflate(R.layout.row_search_history_list, parent, false);
 			} else {
 				TextView titleView = (TextView)view.findViewById(R.id.search_history_artist);
 				prevArtist = titleView.getText().toString();

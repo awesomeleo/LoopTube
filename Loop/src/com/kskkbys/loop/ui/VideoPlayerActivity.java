@@ -6,6 +6,7 @@ import com.kskkbys.loop.fragments.PlayerListFragment;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
+import com.kskkbys.loop.model.FavoriteList;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.service.PlayerCommand;
@@ -233,10 +234,9 @@ public class VideoPlayerActivity extends BaseActivity {
 		new AsyncTask<String, Integer, Boolean>() {
 			@Override
 			protected Boolean doInBackground(String... params) {
-				SQLiteStorage storage = SQLiteStorage.getInstance(VideoPlayerActivity.this);
 				Video video = Playlist.getInstance().getCurrentVideo();
 				String artist = Playlist.getInstance().getQuery();
-				return storage.insertFavorite(video, artist);
+				return FavoriteList.getInstance(VideoPlayerActivity.this).addFavorite(video, artist);
 			}
 			@Override
 			protected void onPostExecute(Boolean result) {

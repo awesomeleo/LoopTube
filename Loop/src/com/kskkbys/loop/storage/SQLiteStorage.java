@@ -37,10 +37,12 @@ public class SQLiteStorage {
 	private static final String COL_FAV_TITLE = "video_title";
 	private static final String COL_FAV_IMAGE_URL = "image_url";
 	private static final String COL_FAV_ARTIST = "artist";
+	private static final String COL_FAV_DURATION = "duration";
 
 	private DatabaseOpenHelper mHelper;
 
-	private List<Artist> mEntryList;
+	private List<Artist> mArtistList;
+	private List<Video> mFavoriteList;
 	
 	private static SQLiteStorage sInstance = null;
 	
@@ -50,7 +52,8 @@ public class SQLiteStorage {
 	 */
 	private SQLiteStorage(Context context) {
 		mHelper = new DatabaseOpenHelper(context);
-		mEntryList = null;
+		mArtistList = null;
+		mFavoriteList = null;
 	}
 	
 	public static synchronized SQLiteStorage getInstance(Context context) {
@@ -125,7 +128,10 @@ public class SQLiteStorage {
 	}
 
 	public void restoreArtists() {
+		KLog.v(TAG, "restoreArtists");
 		SQLiteDatabase db = mHelper.getReadableDatabase();
+		db.beginTransaction();
+		
 		String[] cols = {
 				COL_ART_NAME,
 				COL_ART_DATE
@@ -163,14 +169,18 @@ public class SQLiteStorage {
 			imgCursor.close();
 		}
 
-		mEntryList = list;
+		mArtistList = list;
+		KLog.v(TAG, "Count of restored artists: " + mArtistList.size());
+		
+		db.setTransactionSuccessful();
+		db.endTransaction();
 	}
 	
 	public List<Artist> getRestoredArtists() {
-		if (mEntryList == null) {
+		if (mArtistList == null) {
 			throw new IllegalStateException("Entry list is null. Call restore() at first.");
 		}
-		return mEntryList;
+		return mArtistList;
 	}
 	
 	public boolean insertFavorite(Video video, String artist) {
@@ -180,6 +190,7 @@ public class SQLiteStorage {
 		values.put(COL_FAV_VIDEO_ID, video.getId());
 		values.put(COL_FAV_IMAGE_URL, video.getThumbnailUrl());
 		values.put(COL_FAV_TITLE, video.getTitle());
+		values.put(COL_FAV_DURATION, video.getDuration());
 		values.put(COL_FAV_ARTIST, artist);
 		if (db.insert(TABLE_FAVORITE_NAME, null, values) == -1) {
 			return false;
@@ -199,6 +210,35 @@ public class SQLiteStorage {
 		}
 	}
 	
+	public boolean restoreFavorites() {
+		KLog.v(TAG, "restoreFavorites");
+		SQLiteDatabase db = mHelper.getReadableDatabase();
+		String[] columns = new String[]{
+			COL_FAV_ARTIST,
+			COL_FAV_IMAGE_URL,
+			COL_FAV_TITLE,
+			COL_FAV_VIDEO_ID,
+			COL_FAV_DURATION
+		};
+		Cursor cursor = db.query(TABLE_FAVORITE_NAME, columns, null, null, null, null, null);
+		mFavoriteList = new ArrayList<Video>();
+		if (cursor.moveToFirst()) {
+			while (!cursor.isAfterLast()) {
+				String id = cursor.getString(cursor.getColumnIndex(COL_FAV_VIDEO_ID));
+				String title = cursor.getString(cursor.getColumnIndex(COL_FAV_TITLE));
+				int duration = cursor.getInt(cursor.getColumnIndex(COL_FAV_DURATION));
+				String thumbnailUrl = cursor.getString(cursor.getColumnIndex(COL_FAV_IMAGE_URL));
+				Video v = new Video(id, title, duration, null, null, thumbnailUrl);
+				mFavoriteList.add(v);
+				cursor.moveToNext();
+			}
+		}
+		cursor.close();
+		
+		KLog.v(TAG, "Count of favorites: " + mFavoriteList.size());
+		return true;
+	}
+	
 	public boolean clearFavorites() {
 		KLog.v(TAG, "clearFavorite");
 		SQLiteDatabase db = mHelper.getWritableDatabase();
@@ -207,6 +247,10 @@ public class SQLiteStorage {
 		} else {
 			return false;
 		}
+	}
+	
+	public List<Video> getRestoredFavorites() {
+		return mFavoriteList;
 	}
 
 	/**
@@ -225,6 +269,7 @@ public class SQLiteStorage {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
+			KLog.v(TAG, "onCreate");
 			createArtistTable(db);
 			createImageTable(db);
 			createFavoriteTable(db);
@@ -232,6 +277,7 @@ public class SQLiteStorage {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			KLog.v(TAG, "onUpgrade");
 			String DROP_ARTIST_TABLE = "drop table " + TABLE_ARTIST_NAME + ";";
 			db.execSQL(DROP_ARTIST_TABLE);
 
@@ -243,6 +289,7 @@ public class SQLiteStorage {
 		}
 		
 		private void createArtistTable(SQLiteDatabase db) {
+			KLog.v(TAG, "createArtistTable");
 			String CREATE_ARTIST_TABLE = "create table " + TABLE_ARTIST_NAME + " ("
 					+ COL_ID + " integer primary key autoincrement, "
 					+ COL_ART_NAME + " text not null unique, "
@@ -252,6 +299,7 @@ public class SQLiteStorage {
 		}
 		
 		private void createImageTable(SQLiteDatabase db) {
+			KLog.v(TAG, "createImageTable");
 			String CREATE_IMAGE_TABLE = "create table " + TABLE_IMAGE_NAME + " ("
 					+ COL_ID + " integer primary key autoincrement, "
 					+ COL_IMG_ARTIST_NAME + " text not null, "
@@ -261,12 +309,14 @@ public class SQLiteStorage {
 		}
 		
 		private void createFavoriteTable(SQLiteDatabase db) {
+			KLog.v(TAG, "createFavoriteTable");
 			String CREATE_FAV_TABLE = "create table " + TABLE_FAVORITE_NAME + " ("
 					+ COL_ID + " integer primary key autoincrement, "
 					+ COL_FAV_VIDEO_ID + " text not null unique, "
 					+ COL_FAV_TITLE + " text not null,"
 					+ COL_FAV_IMAGE_URL + " text not null, "
-					+ COL_FAV_ARTIST + " text not null"
+					+ COL_FAV_ARTIST + " text not null, "
+					+ COL_FAV_DURATION + " integer not null"
 					+ ");";
 			db.execSQL(CREATE_FAV_TABLE);
 		}

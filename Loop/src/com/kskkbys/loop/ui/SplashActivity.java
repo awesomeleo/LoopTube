@@ -83,6 +83,7 @@ public class SplashActivity extends Activity {
 		protected Boolean doInBackground(SQLiteStorage... params) {
 			SQLiteStorage storage = params[0];
 			storage.restoreArtists();
+			storage.restoreFavorites();
 			return true;
 		}
 
