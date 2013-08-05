@@ -151,7 +151,7 @@ public class SearchHistory {
 			public void run() {
 				if (updatedEntry != null) {
 					SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
-					storage.insertOrUpdateArtist(updatedEntry, true);
+					storage.insertOrUpdateArtist(updatedEntry);
 				}
 			}
 		}).start();

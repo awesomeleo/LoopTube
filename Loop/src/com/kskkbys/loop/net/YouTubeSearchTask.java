@@ -99,6 +99,9 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		mParent.dismissProgress();
 		List<Video> videos = createVideoList(this.mResult);
 		if (videos != null && videos.size() > 0) {
+			// Save search history and update fragment
+			mParent.updateHistory(mQuery, videos);
+			// Start to play
 			this.mParent.startVideoPlayer(mQuery, videos, 0);
 		} else {
 			KLog.v(TAG, "Video list is empty. Network state may be bad.");

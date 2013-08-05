@@ -64,28 +64,11 @@ public class SQLiteStorage {
 	}
 
 	/**
-	 * Add entry (artist and its thumbnails).<br>
-	 * Notice that this method may take a few seconds.
-	 * If you don't need wait to complete, please set async flag true.
+	 * Add entry (artist and its thumbnails).
 	 * @param entry
 	 */
-	public void insertOrUpdateArtist(final Artist entry, final boolean isAsync) {
-		KLog.v(TAG, "start insertOrUpdate");
-		if (isAsync) {
-			new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					insertOpUpdateInner(entry);
-				}
-			}).start();
-		} else {
-			insertOpUpdateInner(entry);
-		}
-		KLog.v(TAG, "end insertOrUpdate");
-	}
-	
-	private void insertOpUpdateInner(Artist entry) {
+	public void insertOrUpdateArtist(final Artist entry) {
+		KLog.v(TAG, "insertOrUpdateArtistInner");
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 
 		db.beginTransaction();

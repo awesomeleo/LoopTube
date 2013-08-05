@@ -65,7 +65,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 	// Pager
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	ViewPager mViewPager;
-	
+
 	// Fragments
 	MainHistoryFragment mHistoryFragment = new MainHistoryFragment();
 	MainFavoriteFragment mFavoriteFragment = new MainFavoriteFragment();
@@ -396,13 +396,8 @@ public class MainActivity extends BaseActivity implements TabListener {
 	}
 
 	public void updateHistory(String query, List<Video> videos) {
-		int position = mViewPager.getCurrentItem();
-		if (position == 0) {
-			SearchHistory.getInstance(this).updateHistory(query, videos);
-			// Update history list view
-			MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
-			fragment.updateHistoryUI();
-		}
+		SearchHistory.getInstance(this).updateHistory(query, videos);
+		mHistoryFragment.updateHistoryUI();
 	}
 
 	/**
