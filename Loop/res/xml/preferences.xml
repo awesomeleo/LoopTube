@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <CheckBoxPreference
+        android:key="@string/loop_pref_auto_black_list_key"
+        android:summaryOff="@string/loop_pref_auto_black_list_summary_off"
+        android:summaryOn="@string/loop_pref_auto_black_list_summary_on"
+        android:title="@string/loop_pref_auto_black_list_title" />
+
+    <Preference
+        android:enabled="true"
+        android:selectable="true"
+        android:summary="@string/loop_pref_feedback_summary"
+        android:title="@string/loop_pref_feedback_title" >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="market://details?id=com.kskkbys.loop" />
+    </Preference>
+    <Preference
+        android:enabled="true"
+        android:key="@string/loop_pref_version_key"
+        android:selectable="false"
+        android:title="@string/loop_pref_version_title" />
+
+</PreferenceScreen>

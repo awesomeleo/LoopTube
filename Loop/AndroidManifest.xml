@@ -46,6 +46,11 @@
             android:name="com.kskkbys.loop.ui.VideoPlayerActivity"
             android:label="@string/loop_app_name" >
         </activity>
+        <activity
+            android:name="com.kskkbys.loop.ui.SettingsActivity"
+            android:configChanges="screenSize|orientation"
+            android:label="@string/loop_app_name" >
+        </activity>
 
         <service android:name="com.kskkbys.loop.service.VideoPlayerService" >
         </service>

@@ -19,9 +19,9 @@
         yourapp:showAsAction="never"
         android:title="@string/loop_menu_item_clear_blacklist"/>
     <item
-        android:id="@+id/menu_version"
+        android:id="@+id/menu_settings"
         android:orderInCategory="100"
         yourapp:showAsAction="never"
-        android:title="@string/loop_menu_item_version"/>
+        android:title="@string/loop_menu_item_settings"/>
 
 </menu>

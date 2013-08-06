@@ -280,8 +280,8 @@ public class MainActivity extends BaseActivity implements TabListener {
 			.setNegativeButton(R.string.loop_cancel, null);
 			builder.create().show();
 			return true;
-		case R.id.menu_version:
-			showVersion();
+		case R.id.menu_settings:
+			goToSettings();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -330,39 +330,10 @@ public class MainActivity extends BaseActivity implements TabListener {
 			searchTask.execute(artist);
 		}
 	}
-
-
-
-	private void openGooglePlay() {
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse("market://details?id=com.kskkbys.loop"));
+	
+	private void goToSettings() {
+		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);
-	}
-
-	private void showVersion() {
-		PackageManager pm = getPackageManager();
-		PackageInfo info;
-		try {
-			info = pm.getPackageInfo(this.getPackageName(), PackageManager.GET_ACTIVITIES);
-			String message = "Version " + info.versionName;
-			if (BuildConfig.DEBUG) {
-				message += " (Debug)";
-			}
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle(R.string.loop_app_name);
-			builder.setMessage(message);
-			builder.setPositiveButton(R.string.loop_ok, null);
-			builder.setNegativeButton(R.string.loop_main_open_google_play, new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					openGooglePlay();
-				}
-			});
-			builder.create().show();
-		} catch (NameNotFoundException e) {
-			KLog.e(TAG, "package not found", e);
-		}
 	}
 
 	// TODO Playing notification will be another fragment.

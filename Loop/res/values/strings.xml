@@ -65,8 +65,19 @@
     <string name="loop_menu_item_stop_repeat">Stop repeat</string>
     <string name="loop_menu_item_ignore">Add this video to blacklist</string>
     <string name="loop_menu_item_share">Share this video</string>
+    <string name="loop_menu_item_settings">Settings</string>
     
     <string-array name="loop_black_word_list">
     </string-array>
+    
+    <!-- Preferences -->
+    <string name="loop_pref_auto_black_list_key">pref_autoBlackList</string>
+    <string name="loop_pref_auto_black_list_title">Auto black list</string>
+    <string name="loop_pref_auto_black_list_summary_on">Find black list by keyword filtering automatically</string>
+    <string name="loop_pref_auto_black_list_summary_off">Does not find black list automatically</string>
+    <string name="loop_pref_feedback_title">Feedback</string>
+    <string name="loop_pref_feedback_summary">Rate this app on Google Play</string>
+    <string name="loop_pref_version_key">pref_version</string>
+    <string name="loop_pref_version_title">Version</string>
 
 </resources>
