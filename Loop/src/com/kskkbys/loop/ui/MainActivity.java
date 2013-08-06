@@ -11,7 +11,6 @@ import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.BlackList;
-import com.kskkbys.loop.model.FavoriteList;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.model.Video;
@@ -51,6 +50,10 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * Search screen.
@@ -223,6 +226,12 @@ public class MainActivity extends BaseActivity implements TabListener {
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		updatePlayingNotification();
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -353,6 +362,32 @@ public class MainActivity extends BaseActivity implements TabListener {
 			builder.create().show();
 		} catch (NameNotFoundException e) {
 			KLog.e(TAG, "package not found", e);
+		}
+	}
+
+	// TODO Playing notification will be another fragment.
+	private void updatePlayingNotification() {
+		if (Playlist.getInstance().getCurrentVideo() != null) {
+			RelativeLayout base = (RelativeLayout)findViewById(R.id.main_base);
+			View notification = base.findViewById(R.id.notification_base);
+			if (notification == null) {
+				// Add
+				notification = getLayoutInflater().inflate(R.layout.main_playing_notification, null);
+				RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				notification.setLayoutParams(params);
+				notification.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						goToNextActivity();
+					}
+				});
+				base.addView(notification);
+			}
+			// Update
+			TextView title = (TextView)notification.findViewById(R.id.notification_title);
+			title.setText(Playlist.getInstance().getCurrentVideo().getTitle());
 		}
 	}
 

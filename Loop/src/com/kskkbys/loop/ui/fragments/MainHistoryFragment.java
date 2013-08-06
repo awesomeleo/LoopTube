@@ -5,7 +5,6 @@ import java.util.List;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
-import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.ui.MainActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -17,13 +16,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -127,9 +124,6 @@ public class MainHistoryFragment extends Fragment {
 		history.readHistory();	// initialize
 		mAdapter = new ArtistAdapter(getActivity(), history.getArtists());
 		mListView.setAdapter(mAdapter);
-		
-		// If a video is playing, show notification at bottom
-		updatePlayingNotification();
 	}
 
 	@Override
@@ -137,7 +131,6 @@ public class MainHistoryFragment extends Fragment {
 		KLog.v(TAG, "onResume");
 		super.onResume();
 		updateHistoryUI();
-		updatePlayingNotification();
 	}
 
 	@Override
@@ -170,33 +163,6 @@ public class MainHistoryFragment extends Fragment {
 		KLog.v(TAG, "deselect");
 		if (mLongSelectedItem != null) {
 			mLongSelectedItem.setSelected(false);
-		}
-	}
-
-	// TODO Playing notification will be another fragment.
-	private void updatePlayingNotification() {
-		if (Playlist.getInstance().getCurrentVideo() != null) {
-			RelativeLayout base = (RelativeLayout)getView().findViewById(R.id.main_base);
-			View notification = base.findViewById(R.id.notification_base);
-			if (notification == null) {
-				// Add
-				final MainActivity parent = (MainActivity)getActivity();
-				notification = parent.getLayoutInflater().inflate(R.layout.main_playing_notification, null);
-				RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				notification.setLayoutParams(params);
-				notification.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						parent.goToNextActivity();
-					}
-				});
-				base.addView(notification);
-			}
-			// Update
-			TextView title = (TextView)notification.findViewById(R.id.notification_title);
-			title.setText(Playlist.getInstance().getCurrentVideo().getTitle());
 		}
 	}
 
