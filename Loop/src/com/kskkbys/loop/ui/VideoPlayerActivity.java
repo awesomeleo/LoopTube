@@ -212,16 +212,10 @@ public class VideoPlayerActivity extends BaseActivity {
 	private void handleInvalidVideo() {
 		// Update UI (video title)
 		updateVideoInfo();
-		// Show error dialog
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.loop_video_player_invalid_video);
-		builder.setPositiveButton(R.string.loop_ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				PlayerCommand.next(VideoPlayerActivity.this);
-			}
-		});
-		builder.create().show();
+		// Show toast
+		Toast.makeText(this, R.string.loop_video_player_invalid_video, Toast.LENGTH_SHORT).show();
+		// Go next video
+		PlayerCommand.next(VideoPlayerActivity.this);
 	}
 
 	private void updateVideoInfo() {
