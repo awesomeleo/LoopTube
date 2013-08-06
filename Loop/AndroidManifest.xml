@@ -49,7 +49,7 @@
         <activity
             android:name="com.kskkbys.loop.ui.SettingsActivity"
             android:configChanges="screenSize|orientation"
-            android:label="@string/loop_app_name" >
+            android:label="@string/loop_settings_title" >
         </activity>
 
         <service android:name="com.kskkbys.loop.service.VideoPlayerService" >

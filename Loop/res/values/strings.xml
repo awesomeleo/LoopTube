@@ -43,6 +43,8 @@
     <string name="loop_main_tab_history">History</string>
     <string name="loop_main_tab_favorite">Favorite</string>
     
+    <string name="loop_settings_title">Setings</string>
+    
     <string name="loop_widget_not_playing">There is no playing video.</string>
     <string name="loop_widget_loading">Now loading&#8230;</string>
     
