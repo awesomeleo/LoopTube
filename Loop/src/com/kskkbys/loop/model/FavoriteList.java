@@ -17,10 +17,25 @@ public class FavoriteList {
 	
 	private static FavoriteList sInstance = null;
 	
+	private List<Video> mVideos;
+	
+	/**
+	 * Constructor.
+	 * @param context
+	 */
 	private FavoriteList(Context context) {
 		mContext = context;
+		// Restore if needed
+		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+		storage.restoreFavorites();
+		mVideos = storage.getRestoredFavorites();
 	}
 	
+	/**
+	 * Get singleton instance.
+	 * @param context
+	 * @return
+	 */
 	public static synchronized FavoriteList getInstance(Context context) {
 		if (sInstance == null) {
 			sInstance = new FavoriteList(context);
@@ -33,15 +48,7 @@ public class FavoriteList {
 	 * @return
 	 */
 	public List<Video> getVideos() {
-		return SQLiteStorage.getInstance(mContext).getRestoredFavorites();
-	}
-	
-	/**
-	 * Restore favorite videos in SQLite.
-	 * @return
-	 */
-	public boolean restore() {
-		return SQLiteStorage.getInstance(mContext).restoreFavorites();
+		return mVideos;
 	}
 	
 	/**
@@ -51,8 +58,14 @@ public class FavoriteList {
 	 * @return
 	 */
 	public boolean addFavorite(Video video, String artist) {
-		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
-		return storage.insertFavorite(video, artist);
+		// Memory
+		if (!mVideos.contains(video)) {
+			mVideos.add(video);
+			// DB
+			SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+			return storage.insertFavorite(video, artist);
+		}
+		return false;
 	}
 	
 	/**
@@ -61,7 +74,13 @@ public class FavoriteList {
 	 * @return
 	 */
 	public boolean deleteFavorite(Video video) {
-		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
-		return storage.deleteFavorite(video);
+		// Memory
+		if (mVideos.contains(video)) {
+			mVideos.remove(video);
+			// DB
+			SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+			return storage.deleteFavorite(video);
+		}
+		return false;
 	}
 }
