@@ -14,12 +14,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -45,6 +43,8 @@ public class MainFavoriteFragment extends Fragment {
 		KLog.v(TAG, "onCreateView");
 		View view = inflater.inflate(R.layout.fragment_main_favorite, container, false);
 		mListView = (ListView)view.findViewById(R.id.favorite_listview);
+		View emptyView = view.findViewById(R.id.favorite_empty);
+		mListView.setEmptyView(emptyView);
 		return view;
 	}
 

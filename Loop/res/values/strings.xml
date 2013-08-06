@@ -29,6 +29,7 @@
     <string name="loop_main_button_search">Search</string>
     <string name="loop_main_dialog_searching">Searching&#8230;</string>
     <string name="loop_main_no_history">There is no search history.</string>
+    <string name="loop_main_no_favorite">There is no favorite video.</string>
     <string name="loop_main_search_hint">ex. Oasis</string>
     <string name="loop_main_invalid_query">Invalid query.</string>
     <string name="loop_main_confirm_clear_history">Search history will be cleared. Are you sure?</string>
