@@ -1,14 +1,14 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- pressed -->
     <item android:state_pressed="true">
-        <color android:color="#8800FFFF" />
+        <color android:color="@color/loop_search_history_overlay_checked" />
     </item>
     <!-- selected -->
     <item android:state_pressed="false" android:state_selected="true">
-        <color android:color="#8800FFFF" />
+        <color android:color="@color/loop_search_history_overlay_checked" />
     </item>
     <!-- default -->
     <item android:state_pressed="false" android:state_selected="false">
-        <color android:color="#88000000" />
+        <color android:color="@color/loop_search_history_overlay_default" />
     </item>
 </selector>

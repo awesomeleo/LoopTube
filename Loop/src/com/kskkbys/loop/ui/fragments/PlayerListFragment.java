@@ -3,7 +3,11 @@ package com.kskkbys.loop.ui.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -35,6 +39,8 @@ public class PlayerListFragment extends Fragment {
 	private ListView mPlayListView;
 	private VideoAdapter mAdapter;
 
+	private ActionMode mActionMode;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,8 +79,11 @@ public class PlayerListFragment extends Fragment {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				VideoPlayerActivity activity = (VideoPlayerActivity)getActivity();
-				activity.startContextualActionBar(position);
+				if (mActionMode != null) {
+					return false;
+				}
+				mPlayListView.setItemChecked(position, true);
+				startContextualActionBar(position);
 				return true;
 			}
 		});
@@ -89,6 +98,63 @@ public class PlayerListFragment extends Fragment {
 	 */
 	public void updateVideoInfo() {
 		mAdapter.notifyDataSetChanged();
+	}
+	
+	/**
+	 * Start contextual action bar by long click of play list.
+	 * @param position
+	 */
+	public void startContextualActionBar(final int position) {
+		final VideoPlayerActivity activity = (VideoPlayerActivity)getActivity();
+		mActionMode = activity.startSupportActionMode(new ActionMode.Callback() {
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				MenuInflater inflater = activity.getMenuInflater();
+				inflater.inflate(R.menu.activity_player_cab, menu);
+				return true;
+			}
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode,
+					Menu menu) {
+				return false;
+			}
+
+			@Override
+			public boolean onActionItemClicked(ActionMode mode,
+					MenuItem item) {
+				switch (item.getItemId()) {
+				case R.id.menu_ignore:
+					ignoreVideo(position);
+					mode.finish(); // Action picked, so close the CAB
+					return true;
+				default:
+					return false;
+				}
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
+				updateVideoInfo();
+				mActionMode = null;
+			}
+		});
+	}
+	
+	/**
+	 * Add the selected video to blacklist
+	 * @param position
+	 */
+	private void ignoreVideo(int position) {
+		KLog.v(TAG, "ignoreVideo");
+		Video video = Playlist.getInstance().getVideoAtIndex(position);
+		if (video != null) {
+			String videoId = video.getId();
+			BlackList.getInstance(getActivity()).addUserBlackList(videoId);
+			// update list view
+			updateVideoInfo();
+			// Show toast
+			Toast.makeText(getActivity(), R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	/**

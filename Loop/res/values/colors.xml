@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Main -->
     <color name="loop_artist_background_no_image">#666666</color>
+    <color name="loop_search_history_overlay_default">#88000000</color>
+    <color name="loop_search_history_overlay_checked">#8800FFFF</color>
+    <!-- Widget -->
     <color name="loop_widget_background">#363437</color>
+    <!-- Player -->
     <color name="loop_player_control_background">#66000000</color>
 </resources>

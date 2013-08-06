@@ -3,7 +3,6 @@ package com.kskkbys.loop.ui;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
-import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.FavoriteList;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.Video;
@@ -23,10 +22,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.view.ActionMode;
 import android.text.TextUtils;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -145,58 +142,6 @@ public class VideoPlayerActivity extends BaseActivity {
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
-		}
-	}
-
-	/**
-	 * Start contextual action bar by long click of play list.
-	 * @param position
-	 */
-	public void startContextualActionBar(int position) {
-		final int longClickedPos = position;
-		startSupportActionMode(new ActionMode.Callback() {
-			@Override
-			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-				MenuInflater inflater = getMenuInflater();
-				inflater.inflate(R.menu.activity_player_cab, menu);
-				return true;
-			}
-			@Override
-			public boolean onPrepareActionMode(ActionMode mode,
-					Menu menu) {
-				return false;
-			}
-
-			@Override
-			public boolean onActionItemClicked(ActionMode mode,
-					MenuItem item) {
-				switch (item.getItemId()) {
-				case R.id.menu_ignore:
-					ignoreVideo(longClickedPos);
-					mListFragment.updateVideoInfo();
-					mode.finish(); // Action picked, so close the CAB
-					return true;
-				default:
-					return false;
-				}
-			}
-
-			@Override
-			public void onDestroyActionMode(ActionMode mode) {
-			}
-		});
-	}
-
-	private void ignoreVideo(int position) {
-		KLog.v(TAG, "ignoreVideo");
-		Video video = Playlist.getInstance().getVideoAtIndex(position);
-		if (video != null) {
-			String videoId = video.getId();
-			BlackList.getInstance(this).addUserBlackList(videoId);
-			// update list view
-			mListFragment.updateVideoInfo();
-			// Show toast
-			Toast.makeText(this, R.string.loop_video_player_ignored, Toast.LENGTH_SHORT).show();
 		}
 	}
 
