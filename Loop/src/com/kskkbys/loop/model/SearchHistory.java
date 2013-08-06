@@ -57,21 +57,21 @@ public class SearchHistory {
 
 	/**
 	 * Add artist
-	 * @param artist
+	 * @param artistName
 	 */
-	public void addArtist(String artist) {
+	public void addArtist(String artistName) {
 		KLog.v(TAG, "addArtist");
-		Artist entry = findArtistFromHistory(artist);
-		if (entry != null) {
-			mArtists.remove(entry);
-			entry.date = new Date();
-			mArtists.add(entry);
+		Artist artist = findArtistFromHistory(artistName);
+		if (artist != null) {
+			mArtists.remove(artist);
+			artist.date = new Date();
+			mArtists.add(0, artist);
 		} else {
-			entry = new Artist();
-			entry.name = artist;
-			entry.imageUrls = new ArrayList<String>();	// Before search video list, image URL is null.
-			entry.date = new Date();
-			mArtists.add(entry);
+			artist = new Artist();
+			artist.name = artistName;
+			artist.imageUrls = new ArrayList<String>();	// Before search video list, image URL is null.
+			artist.date = new Date();
+			mArtists.add(0, artist);
 		}
 	}
 
