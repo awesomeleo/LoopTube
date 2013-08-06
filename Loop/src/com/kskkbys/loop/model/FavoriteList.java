@@ -83,4 +83,14 @@ public class FavoriteList {
 		}
 		return false;
 	}
+	
+	/**
+	 * Clear favorites
+	 * @return
+	 */
+	public boolean clearFavorites() {
+		mVideos.clear();
+		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+		return storage.clearFavorites();
+	}
 }

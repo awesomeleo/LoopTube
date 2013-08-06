@@ -81,6 +81,8 @@
     
     <string name="loop_pref_clear_favorite_key">pref_clearFavorite</string>
     <string name="loop_pref_clear_favorite_title">Clear favorites</string>
+    <string name="loop_pref_clear_favorite_dialog_msg">Are you sure to clear favorites?</string>
+    <string name="loop_pref_clear_favorite_toast">Cleared favorites successfully</string>
     <string name="loop_pref_clear_history_key">pref_clearHistory</string>
     <string name="loop_pref_clear_history_title">Clear search history</string>
     <string name="loop_pref_clear_black_list_key">pref_clearBlackList</string>

@@ -2,12 +2,19 @@ package com.kskkbys.loop.ui;
 
 import com.kskkbys.loop.BuildConfig;
 import com.kskkbys.loop.R;
+import com.kskkbys.loop.model.FavoriteList;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.widget.Toast;
 
 /**
  * Settings screen.
@@ -22,7 +29,25 @@ public class SettingsActivity extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		
-		
+		// Set click events
+		Preference clearHistory = findPreference(getString(R.string.loop_pref_clear_favorite_key));
+		clearHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+				builder.setMessage(R.string.loop_pref_clear_favorite_dialog_msg);
+				builder.setPositiveButton(R.string.loop_ok, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						FavoriteList.getInstance(SettingsActivity.this).clearFavorites();
+						Toast.makeText(SettingsActivity.this, R.string.loop_pref_clear_favorite_toast, Toast.LENGTH_SHORT).show();
+					}
+				});
+				builder.setNegativeButton(R.string.loop_cancel, null);
+				builder.create().show();
+				return true;
+			}
+		});
 
 		// Set version number
 		String version = getVersion();
