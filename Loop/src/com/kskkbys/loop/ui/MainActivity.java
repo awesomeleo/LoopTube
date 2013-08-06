@@ -174,7 +174,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
 			KLog.v(TAG, "Launched from notification. Go next activity.");
-			goToNextActivity();
+			goToNextActivity(false);
 			return;
 		}
 	}
@@ -207,7 +207,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 			boolean isFromNotification = intent.getBooleanExtra(FROM_NOTIFICATION, false);
 			if (isFromNotification) {
 				KLog.v(TAG, "Launched from notification. Go next activity.");
-				goToNextActivity();
+				goToNextActivity(false);
 				return;
 			}
 		}
@@ -303,7 +303,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 			String currentArtist = Playlist.getInstance().getQuery();
 			if (!TextUtils.isEmpty(currentArtist) && currentArtist.equals(artist.name)) {
 				KLog.v(TAG, "Already playing. Go player without seraching.");
-				goToNextActivity();
+				goToNextActivity(false);
 			} else {
 				searchQuery(artist.name);
 			}
@@ -380,7 +380,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 				notification.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						goToNextActivity();
+						goToNextActivity(false);
 					}
 				});
 				base.addView(notification);
@@ -399,9 +399,8 @@ public class MainActivity extends BaseActivity implements TabListener {
 	 */
 	public void startVideoPlayer(String query, List<Video> result, int position) {
 		Playlist.getInstance().setVideoList(query, result, position);
-		PlayerCommand.play(this, true);
 		// Go next activity
-		goToNextActivity();
+		goToNextActivity(true);
 	}
 
 	/**
@@ -413,10 +412,12 @@ public class MainActivity extends BaseActivity implements TabListener {
 
 	/**
 	 * Go next activity
+	 * @param isReload	A flag whether player will reload videos.
 	 */
-	public void goToNextActivity() {
+	public void goToNextActivity(boolean isReload) {
 		Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+		intent.putExtra(VideoPlayerActivity.IS_RELOAD, isReload);
 		startActivity(intent);
 	}
 

@@ -36,6 +36,8 @@ public class VideoPlayerActivity extends BaseActivity {
 
 	private static final String TAG = VideoPlayerActivity.class.getSimpleName();
 
+	public static final String IS_RELOAD = "is_reload";
+	
 	// Fragments in this activity
 	private PlayerListFragment mListFragment;
 	private PlayerControlFragment mControlFragment;
@@ -102,6 +104,22 @@ public class VideoPlayerActivity extends BaseActivity {
 			filter.addAction(pe.getAction());
 		}
 		registerReceiver(mPlayerReceiver, filter);
+
+		// Send PLAY command to service
+		Intent intent = getIntent();
+		if (intent != null) {
+			PlayerCommand.play(this, intent.getBooleanExtra(IS_RELOAD, false));
+		}
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		KLog.v(TAG, "onNewIntent");
+		// Send PLAY command to service
+		if (intent != null) {
+			PlayerCommand.play(this, intent.getBooleanExtra(IS_RELOAD, false));
+		}
 	}
 
 	@Override
@@ -185,15 +203,15 @@ public class VideoPlayerActivity extends BaseActivity {
 			}
 		}.execute();
 	}
-	
+
 	private void handlePrepared() {
-		KLog.v(TAG, "onPrepared");
+		KLog.v(TAG, "handlePrepared");
 		updateVideoInfo();
 		dismissProgress();
 	}
 
 	private void handleCompletion() {
-		KLog.v(TAG, "OnCompletion");
+		KLog.v(TAG, "handleCompletion");
 		// End of playlist => close the player
 		if (Playlist.getInstance().getCurrentVideo() == null) {
 			finish();
@@ -201,7 +219,7 @@ public class VideoPlayerActivity extends BaseActivity {
 	}
 
 	private void handleSeekComplete(int positionMsec) {
-		KLog.v(TAG, "onSeekComplete");
+		KLog.v(TAG, "handleSeekComplete");
 		mControlFragment.handleSeekComplete(positionMsec);
 		dismissProgress();
 	}
@@ -218,6 +236,21 @@ public class VideoPlayerActivity extends BaseActivity {
 		PlayerCommand.next(VideoPlayerActivity.this);
 	}
 
+	private void handleStartLoadVideo() {
+		KLog.v(TAG, "handleStartLoadVideo");
+		showProgress(R.string.loop_video_player_dialog_loading);
+	}
+
+	private void handleEndLoadVideo() {
+		KLog.v(TAG, "handleEndLoadVideo");
+		dismissProgress();
+	}
+
+	private void handleUpdate(int msec, boolean isPlaying) {
+		mControlFragment.handleUpdate(msec, isPlaying);
+	}
+
+
 	private void updateVideoInfo() {
 		// Update action bar (video title)
 		Video video = Playlist.getInstance().getCurrentVideo();
@@ -232,17 +265,5 @@ public class VideoPlayerActivity extends BaseActivity {
 		if (mListFragment != null) {
 			mListFragment.updateVideoInfo();
 		}
-	}
-
-	private void handleStartLoadVideo() {
-		showProgress(R.string.loop_video_player_dialog_loading);
-	}
-
-	private void handleEndLoadVideo() {
-		dismissProgress();
-	}
-
-	private void handleUpdate(int msec, boolean isPlaying) {
-		mControlFragment.handleUpdate(msec, isPlaying);
 	}
 }
