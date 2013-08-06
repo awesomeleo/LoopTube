@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+ 
+    <Preference
+        android:enabled="true"
+        android:key="@string/loop_pref_clear_favorite_key"
+        android:title="@string/loop_pref_clear_favorite_title"
+        android:summary="" />
+    <Preference
+        android:enabled="true"
+        android:key="@string/loop_pref_clear_history_key"
+        android:title="@string/loop_pref_clear_history_title"
+        android:summary="" />
+    <Preference
+        android:enabled="true"
+        android:key="@string/loop_pref_clear_black_list_key"
+        android:title="@string/loop_pref_clear_black_list_title"
+        android:summary="" />
 
     <CheckBoxPreference
         android:key="@string/loop_pref_auto_black_list_key"
@@ -20,6 +36,6 @@
         android:enabled="true"
         android:key="@string/loop_pref_version_key"
         android:selectable="false"
-        android:title="@string/loop_pref_version_title" />
+        android:title="@string/loop_pref_version_title" android:persistent="true" android:defaultValue="0"/>
 
 </PreferenceScreen>

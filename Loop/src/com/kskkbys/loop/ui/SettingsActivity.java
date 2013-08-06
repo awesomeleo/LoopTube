@@ -27,7 +27,8 @@ public class SettingsActivity extends PreferenceActivity {
 		if (BuildConfig.DEBUG) {
 			version += "(DEBUG)";
 		}
-		findPreference(getString(R.string.loop_pref_version_key)).setSummary(version);
+		// TODO
+		// findPreference(getString(R.string.loop_pref_version_key)).setSummary(version);
 	}
 
 	/**
