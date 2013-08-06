@@ -92,10 +92,10 @@ public class SettingsActivity extends PreferenceActivity {
 		// Set version number
 		String version = getVersion();
 		if (BuildConfig.DEBUG) {
-			version += "(DEBUG)";
+			version += " (DEBUG)";
 		}
-		// TODO
-		// findPreference(getString(R.string.loop_pref_version_key)).setSummary(version);
+		Preference versionPref = findPreference(getString(R.string.loop_pref_version_key));
+		versionPref.setSummary(version);
 	}
 
 	/**
