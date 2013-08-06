@@ -68,6 +68,15 @@
     <string name="loop_menu_item_settings">設定</string>
     
     <!-- Preferences -->
+    <string name="loop_pref_category_history_key">pref_categoryHistory</string>
+    <string name="loop_pref_category_history_title">検索履歴</string>
+    <string name="loop_pref_category_favorite_key">pref_categoryFavorite</string>
+    <string name="loop_pref_category_favorite_title">お気に入り</string>
+    <string name="loop_pref_category_black_list_key">pref_categoryBlackList</string>
+    <string name="loop_pref_category_black_list_title">ブラックリスト</string>
+    <string name="loop_pref_category_about_key">pref_categoryAbout</string>
+    <string name="loop_pref_category_about_title">このアプリについて</string>
+    
     <string name="loop_pref_clear_favorite_key">pref_clearFavorite</string>
     <string name="loop_pref_clear_favorite_title">お気に入りを消去する</string>
     <string name="loop_pref_clear_history_key">pref_clearHistory</string>
