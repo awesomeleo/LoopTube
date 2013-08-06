@@ -168,7 +168,12 @@ public class VideoPlayerActivity extends BaseActivity {
 			protected Boolean doInBackground(String... params) {
 				Video video = Playlist.getInstance().getCurrentVideo();
 				String artist = Playlist.getInstance().getQuery();
-				return FavoriteList.getInstance(VideoPlayerActivity.this).addFavorite(video, artist);
+				if (TextUtils.isEmpty(artist)) {
+					// Playing fav list
+					return false;
+				} else {
+					return FavoriteList.getInstance(VideoPlayerActivity.this).addFavorite(video, artist);
+				}
 			}
 			@Override
 			protected void onPostExecute(Boolean result) {
