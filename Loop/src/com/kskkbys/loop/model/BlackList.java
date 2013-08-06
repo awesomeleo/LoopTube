@@ -2,6 +2,8 @@ package com.kskkbys.loop.model;
 
 import java.util.List;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
@@ -52,12 +54,17 @@ public class BlackList {
 	}
 
 	public void addAppBlackList(String videoId) {
-		KLog.v(TAG, "addByApp: " + videoId);
-		// On memory
-		mAppVideoIds.add(videoId);
-		// DB
-		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
-		storage.insertBlackList(videoId, false);
+		// Check shared preference
+		if (isAutoBlackListEnabled()) {
+			KLog.v(TAG, "addByApp: " + videoId);
+			// On memory
+			mAppVideoIds.add(videoId);
+			// DB
+			SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+			storage.insertBlackList(videoId, false);
+		} else {
+			KLog.w(TAG, "Auto black list is disabled.");
+		}
 	}
 
 	public void clear() {
@@ -106,5 +113,11 @@ public class BlackList {
 			}
 		}
 		return false;
+	}
+	
+	private boolean isAutoBlackListEnabled() {
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+		String key = mContext.getString(R.string.loop_pref_auto_black_list_key);
+		return sharedPref.getBoolean(key, true);
 	}
 }
