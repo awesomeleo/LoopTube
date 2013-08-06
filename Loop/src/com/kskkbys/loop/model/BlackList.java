@@ -1,19 +1,11 @@
 package com.kskkbys.loop.model;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
 
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.storage.SQLiteStorage;
 
 /**
  * Black list of videos
@@ -22,49 +14,60 @@ import com.kskkbys.loop.logger.KLog;
 public class BlackList {
 
 	private static final String TAG = BlackList.class.getSimpleName();
-	private static final String FILENAME_USER_BLACKLIST = "user_black_list.txt";
-	private static final String FILENAME_APP_BLACKLIST = "app_black_list.txt";
 
-	private static BlackList mInstance = new BlackList();
-	// Black list registered by user
-	private List<String> mUserVideoIds;
-	// Black list registered by app
-	private List<String> mAppVideoIds;
+	private static BlackList sInstance = null;
+
 	private Context mContext;
+	private List<String> mUserVideoIds;
+	private List<String> mAppVideoIds;
 
-	private BlackList() {
-		// nothing to do
-		// Please call initialize before calling APIs
-	}
-
-	public static BlackList getInstance() {
-		return mInstance;
-	}
-
-	public void initialize(Context context) {
+	/**
+	 * Constructor.
+	 * @param context
+	 */
+	private BlackList(Context context) {
 		mContext = context;
-		loadUserBlackList();
-		loadAppBlackList();
+		// Restore black list if not restored
+		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+		storage.restoreBlackList();
+		// Get video IDs
+		mUserVideoIds = storage.getRestoredUserBlackList();
+		mAppVideoIds = storage.getRestoredAppBlackList();
+	}
+
+	public synchronized static BlackList getInstance(Context context) {
+		if (sInstance == null) {
+			sInstance = new BlackList(context);
+		}
+		return sInstance;
 	}
 
 	public void addUserBlackList(String videoId) {
 		KLog.v(TAG, "add: " + videoId);
+		// On memory
 		mUserVideoIds.add(videoId);
-		saveUserBlackList();
+		// DB
+		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+		storage.insertBlackList(videoId, true);
 	}
 
 	public void addAppBlackList(String videoId) {
 		KLog.v(TAG, "addByApp: " + videoId);
+		// On memory
 		mAppVideoIds.add(videoId);
-		saveAppBlackList();
+		// DB
+		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+		storage.insertBlackList(videoId, false);
 	}
 
 	public void clear() {
 		KLog.v(TAG, "clear");
+		// On memory
 		mUserVideoIds.clear();
 		mAppVideoIds.clear();
-		saveAppBlackList();
-		saveUserBlackList();
+		// DB
+		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
+		storage.clearBlackList();
 	}
 
 	/**
@@ -89,102 +92,19 @@ public class BlackList {
 		return false;
 	}
 
+	/**
+	 * Check whether the title contains NG words.
+	 * @param videoTitle
+	 * @return
+	 */
 	public boolean isBlackTitle(String videoTitle) {
 		// KLog.v(TAG, "isBlackTitle");
-		if (mContext != null) {
-			String[] blackWords = mContext.getResources().getStringArray(R.array.loop_black_word_list);
-			for (String word : blackWords) {
-				if (videoTitle.contains(word)) {
-					return true;
-				}
+		String[] blackWords = mContext.getResources().getStringArray(R.array.loop_black_word_list);
+		for (String word : blackWords) {
+			if (videoTitle.contains(word)) {
+				return true;
 			}
 		}
 		return false;
-	}
-
-	private void saveUserBlackList() {
-		KLog.v(TAG, "save user");
-		if (mContext != null) {
-			FileOutputStream fos;
-			try {
-				fos = mContext.openFileOutput(FILENAME_USER_BLACKLIST, Context.MODE_PRIVATE);
-				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-				for (String videoId : mUserVideoIds) {
-					bw.write(videoId);
-					bw.newLine();
-				}
-				bw.flush();
-				bw.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private void saveAppBlackList() {
-		KLog.v(TAG, "save app");
-		if (mContext != null) {
-			FileOutputStream fos;
-			try {
-				fos = mContext.openFileOutput(FILENAME_APP_BLACKLIST, Context.MODE_PRIVATE);
-				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-				for (String videoId : mAppVideoIds) {
-					bw.write(videoId);
-					bw.newLine();
-				}
-				bw.flush();
-				bw.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private void loadUserBlackList() {
-		KLog.v(TAG, "load");
-		if (mContext != null) {
-			mUserVideoIds = new ArrayList<String>();
-			FileInputStream fis;
-			try {
-				fis = mContext.openFileInput(FILENAME_USER_BLACKLIST);
-				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-				String line;
-				while ((line = br.readLine()) != null) {
-					mUserVideoIds.add(line);
-				}
-				br.close();
-			} catch (FileNotFoundException e) {
-				// Fisrt launching
-				KLog.w(TAG,"FileNotFound of black list. May be first launch.");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private void loadAppBlackList() {
-		KLog.v(TAG, "load");
-		if (mContext != null) {
-			mAppVideoIds = new ArrayList<String>();
-			FileInputStream fis;
-			try {
-				fis = mContext.openFileInput(FILENAME_APP_BLACKLIST);
-				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-				String line;
-				while ((line = br.readLine()) != null) {
-					mAppVideoIds.add(line);
-				}
-				br.close();
-			} catch (FileNotFoundException e) {
-				// Fisrt launching
-				KLog.w(TAG,"FileNotFound of black list. May be first launch.");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }

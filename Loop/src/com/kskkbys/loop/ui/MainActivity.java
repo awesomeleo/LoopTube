@@ -274,7 +274,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					BlackList.getInstance().clear();
+					BlackList.getInstance(MainActivity.this).clear();
 				}
 			})
 			.setNegativeButton(R.string.loop_cancel, null);

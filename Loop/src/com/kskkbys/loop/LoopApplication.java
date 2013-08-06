@@ -8,7 +8,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.kskkbys.loop.model.BlackList;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -19,7 +18,6 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import android.app.Application;
-import android.os.AsyncTask;
 
 /**
  * Application class.
@@ -49,8 +47,6 @@ public class LoopApplication extends Application {
 		super.onCreate();
 		//
 		mIsFirstLaunch = true;
-		// Initialize
-		BlackList.getInstance().initialize(getApplicationContext());
 
 		// Universal Image Loader
 		File cacheDir = StorageUtils.getCacheDirectory(this);

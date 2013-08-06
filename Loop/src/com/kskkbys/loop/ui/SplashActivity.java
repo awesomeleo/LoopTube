@@ -84,6 +84,7 @@ public class SplashActivity extends Activity {
 			SQLiteStorage storage = params[0];
 			storage.restoreArtists();
 			storage.restoreFavorites();
+			storage.restoreBlackList();
 			return true;
 		}
 

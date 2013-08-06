@@ -58,7 +58,7 @@ public class PlayerListFragment extends Fragment {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				KLog.v(TAG, "onItemClick " + position);
 				Video touchedVideo = Playlist.getInstance().getVideoAtIndex(position);
-				BlackList bl = BlackList.getInstance();
+				BlackList bl = BlackList.getInstance(getActivity());
 				if (bl.containsByUser(touchedVideo.getId()) || bl.containsByApp(touchedVideo.getId())) {
 					// In blacklist: can not play it.
 					KLog.v(TAG, "This video can not be played.");
@@ -120,9 +120,9 @@ public class PlayerListFragment extends Fragment {
 				ImageView imageView = (ImageView)v.findViewById(R.id.nowPlayingImageInList);
 				if (Playlist.getInstance().getPlayingIndex() == position) {
 					imageView.setImageResource(R.drawable.volume_plus2);
-				} else if (BlackList.getInstance().containsByUser(video.getId())) {
+				} else if (BlackList.getInstance(mActivity).containsByUser(video.getId())) {
 					imageView.setImageResource(R.drawable.prohibited);
-				} else if (BlackList.getInstance().containsByApp(video.getId())) {
+				} else if (BlackList.getInstance(mActivity).containsByApp(video.getId())) {
 					imageView.setImageResource(R.drawable.circle_exclamation);
 				} else {
 					imageView.setImageBitmap(null);

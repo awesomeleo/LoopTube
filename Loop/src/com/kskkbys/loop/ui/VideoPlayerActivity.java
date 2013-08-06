@@ -148,6 +148,10 @@ public class VideoPlayerActivity extends BaseActivity {
 		}
 	}
 
+	/**
+	 * Start contextual action bar by long click of play list.
+	 * @param position
+	 */
 	public void startContextualActionBar(int position) {
 		final int longClickedPos = position;
 		startSupportActionMode(new ActionMode.Callback() {
@@ -169,6 +173,7 @@ public class VideoPlayerActivity extends BaseActivity {
 				switch (item.getItemId()) {
 				case R.id.menu_ignore:
 					ignoreVideo(longClickedPos);
+					mListFragment.updateVideoInfo();
 					mode.finish(); // Action picked, so close the CAB
 					return true;
 				default:
@@ -187,7 +192,7 @@ public class VideoPlayerActivity extends BaseActivity {
 		Video video = Playlist.getInstance().getVideoAtIndex(position);
 		if (video != null) {
 			String videoId = video.getId();
-			BlackList.getInstance().addUserBlackList(videoId);
+			BlackList.getInstance(this).addUserBlackList(videoId);
 			// update list view
 			mListFragment.updateVideoInfo();
 			// Show toast

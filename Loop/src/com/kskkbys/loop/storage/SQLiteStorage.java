@@ -38,11 +38,17 @@ public class SQLiteStorage {
 	private static final String COL_FAV_IMAGE_URL = "image_url";
 	private static final String COL_FAV_ARTIST = "artist";
 	private static final String COL_FAV_DURATION = "duration";
+	
+	private static final String TABLE_BLACK_LIST_NAME = "black_lists";
+	private static final String COL_BL_VIDEO_ID = "video_id";
+	private static final String COL_BL_ADDED_BY = "added_by";
 
 	private DatabaseOpenHelper mHelper;
 
 	private List<Artist> mArtistList;
 	private List<Video> mFavoriteList;
+	private List<String> mAppBlackList;
+	private List<String> mUserBlackList;
 	
 	private static SQLiteStorage sInstance = null;
 	
@@ -54,6 +60,8 @@ public class SQLiteStorage {
 		mHelper = new DatabaseOpenHelper(context);
 		mArtistList = null;
 		mFavoriteList = null;
+		mAppBlackList = null;
+		mUserBlackList = null;
 	}
 	
 	public static synchronized SQLiteStorage getInstance(Context context) {
@@ -110,7 +118,7 @@ public class SQLiteStorage {
 		db.delete(TABLE_IMAGE_NAME, null, null);
 	}
 
-	public void restoreArtists() {
+	public synchronized void restoreArtists() {
 		KLog.v(TAG, "restoreArtists");
 		SQLiteDatabase db = mHelper.getReadableDatabase();
 		db.beginTransaction();
@@ -196,7 +204,7 @@ public class SQLiteStorage {
 		}
 	}
 	
-	public boolean restoreFavorites() {
+	public synchronized boolean restoreFavorites() {
 		KLog.v(TAG, "restoreFavorites");
 		SQLiteDatabase db = mHelper.getReadableDatabase();
 		String[] columns = new String[]{
@@ -238,6 +246,87 @@ public class SQLiteStorage {
 	public List<Video> getRestoredFavorites() {
 		return mFavoriteList;
 	}
+	
+	public boolean insertBlackList(String videoId, boolean byUser) {
+		KLog.v(TAG, "insertBlackList");
+		SQLiteDatabase db = mHelper.getWritableDatabase();
+		db.beginTransaction();
+		ContentValues values = new ContentValues();
+		values.put(COL_BL_VIDEO_ID, videoId);
+		if (byUser) {
+			values.put(COL_BL_ADDED_BY, "user");
+		} else {
+			values.put(COL_BL_ADDED_BY, "app");
+		}
+		db.insertWithOnConflict(TABLE_BLACK_LIST_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+		db.setTransactionSuccessful();
+		db.endTransaction();
+		return true;
+	}
+	
+	public boolean deleteBlackList(String videoId) {
+		KLog.v(TAG, "deleteBlackList");
+		SQLiteDatabase db = mHelper.getWritableDatabase();
+		db.beginTransaction();
+		String whereClause = COL_BL_VIDEO_ID + "=?";
+		String[] whereArgs = new String[]{videoId};
+		int num = db.delete(TABLE_BLACK_LIST_NAME, whereClause, whereArgs);
+		db.setTransactionSuccessful();
+		db.endTransaction();
+		if (num > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean clearBlackList() {
+		KLog.v(TAG, "clearBlackList");
+		SQLiteDatabase db = mHelper.getWritableDatabase();
+		if (db.delete(TABLE_BLACK_LIST_NAME, "1", null) > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public synchronized boolean restoreBlackList() {
+		KLog.v(TAG, "restoreBlackList");
+		// Already restored
+		if (mAppBlackList != null && mUserBlackList != null) {
+			return false;
+		}
+		SQLiteDatabase db = mHelper.getReadableDatabase();
+		String[] columns = new String[]{
+				COL_BL_VIDEO_ID,
+				COL_BL_ADDED_BY
+		};
+		// Restore from DB
+		Cursor cursor = db.query(TABLE_BLACK_LIST_NAME, columns, null, null, null, null, null);
+		mAppBlackList = new ArrayList<String>();
+		mUserBlackList = new ArrayList<String>();
+		if (cursor.moveToFirst()) {
+			while (cursor.isAfterLast()) {
+				cursor.moveToNext();
+				String addedBy = cursor.getString(cursor.getColumnIndex(COL_BL_ADDED_BY));
+				if (addedBy.equals("user")) {
+					mUserBlackList.add(cursor.getString(cursor.getColumnIndex(COL_BL_VIDEO_ID)));
+				} else {
+					mAppBlackList.add(cursor.getString(cursor.getColumnIndex(COL_BL_VIDEO_ID)));
+				}
+			}
+		}
+		cursor.close();
+		return true;
+	}
+	
+	public List<String> getRestoredAppBlackList() {
+		return mAppBlackList;
+	}
+	
+	public List<String> getRestoredUserBlackList() {
+		return mUserBlackList;
+	}
 
 	/**
 	 * Database helper class for LoopTube.
@@ -259,6 +348,7 @@ public class SQLiteStorage {
 			createArtistTable(db);
 			createImageTable(db);
 			createFavoriteTable(db);
+			createBlackListTable(db);
 		}
 
 		@Override
@@ -272,6 +362,9 @@ public class SQLiteStorage {
 			
 			String DROP_FAVORITE_TABLE = "drop table " + TABLE_FAVORITE_NAME + ";";
 			db.execSQL(DROP_FAVORITE_TABLE);
+			
+			String DROP_BL_TABLE = "drop table " + TABLE_BLACK_LIST_NAME + ";";
+			db.execSQL(DROP_BL_TABLE);
 		}
 		
 		private void createArtistTable(SQLiteDatabase db) {
@@ -305,6 +398,16 @@ public class SQLiteStorage {
 					+ COL_FAV_DURATION + " integer not null"
 					+ ");";
 			db.execSQL(CREATE_FAV_TABLE);
+		}
+		
+		private void createBlackListTable(SQLiteDatabase db) {
+			KLog.v(TAG, "createBlackListTable");
+			String CREATE_BL_TABLE = "create table " + TABLE_BLACK_LIST_NAME + " ("
+					+ COL_ID + " integer primary key autoincrement, "
+					+ COL_BL_VIDEO_ID + " text not null unique, "
+					+ COL_BL_ADDED_BY + " text not null unique "
+					+ ");";
+			db.execSQL(CREATE_BL_TABLE);
 		}
 
 	}

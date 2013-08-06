@@ -334,7 +334,7 @@ public class VideoPlayerService extends Service {
 		Video video = Playlist.getInstance().getCurrentVideo();
 		if (video != null) {
 			// check blacklist
-			BlackList bl = BlackList.getInstance();
+			BlackList bl = BlackList.getInstance(this);
 			if (bl.containsByUser(video.getId()) || bl.containsByApp(video.getId())) {
 				KLog.v(TAG, "This video is registered in black list. Skip this video.");
 				next();
@@ -524,7 +524,7 @@ public class VideoPlayerService extends Service {
 				KLog.e(TAG, "*** YouTube HTML source ***");
 				KLog.e(TAG, result);
 				// Add this video to black list 
-				BlackList.getInstance().addAppBlackList(mVideoId);
+				BlackList.getInstance(VideoPlayerService.this).addAppBlackList(mVideoId);
 				return LoadResult.InvalidVideoError;
 			}
 			setVideoUrl(result);
