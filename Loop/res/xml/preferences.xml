@@ -18,6 +18,7 @@
         android:summary="" />
 
     <CheckBoxPreference
+        android:defaultValue="true"
         android:key="@string/loop_pref_auto_black_list_key"
         android:summaryOff="@string/loop_pref_auto_black_list_summary_off"
         android:summaryOn="@string/loop_pref_auto_black_list_summary_on"

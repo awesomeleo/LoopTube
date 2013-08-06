@@ -67,9 +67,6 @@
     <string name="loop_menu_item_share">Share this video</string>
     <string name="loop_menu_item_settings">Settings</string>
     
-    <string-array name="loop_black_word_list">
-    </string-array>
-    
     <!-- Preferences -->
     <string name="loop_pref_clear_favorite_key">pref_clearFavorite</string>
     <string name="loop_pref_clear_favorite_title">Clear favorites</string>
@@ -85,5 +82,8 @@
     <string name="loop_pref_feedback_summary">Rate this app on Google Play</string>
     <string name="loop_pref_version_key">pref_version</string>
     <string name="loop_pref_version_title">Version</string>
+    
+    <string-array name="loop_black_word_list">
+    </string-array>
 
 </resources>
