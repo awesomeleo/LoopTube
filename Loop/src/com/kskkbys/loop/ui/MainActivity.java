@@ -5,35 +5,26 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.kskkbys.loop.BuildConfig;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.FlurryLogger;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.Artist;
-import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.Playlist;
 import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
-import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.ui.fragments.MainFavoriteFragment;
 import com.kskkbys.loop.ui.fragments.MainHistoryFragment;
 import com.kskkbys.loop.util.ConnectionState;
 import com.kskkbys.rate.RateThisApp;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -249,37 +240,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		AlertDialog.Builder builder;
 		switch (item.getItemId()) {
-		case R.id.menu_clear_history:
-			builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.loop_main_confirm_clear_history)
-			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					int position = mViewPager.getCurrentItem();
-					if (position == 0) {
-						SearchHistory.getInstance(MainActivity.this).clearAllHistory();
-						MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(position);
-						fragment.updateHistoryUI();
-					}
-				}
-			})
-			.setNegativeButton(R.string.loop_cancel, null);
-			builder.create().show();
-			return true;
-		case R.id.menu_clear_blacklist:
-			builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.loop_main_confirm_clear_blacklist)
-			.setPositiveButton(R.string.loop_ok, new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					BlackList.getInstance(MainActivity.this).clear();
-				}
-			})
-			.setNegativeButton(R.string.loop_cancel, null);
-			builder.create().show();
-			return true;
 		case R.id.menu_settings:
 			goToSettings();
 			return true;

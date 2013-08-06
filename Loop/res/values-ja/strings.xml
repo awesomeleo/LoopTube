@@ -85,8 +85,12 @@
     <string name="loop_pref_clear_favorite_toast">お気に入りをすべて削除しました。</string>
     <string name="loop_pref_clear_history_key">pref_clearHistory</string>
     <string name="loop_pref_clear_history_title">検索履歴を消去する</string>
+    <string name="loop_pref_clear_history_dialog_msg">本当に検索履歴を削除してもいいですか？</string>
+    <string name="loop_pref_clear_history_toast">検索履歴をすべて削除しました。</string>
     <string name="loop_pref_clear_black_list_key">pref_clearBlackList</string>
     <string name="loop_pref_clear_black_list_title">ブラックリストを消去する</string>
+    <string name="loop_pref_clear_black_list_dialog_msg">本当にブラックリストを削除してもいいですか？</string>
+    <string name="loop_pref_clear_black_list_toast">ブラックリストをすべて削除しました。</string>
     <string name="loop_pref_auto_black_list_key">pref_autoBlackList</string>
     <string name="loop_pref_auto_black_list_title">自動ブラックリスト</string>
     <string name="loop_pref_auto_black_list_summary_on">自動的にキーワードフィルタリングでブラックリストを作成する</string>

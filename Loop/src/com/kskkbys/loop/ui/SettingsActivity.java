@@ -2,7 +2,9 @@ package com.kskkbys.loop.ui;
 
 import com.kskkbys.loop.BuildConfig;
 import com.kskkbys.loop.R;
+import com.kskkbys.loop.model.BlackList;
 import com.kskkbys.loop.model.FavoriteList;
+import com.kskkbys.loop.model.SearchHistory;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -30,8 +32,8 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences);
 		
 		// Set click events
-		Preference clearHistory = findPreference(getString(R.string.loop_pref_clear_favorite_key));
-		clearHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+		Preference clearFavorite = findPreference(getString(R.string.loop_pref_clear_favorite_key));
+		clearFavorite.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
@@ -41,6 +43,44 @@ public class SettingsActivity extends PreferenceActivity {
 					public void onClick(DialogInterface dialog, int which) {
 						FavoriteList.getInstance(SettingsActivity.this).clearFavorites();
 						Toast.makeText(SettingsActivity.this, R.string.loop_pref_clear_favorite_toast, Toast.LENGTH_SHORT).show();
+					}
+				});
+				builder.setNegativeButton(R.string.loop_cancel, null);
+				builder.create().show();
+				return true;
+			}
+		});
+		
+		Preference clearHistory = findPreference(getString(R.string.loop_pref_clear_history_key));
+		clearHistory.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+				builder.setMessage(R.string.loop_pref_clear_history_dialog_msg);
+				builder.setPositiveButton(R.string.loop_ok, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						SearchHistory.getInstance(SettingsActivity.this).clearAllHistory();
+						Toast.makeText(SettingsActivity.this, R.string.loop_pref_clear_history_toast, Toast.LENGTH_SHORT).show();
+					}
+				});
+				builder.setNegativeButton(R.string.loop_cancel, null);
+				builder.create().show();
+				return true;
+			}
+		});
+		
+		Preference clearBlackList = findPreference(getString(R.string.loop_pref_clear_black_list_key));
+		clearBlackList.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+				builder.setMessage(R.string.loop_pref_clear_black_list_dialog_msg);
+				builder.setPositiveButton(R.string.loop_ok, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						BlackList.getInstance(SettingsActivity.this).clear();
+						Toast.makeText(SettingsActivity.this, R.string.loop_pref_clear_black_list_toast, Toast.LENGTH_SHORT).show();
 					}
 				});
 				builder.setNegativeButton(R.string.loop_cancel, null);

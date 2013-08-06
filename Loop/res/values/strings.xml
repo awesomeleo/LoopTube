@@ -85,8 +85,12 @@
     <string name="loop_pref_clear_favorite_toast">Cleared favorites successfully</string>
     <string name="loop_pref_clear_history_key">pref_clearHistory</string>
     <string name="loop_pref_clear_history_title">Clear search history</string>
+    <string name="loop_pref_clear_history_dialog_msg">Are you sure to clear search history?</string>
+    <string name="loop_pref_clear_history_toast">Cleared search history successfully</string>
     <string name="loop_pref_clear_black_list_key">pref_clearBlackList</string>
     <string name="loop_pref_clear_black_list_title">Clear black list</string>
+    <string name="loop_pref_clear_black_list_dialog_msg">Are you sure to clear black list?</string>
+    <string name="loop_pref_clear_black_list_toast">Cleared black list successfully</string>
     <string name="loop_pref_auto_black_list_key">pref_autoBlackList</string>
     <string name="loop_pref_auto_black_list_title">Auto black list</string>
     <string name="loop_pref_auto_black_list_summary_on">Find black list by keyword filtering automatically</string>
