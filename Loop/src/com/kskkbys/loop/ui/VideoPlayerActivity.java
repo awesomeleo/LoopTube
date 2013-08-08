@@ -109,6 +109,7 @@ public class VideoPlayerActivity extends BaseActivity {
 		Intent intent = getIntent();
 		if (intent != null) {
 			PlayerCommand.play(this, intent.getBooleanExtra(IS_RELOAD, false));
+			intent.putExtra(IS_RELOAD, false);
 		}
 	}
 
@@ -119,6 +120,7 @@ public class VideoPlayerActivity extends BaseActivity {
 		// Send PLAY command to service
 		if (intent != null) {
 			PlayerCommand.play(this, intent.getBooleanExtra(IS_RELOAD, false));
+			intent.putExtra(IS_RELOAD, false);
 		}
 	}
 
