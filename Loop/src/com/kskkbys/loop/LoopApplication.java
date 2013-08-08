@@ -8,6 +8,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.kskkbys.loop.logger.KLog;
+import com.kskkbys.loop.storage.SQLiteStorage;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -25,6 +27,8 @@ import android.app.Application;
  *
  */
 public class LoopApplication extends Application {
+	
+	private static final String TAG = LoopApplication.class.getSimpleName();
 
 	private boolean mIsFirstLaunch;
 
@@ -44,6 +48,7 @@ public class LoopApplication extends Application {
 
 	@Override
 	public void onCreate() {
+		KLog.v(TAG, "onCreate");
 		super.onCreate();
 		//
 		mIsFirstLaunch = true;
@@ -72,6 +77,9 @@ public class LoopApplication extends Application {
 				.build();
 
 		ImageLoader.getInstance().init(config);
+		
+		// Restore database
+		restoreDatabase();
 	}
 
 	/**
@@ -84,5 +92,14 @@ public class LoopApplication extends Application {
 			return true;
 		}
 		return false;
+	}
+	
+	private void restoreDatabase() {
+		KLog.v(TAG, "restoreDatabase");
+		SQLiteStorage storage = SQLiteStorage.getInstance(this);
+		storage.restoreArtists();
+		storage.restoreBlackList();
+		storage.restoreFavorites();
+		KLog.v(TAG, "restoreDatabase done.");
 	}
 }

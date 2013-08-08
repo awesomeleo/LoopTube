@@ -118,8 +118,11 @@ public class SQLiteStorage {
 		db.delete(TABLE_IMAGE_NAME, null, null);
 	}
 
-	public synchronized void restoreArtists() {
+	public synchronized boolean restoreArtists() {
 		KLog.v(TAG, "restoreArtists");
+		if (mArtistList != null) {
+			return false;
+		}
 		SQLiteDatabase db = mHelper.getReadableDatabase();
 		db.beginTransaction();
 		
@@ -165,6 +168,7 @@ public class SQLiteStorage {
 		
 		db.setTransactionSuccessful();
 		db.endTransaction();
+		return true;
 	}
 	
 	public List<Artist> getRestoredArtists() {
@@ -206,6 +210,9 @@ public class SQLiteStorage {
 	
 	public synchronized boolean restoreFavorites() {
 		KLog.v(TAG, "restoreFavorites");
+		if (mFavoriteList != null) {
+			return false;
+		}
 		SQLiteDatabase db = mHelper.getReadableDatabase();
 		String[] columns = new String[]{
 			COL_FAV_ARTIST,
