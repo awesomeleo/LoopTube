@@ -15,6 +15,7 @@ import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
 import com.kskkbys.loop.service.VideoPlayerService;
+import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
 import com.kskkbys.loop.ui.fragments.MainFavoriteFragment;
 import com.kskkbys.loop.ui.fragments.MainHistoryFragment;
 import com.kskkbys.loop.util.ConnectionState;
@@ -24,8 +25,10 @@ import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -124,6 +127,31 @@ public class MainActivity extends BaseActivity implements TabListener {
 		}
 	};
 
+	// Receiver instance to handle action intent from service.
+	private BroadcastReceiver mPlayerReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if (action.equals(PlayerEvent.Error.getAction())) {
+				KLog.e(TAG, "PlayerEvent.Error occurs!");
+			} else if (action.equals(PlayerEvent.InvalidVideo.getAction())) {
+				// do nothing
+			} else if (action.equals(PlayerEvent.Complete.getAction())) {
+				// do nothing
+			} else if (action.equals(PlayerEvent.EndToLoad.getAction())) {
+				// do nothing
+			} else if (action.equals(PlayerEvent.StartToLoad.getAction())) {
+				// do nothing
+			} else if (action.equals(PlayerEvent.SeekComplete.getAction())) {
+				// do nothing
+			} else if (action.equals(PlayerEvent.Prepared.getAction())) {
+				updatePlayingNotification();
+			} else if (action.equals(PlayerEvent.PositionUpdate.getAction())) {
+				// do nothing
+			}
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -162,6 +190,14 @@ public class MainActivity extends BaseActivity implements TabListener {
 		// CAB
 		mActionMode = null;
 
+		// Register broadcast receiver
+		IntentFilter filter = new IntentFilter();
+		PlayerEvent[] eventTypes = PlayerEvent.values();
+		for (PlayerEvent pe: eventTypes) {
+			filter.addAction(pe.getAction());
+		}
+		registerReceiver(mPlayerReceiver, filter);
+		
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
@@ -204,13 +240,13 @@ public class MainActivity extends BaseActivity implements TabListener {
 			}
 		}
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		KLog.v(TAG, "onConfigurationChanged");
 	}
-	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -227,6 +263,12 @@ public class MainActivity extends BaseActivity implements TabListener {
 	protected void onResume() {
 		super.onResume();
 		updatePlayingNotification();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(mPlayerReceiver);
 	}
 	
 	@Override
@@ -298,13 +340,15 @@ public class MainActivity extends BaseActivity implements TabListener {
 			searchTask.execute(artist);
 		}
 	}
-	
+
 	private void goToSettings() {
 		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);
 	}
 
-	// TODO Playing notification will be another fragment.
+	/**
+	 * Update "Now Playing" notification at bottom of main screen.
+	 */
 	private void updatePlayingNotification() {
 		if (Playlist.getInstance().getCurrentVideo() != null) {
 			RelativeLayout base = (RelativeLayout)findViewById(R.id.main_base);
