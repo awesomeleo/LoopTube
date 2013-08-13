@@ -47,7 +47,7 @@ public class MainHistoryFragment extends Fragment {
 	private ListView mListView;
 	private int mLongSelectedPosition;
 	private View mLongSelectedItem;
-	
+
 	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
 		@Override
@@ -86,13 +86,13 @@ public class MainHistoryFragment extends Fragment {
 			}
 		}
 	};
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		KLog.v(TAG, "onAttach");
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -148,7 +148,6 @@ public class MainHistoryFragment extends Fragment {
 				// Search or go to video player
 				MainActivity activity = (MainActivity)getActivity();
 				activity.searchOrGoToPlayer(artist);
-
 			}
 		});
 		mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -177,7 +176,7 @@ public class MainHistoryFragment extends Fragment {
 		super.onResume();
 		updateHistoryUI();
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
@@ -267,14 +266,14 @@ public class MainHistoryFragment extends Fragment {
 		}
 
 		private void reloadImages(LinearLayout container, Artist artist) {
-			
+
 			WindowManager wm = (WindowManager)mActivity.getSystemService(Activity.WINDOW_SERVICE);
 			Display disp = wm.getDefaultDisplay();
 			Point point = new Point();
 			disp.getSize(point);
 			KLog.v(TAG, "screen width = " + point.x);
 			KLog.v(TAG, "screen height = " + point.y);
-			
+
 			container.removeAllViews();
 			if (artist.imageUrls != null) {
 				KLog.v(TAG, "Images are saved.");
@@ -286,12 +285,12 @@ public class MainHistoryFragment extends Fragment {
 					iv.setLayoutParams(params);
 					iv.setAdjustViewBounds(true);
 					// iv.setBackgroundColor(Color.WHITE);
-					
+
 					container.addView(iv);
 					// Load image from URL
 					ImageLoader imageLoader = ImageLoader.getInstance();
 					imageLoader.displayImage(artist.imageUrls.get(i), iv);
-					
+
 					// Break if the container is filled
 					actualWidth += 160;	// iv.getWidth();
 					if (point.x <= actualWidth) {

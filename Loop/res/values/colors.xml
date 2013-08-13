@@ -16,7 +16,7 @@
     <!-- Main -->
     <color name="loop_artist_background_no_image">#666666</color>
     <color name="loop_search_history_overlay_default">#88000000</color>
-    <color name="loop_search_history_overlay_checked">#8800FFFF</color>
+    <color name="loop_search_history_overlay_checked">#88F5FFDF</color>
     <!-- Widget -->
     <color name="loop_widget_background">#086077</color>
     <color name="loop_widget_border">#0397AB</color>
