@@ -376,7 +376,7 @@ public class PlayerControlFragment extends Fragment implements OnTouchListener, 
 				
 				@Override
 				public void onAnimationEnd(Animation animation) {
-					mBottomControl.setVisibility(View.INVISIBLE);
+					mBottomControl.setVisibility(View.GONE);
 				}
 			});
 			mBottomControl.startAnimation(downAnimation);
@@ -395,7 +395,7 @@ public class PlayerControlFragment extends Fragment implements OnTouchListener, 
 				
 				@Override
 				public void onAnimationEnd(Animation animation) {
-					mTopControl.setVisibility(View.INVISIBLE);
+					mTopControl.setVisibility(View.GONE);
 				}
 			});
 			mTopControl.startAnimation(upAnimation);
