@@ -11,7 +11,7 @@ public class NotificationManager {
 
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
-	private static final int NOTIFICATION_ID = R.string.loop_video_player_service_started;
+	private static final int NOTIFICATION_ID = 1000;
 
 	/**
 	 * Show Now Playing notification

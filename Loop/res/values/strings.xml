@@ -7,14 +7,13 @@
     <string name="loop_splash_title">LoopTube</string>
     <string name="loop_splash_description">Simplify your YouTube experience</string>
     
-    <string name="loop_video_player_service_started">VideoPlayerService started</string>
     <string name="loop_video_player_invalid_video">This video can not be played.</string>
     <string name="loop_video_player_unknown_error">Unknown error occurred!</string>
     <string name="loop_video_player_default_duration">0:00 / 0:00</string>
     <string name="loop_video_player_playlist">Playlist</string>
     <string name="loop_video_player_dialog_seeking">Seeking&#8230;</string>
     <string name="loop_video_player_dialog_end">End of playlist.</string>
-    <string name="loop_video_player_dialog_loading">Loading...</string>
+    <string name="loop_video_player_dialog_loading">Loading&#8230;</string>
     <string name="loop_video_player_ignored">This video is now in blacklist and will never be played.</string>
     <string name="loop_video_player_ignored_already">This video is already in blacklist.</string>
     <string name="loop_video_player_volume_setting">Volume Setting</string>
@@ -75,7 +74,7 @@
     <string name="loop_pref_category_favorite_key">pref_categoryFavorite</string>
     <string name="loop_pref_category_favorite_title">Favorites</string>
     <string name="loop_pref_category_black_list_key">pref_categoryBlackList</string>
-    <string name="loop_pref_category_black_list_title">Black list</string>
+    <string name="loop_pref_category_black_list_title">Blacklist</string>
     <string name="loop_pref_category_about_key">pref_categoryAbout</string>
     <string name="loop_pref_category_about_title">About this app</string>
     
@@ -88,13 +87,13 @@
     <string name="loop_pref_clear_history_dialog_msg">Are you sure to clear search history?</string>
     <string name="loop_pref_clear_history_toast">Cleared search history successfully</string>
     <string name="loop_pref_clear_black_list_key">pref_clearBlackList</string>
-    <string name="loop_pref_clear_black_list_title">Clear black list</string>
-    <string name="loop_pref_clear_black_list_dialog_msg">Are you sure to clear black list?</string>
-    <string name="loop_pref_clear_black_list_toast">Cleared black list successfully</string>
+    <string name="loop_pref_clear_black_list_title">Clear blacklist</string>
+    <string name="loop_pref_clear_black_list_dialog_msg">Are you sure to clear blacklist?</string>
+    <string name="loop_pref_clear_black_list_toast">Cleared blacklist successfully</string>
     <string name="loop_pref_auto_black_list_key">pref_autoBlackList</string>
-    <string name="loop_pref_auto_black_list_title">Auto black list</string>
-    <string name="loop_pref_auto_black_list_summary_on">Find black list by keyword filtering automatically</string>
-    <string name="loop_pref_auto_black_list_summary_off">Does not find black list automatically</string>
+    <string name="loop_pref_auto_black_list_title">Auto blacklist</string>
+    <string name="loop_pref_auto_black_list_summary_on">Find blacklist by keyword filtering automatically</string>
+    <string name="loop_pref_auto_black_list_summary_off">Does not find blacklist automatically</string>
     <string name="loop_pref_feedback_title">Feedback</string>
     <string name="loop_pref_feedback_summary">Rate this app on Google Play</string>
     <string name="loop_pref_version_key">pref_version</string>

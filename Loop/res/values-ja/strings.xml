@@ -7,14 +7,13 @@
     <string name="loop_splash_title">LoopTube</string>
     <string name="loop_splash_description">Simplify your YouTube experience</string>
     
-    <string name="loop_video_player_service_started">VideoPlayerService started</string>
     <string name="loop_video_player_invalid_video">この動画は再生できません。</string>
     <string name="loop_video_player_unknown_error">動画再生中にエラーが発生しました。</string>
     <string name="loop_video_player_default_duration">0:00 / 0:00</string>
     <string name="loop_video_player_playlist">プレイリスト</string>
     <string name="loop_video_player_dialog_seeking">シーク中&#8230;</string>
     <string name="loop_video_player_dialog_end">再生を終了しました</string>
-    <string name="loop_video_player_dialog_loading">読み込み中...</string>
+    <string name="loop_video_player_dialog_loading">読み込み中&#8230;</string>
     <string name="loop_video_player_ignored">この動画はブラックリストに登録されました。今後再生されません。</string>
     <string name="loop_video_player_ignored_already">この動画はすでにブラックリストに登録されています。</string>
     <string name="loop_video_player_volume_setting">ボリューム設定</string>

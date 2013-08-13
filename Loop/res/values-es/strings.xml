@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="loop_app_name">LoopTube</string>
+    <string name="loop_hello_world">Hello world!</string>
+    
+    <string name="loop_splash_title">LoopTube</string>
+    <string name="loop_splash_description">Simplify your YouTube experience</string>
+    
+    <string name="loop_video_player_invalid_video">Este video no puede ser jugado.</string>
+    <string name="loop_video_player_unknown_error">¡El error desconocido ocurrió!</string>
+    <string name="loop_video_player_default_duration">0:00 / 0:00</string>
+    <string name="loop_video_player_playlist">Playlist</string>
+    <string name="loop_video_player_dialog_seeking">Buscando&#8230;</string>
+    <string name="loop_video_player_dialog_end">Fin de la lista de reproducción.</string>
+    <string name="loop_video_player_dialog_loading">Carga&#8230;</string>
+    <string name="loop_video_player_ignored">Este video se encuentra en la lista negra y nunca se jugó.</string>
+    <string name="loop_video_player_ignored_already">Este video ya está en la lista negra.</string>
+    <string name="loop_video_player_volume_setting">Ajuste de volumen</string>
+    <string name="loop_video_player_return_from_full_screen">Modo de pantalla completa está desactivada.</string>
+    <string name="loop_video_player_full_screen">Modo de pantalla completa está activada.</string>
+    <string name="loop_video_player_favorite">Agregó este vídeo a lista de favoritos</string>
+    <string name="loop_video_player_favorite_error">Este vídeo ya ha sido añadida a la lista de favoritos.</string>
+    
+    <string name="loop_main_title">Búsqueda por artista</string>
+    <string name="loop_main_search_artist">Buscar ahora</string>
+    <string name="loop_main_recent_artists">Artistas recientes</string>
+    <string name="loop_main_button_search">Buscar</string>
+    <string name="loop_main_dialog_searching">Buscando&#8230;</string>
+    <string name="loop_main_no_history">No hay historial de búsqueda.</string>
+    <string name="loop_main_no_favorite">No hay ningún video favorito.</string>
+    <string name="loop_main_search_hint">ex. Oasis</string>
+    <string name="loop_main_invalid_query">No válido consulta.</string>
+    <string name="loop_main_confirm_clear_history">Historial de búsqueda se borrará. ¿Está seguro?</string>
+    <string name="loop_main_confirm_clear_blacklist">Blacklist se borrará. ¿Está seguro?</string>
+    <string name="loop_main_dialog_not_playing">No hay reproducción de vídeo.</string>
+    <string name="loop_main_error_no_video">No hay vídeos se encuentran. Intente comprobar la conexión.</string>
+    <string name="loop_main_error_bad_connection">El dispositivo no está conectado a la red.</string>
+    <string name="loop_main_open_google_play">Abre Google Play</string>
+    <string name="loop_main_confirm_clear_one_history">Este artista se borrará. ¿Está seguro?</string>
+    <string name="loop_main_now_playing">En curso</string>
+    <string name="loop_main_tab_history">historia</string>
+    <string name="loop_main_tab_favorite">favorito</string>
+    
+    <string name="loop_settings_title">Configuración</string>
+    
+    <string name="loop_widget_not_playing">No hay reproducción de vídeo.</string>
+    <string name="loop_widget_loading">Ahora loading&#8230;</string>
+    
+    <string name="loop_ok">OK</string>
+    <string name="loop_cancel">Cancelar</string>
+    <string name="loop_dummy">dummy</string>
+    <string name="loop_video_player_play">Jugar</string>
+    
+    <string name="loop_menu_settings">Configuración</string>
+    <string name="loop_menu_item_search">Buscar</string>
+    <string name="loop_menu_item_show_player">Mostrar reproductor de vídeo</string>
+    <string name="loop_menu_item_clear_history">Borrar historial de búsqueda</string>
+    <string name="loop_menu_item_clear_blacklist">Borrar lista negra</string>
+    <string name="loop_menu_item_version">Acerca LoopTube</string>
+    <string name="loop_menu_item_delete_history">Eliminar de la historia</string>
+    <string name="loop_menu_item_favorite">Añadir lista de favoritos</string>
+    <string name="loop_menu_item_delete_favorite">Eliminar de los favoritos</string>
+    
+    <string name="loop_menu_item_start_repeat">Repita este vídeo</string>
+    <string name="loop_menu_item_stop_repeat">Detener la repetición</string>
+    <string name="loop_menu_item_ignore">Añadir el vídeo a la lista negra</string>
+    <string name="loop_menu_item_share">Comparte este vídeo</string>
+    <string name="loop_menu_item_settings">Configuración</string>
+    
+    <!-- Preferences -->
+    <string name="loop_pref_category_history_key">pref_categoryHistory</string>
+    <string name="loop_pref_category_history_title">Historial de búsqueda</string>
+    <string name="loop_pref_category_favorite_key">pref_categoryFavorite</string>
+    <string name="loop_pref_category_favorite_title">Favoritos</string>
+    <string name="loop_pref_category_black_list_key">pref_categoryBlackList</string>
+    <string name="loop_pref_category_black_list_title">Lista negra</string>
+    <string name="loop_pref_category_about_key">pref_categoryAbout</string>
+    <string name="loop_pref_category_about_title">Acerca de esta aplicación</string>
+    
+    <string name="loop_pref_clear_favorite_key">pref_clearFavorite</string>
+    <string name="loop_pref_clear_favorite_title">Borrar los favoritos</string>
+    <string name="loop_pref_clear_favorite_dialog_msg">¿Está seguro de que el claro favorito?</string>
+    <string name="loop_pref_clear_favorite_toast">Favoritos superada</string>
+    <string name="loop_pref_clear_history_key">pref_clearHistory</string>
+    <string name="loop_pref_clear_history_title">Borrar historial de búsqueda</string>
+    <string name="loop_pref_clear_history_dialog_msg">¿Estás seguro de borrar el historial de búsqueda?</string>
+    <string name="loop_pref_clear_history_toast">Historial de búsqueda superada</string>
+    <string name="loop_pref_clear_black_list_key">pref_clearBlackList</string>
+    <string name="loop_pref_clear_black_list_title">Borrar lista negra</string>
+    <string name="loop_pref_clear_black_list_dialog_msg">¿Está seguro de borrar lista de negro?</string>
+    <string name="loop_pref_clear_black_list_toast">Lista negro superada</string>
+    <string name="loop_pref_auto_black_list_key">pref_autoBlackList</string>
+    <string name="loop_pref_auto_black_list_title">Auto lista negra</string>
+    <string name="loop_pref_auto_black_list_summary_on">Encuentre la lista negra de filtrado de palabras clave de forma automática</string>
+    <string name="loop_pref_auto_black_list_summary_off">No encuentra lista negra de forma automática</string>
+    <string name="loop_pref_feedback_title">Feedback</string>
+    <string name="loop_pref_feedback_summary">Calificar este programa en Google Play</string>
+    <string name="loop_pref_version_key">pref_version</string>
+    <string name="loop_pref_version_title">Versión</string>
+    
+    <string-array name="loop_black_word_list">
+    </string-array>
+
+</resources>
