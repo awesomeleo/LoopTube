@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:text="@string/loop_splash_title"
-        android:textColor="#7bdc2e"
+        android:textColor="@color/loop_color4"
         android:textSize="60sp" />
 
     <TextView
@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:textSize="26sp"
-        android:textColor="@android:color/white"
+        android:textColor="@color/loop_color5"
         android:text="@string/loop_splash_description" />
 
 </LinearLayout>
