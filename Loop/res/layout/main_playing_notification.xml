@@ -3,7 +3,7 @@
     android:id="@+id/notification_base"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#99000000"
+    android:background="#99086077"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -23,7 +23,7 @@
             android:layout_marginTop="5dp"
             android:layout_weight="1"
             android:text="@string/loop_main_now_playing"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/loop_color5" />
 
         <TextView
             android:id="@+id/notification_title"
@@ -38,19 +38,19 @@
             android:maxLines="1"
             android:text="TextView"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/loop_color5" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/notification_next"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="15dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="15dp"
         android:src="@drawable/navigation_next" />
 
 </RelativeLayout>
