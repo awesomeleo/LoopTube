@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/menu_delete_favorite"
-        android:icon="@android:drawable/ic_menu_delete"
+        android:icon="@drawable/content_remove"
         android:orderInCategory="100"
         yourapp:showAsAction="always|withText"
         android:title="@string/loop_menu_item_delete_favorite"/>
