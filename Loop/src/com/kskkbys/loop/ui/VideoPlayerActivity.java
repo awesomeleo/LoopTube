@@ -11,10 +11,8 @@ import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
 import com.kskkbys.loop.ui.fragments.PlayerControlFragment;
 import com.kskkbys.loop.ui.fragments.PlayerListFragment;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
