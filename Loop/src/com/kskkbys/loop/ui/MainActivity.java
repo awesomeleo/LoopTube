@@ -43,7 +43,6 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -73,53 +72,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 
 	// Contextual Action Bar
 	private ActionMode mActionMode;
-	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
-
-		@Override
-		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-			return false;
-		}
-
-		@Override
-		public void onDestroyActionMode(ActionMode mode) {
-			KLog.v(TAG, "onDestroyActionMode");
-			mActionMode = null;
-			// Disable selection and update
-			mHistoryFragment.deselect();
-			mHistoryFragment.updateHistoryUI();
-		}
-
-		@Override
-		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-			KLog.v(TAG, "onCreateActionMode");
-			MenuInflater inflater = getMenuInflater();
-			if (mViewPager.getCurrentItem() == 0) {
-				inflater.inflate(R.menu.activity_main_history_cab, menu);
-			} else {
-				inflater.inflate(R.menu.activity_main_favorite_cab, menu);
-			}
-			return true;
-		}
-
-		@Override
-		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-			KLog.v(TAG, "onActionItemClicked");
-			switch (item.getItemId()) {
-			case R.id.menu_delete_history:
-				MainHistoryFragment fragment0 = (MainHistoryFragment)mSectionsPagerAdapter.getItem(0);
-				fragment0.clearLongSelectedHistory();
-				mode.finish(); // Action picked, so close the CAB
-				return true;
-			case R.id.menu_delete_favorite:
-				MainFavoriteFragment fragment1 = (MainFavoriteFragment)mSectionsPagerAdapter.getItem(1);
-				fragment1.clearLongSelectedVideo();
-				mode.finish();
-				return true;
-			default:
-				return false;
-			}
-		}
-	};
+	
 
 	// Receiver instance to handle action intent from service.
 	private BroadcastReceiver mPlayerReceiver = new BroadcastReceiver() {
@@ -398,14 +351,28 @@ public class MainActivity extends BaseActivity implements TabListener {
 		startActivity(intent);
 	}
 
-	public boolean startActionModeByLongClick() {
+	/**
+	 * Start action mode.<br>
+	 * This method is called by fragment.
+	 * @param callback
+	 * @return True if action mode is started.
+	 */
+	public boolean startActionModeByLongClick(ActionMode.Callback callback) {
 		KLog.v(TAG, "startActionModeByLongClick");
 		// Show contextual action bar
 		if (mActionMode != null) {
 			return false;
 		}
-		mActionMode = startSupportActionMode(mActionModeCallback);
+		mActionMode = startSupportActionMode(callback);
 		return true;
+	}
+	
+	public boolean finishActionMode() {
+		if (mActionMode != null) {
+			mActionMode = null;
+			return true;
+		}
+		return false;
 	}
 
 	/**

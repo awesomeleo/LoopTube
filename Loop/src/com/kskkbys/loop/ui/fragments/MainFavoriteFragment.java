@@ -12,7 +12,11 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -36,6 +40,44 @@ public class MainFavoriteFragment extends Fragment {
 	private ListView mListView;
 
 	private int mSelection = -1;
+
+	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			KLog.v(TAG, "onDestroyActionMode");
+			MainActivity activity = (MainActivity)getActivity();
+			activity.finishActionMode();
+			// Disable selection and update
+			updateUI();
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			KLog.v(TAG, "onCreateActionMode");
+			MenuInflater inflater = getActivity().getMenuInflater();
+			inflater.inflate(R.menu.activity_main_favorite_cab, menu);
+			return true;
+		}
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			KLog.v(TAG, "onActionItemClicked");
+			switch (item.getItemId()) {
+			case R.id.menu_delete_favorite:
+				clearLongSelectedVideo();
+				mode.finish();
+				return true;
+			default:
+				return false;
+			}
+		}
+	};
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,7 +119,7 @@ public class MainFavoriteFragment extends Fragment {
 				mSelection = position;
 				mListView.setItemChecked(position, true);
 				MainActivity activity = (MainActivity)getActivity();
-				activity.startActionModeByLongClick();
+				activity.startActionModeByLongClick(mActionModeCallback);
 				return true;
 			}
 		});
@@ -92,7 +134,7 @@ public class MainFavoriteFragment extends Fragment {
 	/**
 	 * Clear the long-selected video from fav list.
 	 */
-	public void clearLongSelectedVideo() {
+	private void clearLongSelectedVideo() {
 		KLog.v(TAG, "clearLongSelectedVideo");
 		if (mSelection >= 0) {
 			Video video = mAdapter.getItem(mSelection);
@@ -106,7 +148,7 @@ public class MainFavoriteFragment extends Fragment {
 	/**
 	 * Clear selection
 	 */
-	public void deselect() {
+	private void deselect() {
 		KLog.v(TAG, "deselect");
 		mSelection = -1;
 		mListView.clearChoices();

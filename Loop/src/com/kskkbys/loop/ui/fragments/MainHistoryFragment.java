@@ -14,8 +14,12 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.view.ActionMode;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -43,6 +47,45 @@ public class MainHistoryFragment extends Fragment {
 	private ListView mListView;
 	private int mLongSelectedPosition;
 	private View mLongSelectedItem;
+	
+	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			KLog.v(TAG, "onDestroyActionMode");
+			MainActivity activity = (MainActivity)getActivity();
+			activity.finishActionMode();
+			// Disable selection and update
+			deselect();
+			updateHistoryUI();
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			KLog.v(TAG, "onCreateActionMode");
+			MenuInflater inflater = getActivity().getMenuInflater();
+			inflater.inflate(R.menu.activity_main_history_cab, menu);
+			return true;
+		}
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			KLog.v(TAG, "onActionItemClicked");
+			switch (item.getItemId()) {
+			case R.id.menu_delete_history:
+				clearLongSelectedHistory();
+				mode.finish(); // Action picked, so close the CAB
+				return true;
+			default:
+				return false;
+			}
+		}
+	};
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -114,7 +157,7 @@ public class MainHistoryFragment extends Fragment {
 					int position, long id) {
 				// Show contextual action bar
 				MainActivity parent = (MainActivity)getActivity();
-				if (parent.startActionModeByLongClick()) {
+				if (parent.startActionModeByLongClick(mActionModeCallback)) {
 					mLongSelectedPosition = position;
 					mLongSelectedItem = view;
 					view.setSelected(true);
