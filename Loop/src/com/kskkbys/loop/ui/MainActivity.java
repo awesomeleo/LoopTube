@@ -84,15 +84,9 @@ public class MainActivity extends BaseActivity implements TabListener {
 		public void onDestroyActionMode(ActionMode mode) {
 			KLog.v(TAG, "onDestroyActionMode");
 			mActionMode = null;
-			// Disable selection
-			int pos = mViewPager.getCurrentItem();
-			if (pos == 0) {
-				MainHistoryFragment fragment = (MainHistoryFragment)mSectionsPagerAdapter.getItem(pos);
-				fragment.deselect();
-			} else {
-				// MainFavoriteFragment fragment = (MainFavoriteFragment)mSectionsPagerAdapter.getItem(pos);
-				// fragment.deselect();
-			}
+			// Disable selection and update
+			mHistoryFragment.deselect();
+			mHistoryFragment.updateHistoryUI();
 		}
 
 		@Override
@@ -197,7 +191,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 			filter.addAction(pe.getAction());
 		}
 		registerReceiver(mPlayerReceiver, filter);
-		
+
 		// If this activity is launched from notification, go to PlayerActivity
 		boolean isFromNotification = getIntent().getBooleanExtra(FROM_NOTIFICATION, false);
 		if (isFromNotification) {
@@ -270,7 +264,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 		super.onDestroy();
 		unregisterReceiver(mPlayerReceiver);
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
