@@ -36,6 +36,7 @@ public class SearchHistory {
 	public static synchronized SearchHistory getInstance(Context context) {
 		if (sInstance == null) {
 			sInstance = new SearchHistory(context);
+			sInstance.readHistory();
 		}
 		return sInstance;
 	}
@@ -47,7 +48,7 @@ public class SearchHistory {
 	/**
 	 * Read search history which is already restored before.
 	 */
-	public void readHistory() {
+	private void readHistory() {
 		KLog.v(TAG, "readHistory");
 		SQLiteStorage storage = SQLiteStorage.getInstance(mContext);
 		List<Artist> entries = storage.getRestoredArtists();

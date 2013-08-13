@@ -124,7 +124,6 @@ public class MainHistoryFragment extends Fragment {
 		});
 		// Set adapter when activity is created
 		SearchHistory history = SearchHistory.getInstance(getActivity());
-		history.readHistory();	// initialize
 		mAdapter = new ArtistAdapter(getActivity(), history.getArtists());
 		mListView.setAdapter(mAdapter);
 	}

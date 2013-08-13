@@ -25,7 +25,6 @@
             android:theme="@android:style/Theme.Black.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -47,7 +46,7 @@
         </activity>
         <activity
             android:name="com.kskkbys.loop.ui.SettingsActivity"
-            android:configChanges="screenSize|orientation"
+            android:configChanges="screenSize|orientation|keyboardHidden"
             android:label="@string/loop_settings_title" >
         </activity>
 
