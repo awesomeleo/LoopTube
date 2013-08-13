@@ -103,11 +103,15 @@ public class VideoPlayerActivity extends BaseActivity {
 		}
 		registerReceiver(mPlayerReceiver, filter);
 
-		// Send PLAY command to service
-		Intent intent = getIntent();
-		if (intent != null) {
-			PlayerCommand.play(this, intent.getBooleanExtra(IS_RELOAD, false));
-			intent.putExtra(IS_RELOAD, false);
+		// If activity is created by intent, it will reload player
+		if (savedInstanceState == null) {
+			Intent intent = getIntent();
+			if (intent != null) {
+				PlayerCommand.play(this, intent.getBooleanExtra(IS_RELOAD, false));
+				intent.putExtra(IS_RELOAD, false);
+			}
+		} else {
+			// Re-initialized activity (caused by rotation)
 		}
 	}
 
@@ -120,6 +124,12 @@ public class VideoPlayerActivity extends BaseActivity {
 			PlayerCommand.play(this, intent.getBooleanExtra(IS_RELOAD, false));
 			intent.putExtra(IS_RELOAD, false);
 		}
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(IS_RELOAD, false);
 	}
 
 	@Override
