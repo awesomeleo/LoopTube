@@ -10,12 +10,16 @@ import com.kskkbys.loop.ui.MainActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -35,7 +39,7 @@ public class MainHistoryFragment extends Fragment {
 	private static final String TAG = MainHistoryFragment.class.getSimpleName();
 
 	// ListView
-	public static final int IMAGE_COUNT_PER_ROW = 5;
+	public static final int IMAGE_COUNT_PER_ROW = 10;	// for landscape
 	private ArtistAdapter mAdapter;
 	private ListView mListView;
 	private int mLongSelectedPosition;
@@ -132,6 +136,12 @@ public class MainHistoryFragment extends Fragment {
 		super.onResume();
 		updateHistoryUI();
 	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		KLog.v(TAG, "onConfigurationChanged");
+	}
 
 	@Override
 	public void onDetach() {
@@ -216,25 +226,37 @@ public class MainHistoryFragment extends Fragment {
 		}
 
 		private void reloadImages(LinearLayout container, Artist artist) {
+			
+			WindowManager wm = (WindowManager)mActivity.getSystemService(Activity.WINDOW_SERVICE);
+			Display disp = wm.getDefaultDisplay();
+			Point point = new Point();
+			disp.getSize(point);
+			KLog.v(TAG, "screen width = " + point.x);
+			KLog.v(TAG, "screen height = " + point.y);
+			
 			container.removeAllViews();
 			if (artist.imageUrls != null) {
 				KLog.v(TAG, "Images are saved.");
 				int size = Math.min(IMAGE_COUNT_PER_ROW, artist.imageUrls.size());
+				int actualWidth = 0;
 				for (int i=0; i<size; i++) {
 					ImageView iv = new ImageView(getContext());
-					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
 					iv.setLayoutParams(params);
 					iv.setAdjustViewBounds(true);
-
-					if (i % 2 == 0) {
-						iv.setBackgroundColor(Color.WHITE);
-					} else {
-						iv.setBackgroundColor(Color.RED);
-					}
+					// iv.setBackgroundColor(Color.WHITE);
+					
 					container.addView(iv);
 					// Load image from URL
 					ImageLoader imageLoader = ImageLoader.getInstance();
 					imageLoader.displayImage(artist.imageUrls.get(i), iv);
+					
+					// Break if the container is filled
+					actualWidth += 160;	// iv.getWidth();
+					if (point.x <= actualWidth) {
+						KLog.v(TAG, "Break at " + (i+1) + " images.");
+						break;
+					}
 				}
 			}
 		}

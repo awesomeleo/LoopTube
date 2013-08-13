@@ -122,6 +122,7 @@ public class SearchHistory {
 	 */
 	public void updateHistory(String query, List<Video> videos) {
 		// Update array list
+		boolean alreadyAdded = false;
 		Artist updatedEntry = null;
 		for (int i=0; i<mArtists.size(); i++) {
 			Artist entry = mArtists.get(i);
@@ -137,9 +138,28 @@ public class SearchHistory {
 						}
 					}
 				}
+				mArtists.set(i, entry);
 				updatedEntry = entry;
+				alreadyAdded = true;
 				break;
 			}
+		}
+		if (!alreadyAdded) {
+			Artist newEntry = new Artist();
+			newEntry.name = query;
+			newEntry.imageUrls = new ArrayList<String>();
+			int count = 0;
+			for (Video v: videos) {
+				if (!TextUtils.isEmpty(v.getThumbnailUrl())) {
+					newEntry.imageUrls.add(v.getThumbnailUrl());
+					count++;
+					if (count >= MainHistoryFragment.IMAGE_COUNT_PER_ROW) {
+						break;
+					}
+				}
+			}
+			mArtists.add(0, newEntry);
+			updatedEntry = newEntry;
 		}
 		// Store to SQLite (async)
 		saveArtistAsync(updatedEntry);

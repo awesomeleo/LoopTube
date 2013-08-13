@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
+import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.ui.MainActivity;
 
@@ -100,7 +101,7 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 		List<Video> videos = createVideoList(this.mResult);
 		if (videos != null && videos.size() > 0) {
 			// Save search history and update fragment
-			mParent.updateHistory(mQuery, videos);
+			SearchHistory.getInstance(mParent).updateHistory(mQuery, videos);
 			// Start to play
 			this.mParent.startVideoPlayer(mQuery, videos, 0);
 		} else {

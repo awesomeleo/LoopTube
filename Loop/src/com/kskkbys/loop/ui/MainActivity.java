@@ -26,6 +26,7 @@ import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -203,7 +204,13 @@ public class MainActivity extends BaseActivity implements TabListener {
 			}
 		}
 	}
-
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		KLog.v(TAG, "onConfigurationChanged");
+	}
+	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -361,11 +368,6 @@ public class MainActivity extends BaseActivity implements TabListener {
 		}
 		mActionMode = startSupportActionMode(mActionModeCallback);
 		return true;
-	}
-
-	public void updateHistory(String query, List<Video> videos) {
-		SearchHistory.getInstance(this).updateHistory(query, videos);
-		mHistoryFragment.updateHistoryUI();
 	}
 
 	/**
