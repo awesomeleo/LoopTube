@@ -542,6 +542,9 @@ public class VideoPlayerService extends Service {
 			if (result == LoadResult.InvalidVideoError) {
 				Intent invalidIntent = new Intent(PlayerEvent.InvalidVideo.getAction());
 				sendBroadcast(invalidIntent);
+			} else if (result == LoadResult.IOError) {
+				Intent ioIntent = new Intent(PlayerEvent.Error.getAction());
+				sendBroadcast(ioIntent);
 			}
 		}
 

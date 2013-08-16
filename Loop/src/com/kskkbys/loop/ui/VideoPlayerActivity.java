@@ -35,7 +35,7 @@ public class VideoPlayerActivity extends BaseActivity {
 	private static final String TAG = VideoPlayerActivity.class.getSimpleName();
 
 	public static final String IS_RELOAD = "is_reload";
-	
+
 	// Fragments in this activity
 	private PlayerListFragment mListFragment;
 	private PlayerControlFragment mControlFragment;
@@ -47,6 +47,7 @@ public class VideoPlayerActivity extends BaseActivity {
 			String action = intent.getAction();
 			if (action.equals(PlayerEvent.Error.getAction())) {
 				KLog.e(TAG, "PlayerEvent.Error occurs!");
+				handleError();
 			} else if (action.equals(PlayerEvent.InvalidVideo.getAction())) {
 				handleInvalidVideo();
 			} else if (action.equals(PlayerEvent.Complete.getAction())) {
@@ -125,7 +126,7 @@ public class VideoPlayerActivity extends BaseActivity {
 			intent.putExtra(IS_RELOAD, false);
 		}
 	}
-	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -244,6 +245,14 @@ public class VideoPlayerActivity extends BaseActivity {
 		Toast.makeText(this, R.string.loop_video_player_invalid_video, Toast.LENGTH_SHORT).show();
 		// Go next video
 		PlayerCommand.next(VideoPlayerActivity.this);
+	}
+
+	/**
+	 * Show toast and go to next video.
+	 */
+	private void handleError() {
+		// Show toast
+		Toast.makeText(this, R.string.loop_video_player_unknown_error, Toast.LENGTH_SHORT).show();
 	}
 
 	private void handleStartLoadVideo() {
