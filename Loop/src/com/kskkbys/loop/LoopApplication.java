@@ -16,10 +16,12 @@ import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 
 /**
  * Application class.
@@ -56,21 +58,23 @@ public class LoopApplication extends Application {
 		// Universal Image Loader
 		File cacheDir = StorageUtils.getCacheDirectory(this);
 		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-		.cacheInMemory(true)
-		.cacheOnDisc(true)
-		.displayer(new FadeInBitmapDisplayer(500))
-		.build();
+				.resetViewBeforeLoading(true)
+				// .cacheInMemory(true)
+				.bitmapConfig(Bitmap.Config.RGB_565)
+				.imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+				.cacheOnDisc(true)
+				.displayer(new FadeInBitmapDisplayer(500))
+				.build();
 
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-		.taskExecutor(new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
+				.taskExecutor(new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
 				TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory))
-				.threadPoolSize(3)
+				.threadPoolSize(5)
 				.threadPriority(Thread.NORM_PRIORITY - 1)
-				.memoryCache(new LruMemoryCache(2 * 1024 * 1024))
-				.memoryCacheSize(2 * 1024 * 1024)
+				.denyCacheImageMultipleSizesInMemory()
+				.memoryCacheSize(10 * 1024 * 1024)
 				.memoryCacheSizePercentage(13) // default
 				.discCache(new UnlimitedDiscCache(cacheDir)) // default
-				.discCacheSize(50 * 1024 * 1024)
 				.discCacheFileCount(100)
 				.discCacheFileNameGenerator(new HashCodeFileNameGenerator()) // default
 				.defaultDisplayImageOptions(defaultOptions)

@@ -337,7 +337,7 @@ public class MainActivity extends BaseActivity implements TabListener {
 	 * This method is called when button in empty view is clicked.
 	 */
 	public void expandSearchView() {
-		mSearchItem.expandActionView();
+		MenuItemCompat.expandActionView(mSearchItem);
 	}
 
 	/**

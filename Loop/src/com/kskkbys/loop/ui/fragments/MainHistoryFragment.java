@@ -8,10 +8,14 @@ import com.kskkbys.loop.model.Artist;
 import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.ui.MainActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
 
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
@@ -223,7 +227,7 @@ public class MainHistoryFragment extends Fragment {
 	 *
 	 */
 	private class ArtistAdapter extends ArrayAdapter<Artist> {
-
+		
 		private Activity mActivity;
 
 		/**
@@ -267,15 +271,24 @@ public class MainHistoryFragment extends Fragment {
 		}
 
 		private void reloadImages(LinearLayout container, Artist artist) {
-
+			
 			WindowManager wm = (WindowManager)mActivity.getSystemService(Activity.WINDOW_SERVICE);
 			Display disp = wm.getDefaultDisplay();
-			Point point = new Point();
-			disp.getSize(point);
-			KLog.v(TAG, "screen width = " + point.x);
-			KLog.v(TAG, "screen height = " + point.y);
+			//Point point = new Point();
+			//disp.getSize(point);
+			//KLog.v(TAG, "screen width = " + point.x);
+			//KLog.v(TAG, "screen height = " + point.y);
+			int width = disp.getWidth();
+			int height = disp.getHeight();
 
+			// Release previous image views
+			// This is needed for Android 2.x especially, which causes OutOfMemory.
+			for (int i=0; i<container.getChildCount(); i++) {
+				ImageView iv = (ImageView)container.getChildAt(i);
+				cleanup(iv);
+			}
 			container.removeAllViews();
+
 			if (artist.imageUrls != null) {
 				KLog.v(TAG, "Images are saved.");
 				int size = Math.min(IMAGE_COUNT_PER_ROW, artist.imageUrls.size());
@@ -289,17 +302,50 @@ public class MainHistoryFragment extends Fragment {
 
 					container.addView(iv);
 					// Load image from URL
+					KLog.v(TAG, "Start ImageLoader...");
 					ImageLoader imageLoader = ImageLoader.getInstance();
-					imageLoader.displayImage(artist.imageUrls.get(i), iv);
+					imageLoader.displayImage(artist.imageUrls.get(i), iv, new ImageLoadingListener() {
+						
+						@Override
+						public void onLoadingStarted(String arg0, View arg1) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void onLoadingComplete(String arg0, View view, Bitmap bitmap) {
+							// view.setTag(bitmap);
+						}
+						
+						@Override
+						public void onLoadingCancelled(String arg0, View arg1) {
+							// TODO Auto-generated method stub
+							
+						}
+					});
 
 					// Break if the container is filled
 					actualWidth += 160;	// iv.getWidth();
-					if (point.x <= actualWidth) {
+					if (width <= actualWidth) {
 						KLog.v(TAG, "Break at " + (i+1) + " images.");
 						break;
 					}
 				}
 			}
+		}
+
+		/**
+		 * Clean up reference from image view to bitmap
+		 * @param view
+		 */
+		private void cleanup(ImageView view) {
+			view.setImageDrawable(null);
 		}
 
 		/**

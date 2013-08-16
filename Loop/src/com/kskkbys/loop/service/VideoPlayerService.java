@@ -439,8 +439,8 @@ public class VideoPlayerService extends Service {
 					htmlBuilder.append(line);
 				}
 				youtubeHtml = htmlBuilder.toString();
-				KLog.v(TAG, "*** HTML source ***");
-				KLog.v(TAG, youtubeHtml + "\n");
+				// KLog.v(TAG, "*** HTML source ***");
+				// KLog.v(TAG, youtubeHtml + "\n");
 
 				begin  = youtubeHtml.indexOf("url_encoded_fmt_stream_map=");
 				end = youtubeHtml.indexOf("&", begin + 27);

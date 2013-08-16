@@ -5,12 +5,15 @@
         android:id="@+id/menu_search"
         android:icon="@drawable/search"
         android:orderInCategory="100"
+        android:showAsAction="always|collapseActionView"
         yourapp:showAsAction="always|collapseActionView"
+        android:actionViewClass="android.support.v7.widget.SearchView"
         yourapp:actionViewClass="android.support.v7.widget.SearchView"
         android:title="@string/loop_menu_item_search"/>
     <item
         android:id="@+id/menu_settings"
         android:orderInCategory="100"
+        android:showAsAction="never"
         yourapp:showAsAction="never"
         android:title="@string/loop_menu_item_settings"/>
 
