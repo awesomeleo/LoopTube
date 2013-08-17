@@ -1,9 +1,17 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:yourapp="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/menu_ignore"
+        android:id="@+id/menu_share"
+        android:icon="@drawable/social_share"
         android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/loop_menu_item_ignore"/>
+        yourapp:showAsAction="always"
+        android:title="@string/loop_menu_item_share"/>
+    <item
+        android:id="@+id/menu_favorite"
+        android:icon="@drawable/favorite"
+        android:orderInCategory="100"
+        yourapp:showAsAction="always"
+        android:title="@string/loop_menu_item_favorite"/>
 
 </menu>

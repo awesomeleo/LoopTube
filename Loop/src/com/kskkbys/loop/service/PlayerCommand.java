@@ -1,7 +1,6 @@
 package com.kskkbys.loop.service;
 
-import com.kskkbys.loop.VideoPlayerService;
-import com.kskkbys.loop.playlist.LoopManager;
+import com.kskkbys.loop.model.LoopManager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,8 +9,8 @@ public class PlayerCommand {
 
 	/**
 	 * Send PLAY command
-	 * @param context
-	 * @param isReload
+	 * @param context	Context object.
+	 * @param isReload	A flag whether video will be reloaded or not.
 	 */
 	public static void play(Context context, boolean isReload) {
 		Intent intent = new Intent(context, VideoPlayerService.class);

@@ -1,6 +1,3 @@
-[submodule "ActionBarSherlock"]
-	path = ActionBarSherlock
-	url = git://github.com/JakeWharton/ActionBarSherlock
 [submodule "Android-RateThisApp"]
 	path = Android-RateThisApp
 	url = git://github.com/kskkbys/Android-RateThisApp

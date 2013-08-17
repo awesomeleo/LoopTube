@@ -4,17 +4,50 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Light">
+    <style name="AppBaseTheme" parent="@style/Theme.Loopactionbar">
+
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
+
+        <item name="android:editTextStyle">@style/EditTextLoopTheme</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLoopTheme</item>
+        <item name="android:checkboxStyle">@style/CheckBoxLoopTheme</item>
+        <item name="android:radioButtonStyle">@style/RadioButtonLoopTheme</item>
+        <item name="android:buttonStyle">@style/ButtonLoopTheme</item>
+        <item name="android:imageButtonStyle">@style/ImageButtonLoopTheme</item>
+        <item name="android:spinnerStyle">@style/SpinnerLoopTheme</item>
+        <item name="android:dropDownSpinnerStyle">@style/SpinnerLoopTheme.DropDown</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemLoopTheme</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLoopTheme</item>
+        <item name="android:seekBarStyle">@style/SeekBarLoopTheme</item>
+        <item name="android:buttonStyleToggle">@style/ToggleLoopTheme</item>
+        <item name="android:listViewStyle">@style/ListViewLoopTheme</item>
+        <item name="android:listViewWhiteStyle">@style/ListViewLoopTheme.White</item>
+        <item name="android:spinnerItemStyle">@style/SpinnerItemLoopTheme</item>
     </style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
+
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+
+
+        <!-- SearchView attributes -->
+        <!--  
+        <item name="searchDropdownBackground">@android:drawable/spinner_dropdown_background</item>
+        <item name="searchViewTextField">@drawable/textfield_searchview_holo_dark</item>
+        <item name="searchViewTextFieldRight">@drawable/textfield_searchview_right_holo_dark</item>
+        <item name="searchViewCloseIcon">@android:drawable/ic_clear</item>
+        <item name="searchViewSearchIcon">@android:drawable/ic_search</item>
+        <item name="searchViewGoIcon">@android:drawable/ic_go</item>
+        <item name="searchViewVoiceIcon">@android:drawable/ic_voice_search</item>
+        <item name="searchViewEditQuery">@android:drawable/ic_commit_search_api_holo_dark</item>
+        <item name="searchViewEditQueryBackground">?attr/selectableItemBackground</item>
+        -->
+        <item name="searchViewTextField">@drawable/textfield_default_holo_dark</item>
     </style>
 
 </resources>

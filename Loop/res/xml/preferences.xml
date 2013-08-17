@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="@string/loop_pref_category_favorite_key"
+        android:title="@string/loop_pref_category_favorite_title" >
+        <Preference
+            android:enabled="true"
+            android:key="@string/loop_pref_clear_favorite_key"
+            android:summary=""
+            android:title="@string/loop_pref_clear_favorite_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/loop_pref_category_history_key"
+        android:title="@string/loop_pref_category_history_title" >
+        <Preference
+            android:enabled="true"
+            android:key="@string/loop_pref_clear_history_key"
+            android:summary=""
+            android:title="@string/loop_pref_clear_history_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/loop_pref_category_black_list_key"
+        android:title="@string/loop_pref_category_black_list_title" >
+        <Preference
+            android:enabled="true"
+            android:key="@string/loop_pref_clear_black_list_key"
+            android:summary=""
+            android:title="@string/loop_pref_clear_black_list_title" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/loop_pref_auto_black_list_key"
+            android:summaryOff="@string/loop_pref_auto_black_list_summary_off"
+            android:summaryOn="@string/loop_pref_auto_black_list_summary_on"
+            android:title="@string/loop_pref_auto_black_list_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/loop_pref_category_about_key"
+        android:title="@string/loop_pref_category_about_title" >
+        <Preference
+            android:enabled="true"
+            android:selectable="true"
+            android:summary="@string/loop_pref_feedback_summary"
+            android:title="@string/loop_pref_feedback_title" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="market://details?id=com.kskkbys.loop" />
+        </Preference>
+        <Preference
+            android:defaultValue="0"
+            android:enabled="true"
+            android:key="@string/loop_pref_version_key"
+            android:persistent="true"
+            android:selectable="false"
+            android:title="@string/loop_pref_version_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
