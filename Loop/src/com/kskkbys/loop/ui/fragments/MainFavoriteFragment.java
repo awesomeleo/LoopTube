@@ -183,7 +183,7 @@ public class MainFavoriteFragment extends Fragment {
 			KLog.v(TAG, "getView: " + position);
 			View view = null;
 			if (convertView == null) {
-				view = mInflater.inflate(R.layout.row_favorite_list, null);
+				view = mInflater.inflate(R.layout.row_favorite_list, null, false);
 			} else {
 				view = convertView;
 			}

@@ -365,10 +365,11 @@ public class VideoPlayerService extends Service {
 			try {
 				// If already playing, reset the MediaPlayer
 				mMediaPlayer.reset();
+				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
 				// Set URL and prepare
 				mMediaPlayer.setDataSource(url);
-				//mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+				
 				mMediaPlayer.prepare();
 
 			} catch (IllegalArgumentException e) {
