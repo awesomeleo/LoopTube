@@ -127,6 +127,7 @@ public class SearchHistory {
 		Artist updatedEntry = null;
 		for (int i=0; i<mArtists.size(); i++) {
 			Artist entry = mArtists.get(i);
+			entry.date = new Date();
 			if (entry.name.equals(query)) {
 				entry.imageUrls = new ArrayList<String>();
 				int count = 0;
@@ -148,6 +149,7 @@ public class SearchHistory {
 		if (!alreadyAdded) {
 			Artist newEntry = new Artist();
 			newEntry.name = query;
+			newEntry.date = new Date();
 			newEntry.imageUrls = new ArrayList<String>();
 			int count = 0;
 			for (Video v: videos) {
