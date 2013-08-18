@@ -179,12 +179,15 @@ public class VideoPlayerActivity extends BaseActivity {
 	 */
 	private void startShareIntent() {
 		FlurryLogger.logEvent(FlurryLogger.SHARE_VIDEO);
-		String videoUrl = Playlist.getInstance().getCurrentVideo().getVideoUrl();
-		if (!TextUtils.isEmpty(videoUrl)) {
-			Intent intent = new Intent(Intent.ACTION_SEND);
-			intent.setType("text/plain");
-			intent.putExtra(Intent.EXTRA_TEXT, videoUrl);
-			startActivity(intent);
+		Video video = Playlist.getInstance().getCurrentVideo();
+		if (video != null) {
+			String videoUrl = video.getVideoUrl();
+			if (!TextUtils.isEmpty(videoUrl)) {
+				Intent intent = new Intent(Intent.ACTION_SEND);
+				intent.setType("text/plain");
+				intent.putExtra(Intent.EXTRA_TEXT, videoUrl);
+				startActivity(intent);
+			}
 		}
 	}
 
