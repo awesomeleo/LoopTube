@@ -84,15 +84,6 @@ public class BaseActivity extends ActionBarActivity {
 
 	public void showProgress(int resId) {
 		KLog.v(TAG, "showProgress");
-		// Remove prev fragment
-		/*
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		Fragment prev = getSupportFragmentManager().findFragmentByTag(TAG_PROGRESS);
-		if (prev != null) {
-			ft.remove(prev);
-		}
-		ft.addToBackStack(null);
-		*/
 		// Show dialog fragment
 		if (mCanShowDialog) {
 			ProgressDialogFragment frag = ProgressDialogFragment.newInstance(resId);
@@ -104,12 +95,10 @@ public class BaseActivity extends ActionBarActivity {
 	
 	public void dismissProgress() {
 		KLog.v(TAG, "dismissProgress");
-		// FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ProgressDialogFragment prev = (ProgressDialogFragment)getSupportFragmentManager().findFragmentByTag(TAG_PROGRESS);
 		if (prev != null) {
 			KLog.v(TAG, "Dismissed");
-			// ft.remove(prev);
-			prev.dismiss();
+			prev.dismissAllowingStateLoss();
 		} else {
 			KLog.v(TAG, "already dismissed");
 		}
