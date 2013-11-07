@@ -294,7 +294,7 @@ public class VideoPlayerService extends Service {
 		if (mState == PlayerState.Playing) {
 			mMediaPlayer.pause();
 			// show notification
-			NotificationManager.show(this, Playlist.getInstance().getCurrentVideo().getTitle(), false);
+			NotificationManager.cancel(this);
 			// Broadcast
 			Intent stateIntent = new Intent(PlayerEvent.StateUpdate.getAction());
 			stateIntent.putExtra("is_playing", false);
@@ -351,8 +351,10 @@ public class VideoPlayerService extends Service {
 	 */
 	public static void setSurfaceHolder(SurfaceHolder holder) {
 		KLog.v(TAG, "setSurfaceView");
-		mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-		mMediaPlayer.setDisplay(holder);
+		if (mMediaPlayer != null) {
+			mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			mMediaPlayer.setDisplay(holder);
+		}
 	}
 
 	/**
@@ -458,6 +460,10 @@ public class VideoPlayerService extends Service {
 			} catch (IOException e) {
 				KLog.e(TAG, "YouTubePlayTask error", e);
 				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				KLog.e(TAG, "YouTubePlayTask error", e);
+				e.printStackTrace();
+				youtubeHtml = null;
 			} finally {
 				if (connection != null) {
 					connection.disconnect();
