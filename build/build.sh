@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # Remove BuildConfig.java
 rm ../Loop/gen/com/kskkbys/loop/BuildConfig.java
 rm ../Loop/gen/com/kskkbys/loop/R.java
@@ -15,3 +17,4 @@ cd ./Loop
 ant clean
 ant release
 
+cp ./bin/Loop-release.apk ../
