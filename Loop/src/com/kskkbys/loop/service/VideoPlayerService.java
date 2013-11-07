@@ -294,7 +294,7 @@ public class VideoPlayerService extends Service {
 		if (mState == PlayerState.Playing) {
 			mMediaPlayer.pause();
 			// show notification
-			NotificationManager.show(this, Playlist.getInstance().getCurrentVideo().getTitle(), false);
+			NotificationManager.cancel(this);
 			// Broadcast
 			Intent stateIntent = new Intent(PlayerEvent.StateUpdate.getAction());
 			stateIntent.putExtra("is_playing", false);

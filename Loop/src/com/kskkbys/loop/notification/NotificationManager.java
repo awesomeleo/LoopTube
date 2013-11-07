@@ -36,17 +36,19 @@ public class NotificationManager {
 		.setWhen(System.currentTimeMillis())
 		.setOngoing(true);
 
+		/*
+		// 4.4で動かないので一旦外す
 		if (isPlaying) {
 			builder
-			.addAction(R.drawable.rewind, "Prev", PendingIntentFactory.getPrevIntent(context))
-			.addAction(R.drawable.pause, "Pause", PendingIntentFactory.getPauseIntent(context))
-			.addAction(R.drawable.forward, "Next", PendingIntentFactory.getNextIntent(context));
+			.addAction(R.drawable.rewind, "Prev", PendingIntentFactory.getPrevIntent(context.getApplicationContext()))
+			.addAction(R.drawable.pause, "Pause", PendingIntentFactory.getPauseIntent(context.getApplicationContext()))
+			.addAction(R.drawable.forward, "Next", PendingIntentFactory.getNextIntent(context.getApplicationContext()));
 		} else {
 			builder
 			.addAction(R.drawable.rewind, "Prev", PendingIntentFactory.getPrevIntent(context))
 			.addAction(R.drawable.play, "Play", PendingIntentFactory.getPlayIntent(context))
 			.addAction(R.drawable.forward, "Next", PendingIntentFactory.getNextIntent(context));
-		}
+		}*/
 
 		Notification notification = builder.build();
 
