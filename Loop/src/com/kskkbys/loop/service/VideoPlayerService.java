@@ -450,8 +450,12 @@ public class VideoPlayerService extends Service {
 				if (end == -1) {
 					end = youtubeHtml.indexOf("\"", begin + 27);
 				}
-				youtubeHtml = URLDecoder.decode(youtubeHtml.substring(begin + 27, end), "utf-8");
-
+				if (youtubeHtml.length() >= begin + 27 && youtubeHtml.length() >= end) {
+					youtubeHtml = URLDecoder.decode(youtubeHtml.substring(begin + 27, end), "utf-8");
+				} else {
+					KLog.e(TAG, "youtube HTML is too short. It may be failed to get HTML");
+					youtubeHtml = null;
+				}
 				br.close();
 
 			} catch (MalformedURLException e) {
