@@ -1,5 +1,7 @@
 package com.kskkbys.loop.ui.fragments;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import com.kskkbys.loop.R;
@@ -226,8 +228,8 @@ public class MainHistoryFragment extends Fragment {
 	 * @author Keisuke Kobayashi
 	 *
 	 */
-	private class ArtistAdapter extends ArrayAdapter<Artist> {
-		
+	private static class ArtistAdapter extends ArrayAdapter<Artist> {
+
 		private Activity mActivity;
 
 		/**
@@ -271,15 +273,6 @@ public class MainHistoryFragment extends Fragment {
 		}
 
 		private void reloadImages(LinearLayout container, Artist artist) {
-			
-			WindowManager wm = (WindowManager)mActivity.getSystemService(Activity.WINDOW_SERVICE);
-			Display disp = wm.getDefaultDisplay();
-			//Point point = new Point();
-			//disp.getSize(point);
-			//KLog.v(TAG, "screen width = " + point.x);
-			//KLog.v(TAG, "screen height = " + point.y);
-			int width = disp.getWidth();
-			int height = disp.getHeight();
 
 			// Release previous image views
 			// This is needed for Android 2.x especially, which causes OutOfMemory.
@@ -289,13 +282,21 @@ public class MainHistoryFragment extends Fragment {
 			}
 			container.removeAllViews();
 
+			// Width and height of container and image view
+			Display display = mActivity.getWindowManager().getDefaultDisplay();
+			int containerWidth = display.getWidth(); // for gingerbread
+			
+			float density = mActivity.getResources().getDisplayMetrics().density;
+			int width = (int)(160.0 * density + 0.5f);
+			int height = (int)(120.0 * density + 0.5f);
+
 			if (artist.imageUrls != null) {
 				KLog.v(TAG, "Images are saved.");
 				int size = Math.min(IMAGE_COUNT_PER_ROW, artist.imageUrls.size());
 				int actualWidth = 0;
 				for (int i=0; i<size; i++) {
 					ImageView iv = new ImageView(getContext());
-					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(160, 120);
+					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(height * 4 / 3, height);
 					iv.setLayoutParams(params);
 					iv.setAdjustViewBounds(true);
 					// iv.setBackgroundColor(Color.WHITE);
@@ -305,34 +306,34 @@ public class MainHistoryFragment extends Fragment {
 					KLog.v(TAG, "Start ImageLoader...");
 					ImageLoader imageLoader = ImageLoader.getInstance();
 					imageLoader.displayImage(artist.imageUrls.get(i), iv, new ImageLoadingListener() {
-						
+
 						@Override
 						public void onLoadingStarted(String arg0, View arg1) {
 							// TODO Auto-generated method stub
-							
+
 						}
-						
+
 						@Override
 						public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
 							// TODO Auto-generated method stub
-							
+
 						}
-						
+
 						@Override
 						public void onLoadingComplete(String arg0, View view, Bitmap bitmap) {
 							// view.setTag(bitmap);
 						}
-						
+
 						@Override
 						public void onLoadingCancelled(String arg0, View arg1) {
 							// TODO Auto-generated method stub
-							
+
 						}
 					});
 
 					// Break if the container is filled
-					actualWidth += 160;	// iv.getWidth();
-					if (width <= actualWidth) {
+					actualWidth += width;
+					if (containerWidth <= actualWidth) {
 						KLog.v(TAG, "Break at " + (i+1) + " images.");
 						break;
 					}
