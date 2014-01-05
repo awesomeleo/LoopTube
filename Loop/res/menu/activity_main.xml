@@ -16,5 +16,11 @@
         android:showAsAction="never"
         yourapp:showAsAction="never"
         android:title="@string/loop_menu_item_settings"/>
+    <item
+        android:id="@+id/menu_exit"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        yourapp:showAsAction="never"
+        android:title="@string/loop_menu_item_exit"/>
 
 </menu>

@@ -67,6 +67,7 @@
     <string name="loop_menu_item_ignore">Añadir el vídeo a la lista negra</string>
     <string name="loop_menu_item_share">Comparte este vídeo</string>
     <string name="loop_menu_item_settings">Configuración</string>
+    <string name="loop_menu_item_exit">Retírese</string>
     
     <!-- Preferences -->
     <string name="loop_pref_category_history_key">pref_categoryHistory</string>

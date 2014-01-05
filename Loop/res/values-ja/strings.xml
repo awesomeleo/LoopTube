@@ -67,6 +67,7 @@
     <string name="loop_menu_item_ignore">この動画をブラックリストに登録</string>
     <string name="loop_menu_item_share">この動画を共有する</string>
     <string name="loop_menu_item_settings">設定</string>
+    <string name="loop_menu_item_exit">アプリを終了</string>
     
     <!-- Preferences -->
     <string name="loop_pref_category_history_key">pref_categoryHistory</string>
