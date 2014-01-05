@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="loop_app_name">LoopTube</string>
+    <string name="loop_hello_world">Hello world!</string>
+    <string name="loop_splash_title">LoopTube</string>
+    <string name="loop_splash_description">Simplify your YouTube experience</string>
+    <string name="loop_video_player_invalid_video"> 이 동영상은 재생할 수 없습니다. </string>
+    <string name="loop_video_player_unknown_error">동영상재생중에 에러가 발생했습니다. </string>
+    <string name="loop_video_player_default_duration"> 0:00/0:00 </string>
+    <string name="loop_video_player_playlist">플레이 리스트 </string>
+    <string name="loop_video_player_dialog_seeking">시크중&#8230; </string>
+    <string name="loop_video_player_dialog_end">재생을 종료했습니다 </string>
+    <string name="loop_video_player_dialog_loading">읽기중&#8230; </string>
+    <string name="loop_video_player_ignored"> 이 동영상은 블랙리스트에 등록되었습니다. 이후 재생되지 않습니다. </string>
+    <string name="loop_video_player_ignored_already"> 이 동영상은 이미 블랙리스트에 등록되고 있습니다. </string>
+    <string name="loop_video_player_volume_setting">볼륨 설정 </string>
+    <string name="loop_video_player_return_from_full_screen">풀 스크린이 OFF가 되었습니다. </string>
+    <string name="loop_video_player_full_screen">풀스크린 모드가 ON이 되었습니다. </string>
+    <string name="loop_video_player_favorite">즐겨찾기에 등록했습니다. </string>
+    <string name="loop_video_player_favorite_error"> 이미 즐겨찾기에 등록되고 있습니다. </string>
+    <string name="loop_main_title">아티스트를 검색 </string>
+    <string name="loop_main_search_artist">이제 곧 검색 </string>
+    <string name="loop_main_recent_artists">최근 검색한 아티스트 </string>
+    <string name="loop_main_button_search">검색한다 </string>
+    <string name="loop_main_dialog_searching">검색중&#8230; </string>
+    <string name="loop_main_no_history">검색 이력이 없습니다. </string>
+    <string name="loop_main_no_favorite">마음에 듦이 없습니다. </string>
+    <string name="loop_main_search_hint">예:우타다(宇多田) 히카루 </string>
+    <string name="loop_main_invalid_query">아티스트명을 입력해 주세요. </string>
+    <string name="loop_main_confirm_clear_history"> 정말로 검색 이력을 소거합니까? </string>
+    <string name="loop_main_confirm_clear_blacklist"> 정말로 블랙리스트를 소거합니까? </string>
+    <string name="loop_main_dialog_not_playing">현재 재생중의 동영상은 없습니다. </string>
+    <string name="loop_main_error_no_video">동영상이 보이지 않았었습니다. 통신 상황이 나쁜 가능성이 있습니다. </string>
+    <string name="loop_main_error_bad_connection">단말이 네트워크에 접속되고 있지 않습니다. </string>
+    <string name="loop_main_open_google_play">Google Play를 벌린다 </string>
+    <string name="loop_main_confirm_clear_one_history"> 이 아티스트를 이력으로부터 소거합니까? </string>
+    <string name="loop_main_now_playing">현재 재생중의 동영상 </string>
+    <string name="loop_main_tab_history">검색 이력 </string>
+    <string name="loop_main_tab_favorite">마음에 듦 </string>
+    <string name="loop_settings_title">설정 </string>
+    <string name="loop_widget_not_playing">현재 재생중의 동영상은 없습니다. </string>
+    <string name="loop_widget_loading">讀미⊙미中&#8230;</string>
+    <string name="loop_ok">OK</string>
+    <string name="loop_cancel">갼세루</string>
+    <string name="loop_dummy">dummy</string>
+    <string name="loop_video_player_play">Play</string>
+    <string name="loop_menu_settings">設定</string>
+    <string name="loop_menu_item_search">아티스토오檢索</string>
+    <string name="loop_menu_item_show_player">再生畵面오開구</string>
+    <string name="loop_menu_item_clear_history">檢索履歷오消去스루</string>
+    <string name="loop_menu_item_clear_blacklist">부랏쿠리스토오消去스루</string>
+    <string name="loop_menu_item_version">고노아푸리니쯔이테</string>
+    <string name="loop_menu_item_delete_history">履歷오削除스루</string>
+    <string name="loop_menu_item_favorite">오氣니入리니登錄스루</string>
+    <string name="loop_menu_item_delete_favorite">오氣니入리카라削除스루</string>
+    <string name="loop_menu_item_start_repeat">고노動畵오리피토스루</string>
+    <string name="loop_menu_item_stop_repeat">리피토오解除스루</string>
+    <string name="loop_menu_item_ignore">고노動畵오부랏쿠리스토니登錄</string>
+    <string name="loop_menu_item_share">고노動畵오共有스루</string>
+    <string name="loop_menu_item_settings">設定</string>
+    <string name="loop_menu_item_exit">아푸리오終了</string>
+
+    <!-- Preferences -->
+    <string name="loop_pref_category_history_key">pref_categoryHistory</string>
+    <string name="loop_pref_category_history_title">檢索履歷</string>
+    <string name="loop_pref_category_favorite_key">pref_categoryFavorite</string>
+    <string name="loop_pref_category_favorite_title">오氣니入리</string>
+    <string name="loop_pref_category_black_list_key">pref_categoryBlackList</string>
+    <string name="loop_pref_category_black_list_title">부랏쿠리스토</string>
+    <string name="loop_pref_category_about_key">pref_categoryAbout</string>
+    <string name="loop_pref_category_about_title">고노아푸리니쯔이테</string>
+    <string name="loop_pref_clear_favorite_key">pref_clearFavorite</string>
+    <string name="loop_pref_clear_favorite_title">오氣니入리오消去스루</string>
+    <string name="loop_pref_clear_favorite_dialog_msg">本當니스베테노오氣니入리오削除시테모이이데스카？</string>
+    <string name="loop_pref_clear_favorite_toast">마음에 듦을 모두 삭제했습니다. </string>
+    <string name="loop_pref_clear_history_key">pref_clearHistory </string>
+    <string name="loop_pref_clear_history_title">검색 이력을 소거한다 </string>
+    <string name="loop_pref_clear_history_dialog_msg"> 정말로 검색 이력을 삭제해도 좋습니까? </string>
+    <string name="loop_pref_clear_history_toast">검색 이력을 모두 삭제했습니다. </string>
+    <string name="loop_pref_clear_black_list_key">pref_ clearBlackList </string>
+    <string name="loop_pref_clear_black_list_title">블랙리스트를 소거한다 </string>
+    <string name="loop_pref_clear_black_list_dialog_msg"> 정말로 블랙리스트를 삭제해도 좋습니까? </string>
+    <string name="loop_pref_clear_black_list_toast">블랙리스트를 모두 삭제했습니다. </string>
+    <string name="loop_pref_auto_black_list_key">pref_autoBlackList</string>
+    <string name="loop_pref_auto_black_list_title">自動부랏쿠리스토</string>
+    <string name="loop_pref_auto_black_list_summary_on">自動的니키와도피루타린구데부랏쿠리스토오作成스루</string>
+    <string name="loop_pref_auto_black_list_summary_off">自動的니부랏쿠리스토오追加시나이</string>
+    <string name="loop_pref_feedback_title">고意見·고感想</string>
+    <string name="loop_pref_feedback_summary">Google Play데評價스루</string>
+    <string name="loop_pref_version_key">pref_version</string>
+    <string name="loop_pref_version_title">바죤</string>
+
+    <string-array name="loop_black_word_list">
+        <item> 노래 불러 보았다 </item>
+        <item> 노래 부르게 해 받았습니다 </item>
+        <item>연주해 보았다 </item>
+        <item>연주 해 드렸습니다 </item>
+        <item> 튕겨 보았다 </item>
+        <item> 튕기게 해 받았습니다 </item>
+        <item> 두드려 보았다 </item>
+        <item> 두드리게 해 받았습니다 </item>
+        <item> 춤춰 보았다 </item>
+        <item> 춤추게 해 받았습니다 </item>
+    </string-array>
+
+</resources>
