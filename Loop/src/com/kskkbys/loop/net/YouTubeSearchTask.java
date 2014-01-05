@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kskkbys.loop.R;
 import com.kskkbys.loop.logger.KLog;
 import com.kskkbys.loop.model.BlackList;
@@ -77,6 +78,8 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 			this.mResult = gson.fromJson(response, YouTubeSearchResult.class);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (JsonSyntaxException e) {
+			e.printStackTrace();
 		} finally {
 			if (connection != null) {
 				connection.disconnect();
@@ -106,7 +109,6 @@ public class YouTubeSearchTask extends AsyncTask<String, Integer, String> {
 			this.mParent.startVideoPlayer(mQuery, videos, 0);
 		} else {
 			KLog.v(TAG, "Video list is empty. Network state may be bad.");
-			//SimpleErrorDialog.show(mParent, R.string.loop_main_error_no_video);
 			mParent.showAlert(R.string.loop_main_error_no_video, null);
 		}
 	}

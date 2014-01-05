@@ -14,6 +14,7 @@ import com.kskkbys.loop.model.SearchHistory;
 import com.kskkbys.loop.model.Video;
 import com.kskkbys.loop.net.YouTubeSearchTask;
 import com.kskkbys.loop.search.ArtistSuggestionsProvider;
+import com.kskkbys.loop.service.PlayerCommand;
 import com.kskkbys.loop.service.VideoPlayerService;
 import com.kskkbys.loop.service.VideoPlayerService.PlayerEvent;
 import com.kskkbys.loop.ui.fragments.MainFavoriteFragment;
@@ -240,9 +241,17 @@ public class MainActivity extends BaseActivity implements TabListener {
 		case R.id.menu_settings:
 			goToSettings();
 			return true;
+		case R.id.menu_exit:
+			exitApp();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+	
+	private void exitApp() {
+		PlayerCommand.pause(getApplicationContext());
+		finish();
 	}
 
 	/**
